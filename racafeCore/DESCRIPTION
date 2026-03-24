@@ -1,0 +1,31 @@
+Package: racafeCore
+Type: Package
+Title: Utilidades Base para el Ecosistema Racafe
+Version: 1.0.0
+Authors@R: person("H. Camilo", "Yate T.", email = "camilo.yate@racafe.com",
+    role = c("aut", "cre"))
+Description: Nucleo del ecosistema Racafe. Incluye funciones de limpieza
+    de texto, validacion, manipulacion de fechas, operaciones numericas,
+    transformacion de data.frames y operadores utilitarios. Sin dependencias
+    externas pesadas. Base requerida por todos los demas paquetes Racafe.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.1
+Depends:
+    R (>= 4.1.0)
+Imports:
+    dplyr (>= 1.1.0),
+    purrr,
+    rlang,
+    stringr,
+    stringi,
+    lubridate,
+    scales,
+    htmltools,
+    janitor,
+    tibble
+Suggests:
+    testthat (>= 3.0.0),
+    withr
+Config/testthat/edition: 3

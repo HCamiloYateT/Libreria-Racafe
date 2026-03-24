@@ -1,0 +1,31 @@
+Package: racafeForecast
+Type: Package
+Title: Pronosticos de Series de Tiempo para Racafe
+Version: 1.0.0
+Authors@R: person("H. Camilo", "Yate T.", email = "camilo.yate@racafe.com",
+    role = c("aut", "cre"))
+Description: Motor de pronosticos del ecosistema Racafe. Ajusta multiples
+    modelos (ETS, ARIMA, NNETAR, TBATS, Tendencia), selecciona el mejor
+    por RMSE y expone resultados como objeto S3 pronostico_racafe con
+    metodos estandar. Requiere racafeCore. El paquete forecast es
+    una dependencia obligatoria de este modulo.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.1
+Depends:
+    R (>= 4.1.0)
+Imports:
+    racafeCore,
+    forecast,
+    zoo,
+    dplyr,
+    purrr,
+    lubridate,
+    tibble
+Suggests:
+    testthat (>= 3.0.0),
+    future.apply
+Config/testthat/edition: 3
+Remotes:
+    HCamiloYateT/Racafe/racafeCore

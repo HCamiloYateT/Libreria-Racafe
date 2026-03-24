@@ -1,0 +1,33 @@
+Package: racafeShiny
+Type: Package
+Title: Componentes Shiny y Estilos para Racafe
+Version: 1.0.0
+Authors@R: person("H. Camilo", "Yate T.", email = "camilo.yate@racafe.com",
+    role = c("aut", "cre"))
+Description: Capa de presentacion del ecosistema Racafe. Inputs y outputs
+    Shiny con estilo corporativo, registro de formatos numericos, estilos
+    para tablas gt, modulos UI/Server y utilidades HTML. Requiere
+    racafeCore y racafeGraph.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.1
+Depends:
+    R (>= 4.1.0)
+Imports:
+    racafeCore,
+    racafeGraph,
+    shiny,
+    shinyWidgets,
+    gt,
+    htmltools,
+    scales,
+    dplyr,
+    rlang
+Suggests:
+    testthat (>= 3.0.0),
+    shinytest2
+Config/testthat/edition: 3
+Remotes:
+    HCamiloYateT/Racafe/racafeCore,
+    HCamiloYateT/Racafe/racafeGraph

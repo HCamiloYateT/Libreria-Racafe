@@ -1,0 +1,29 @@
+Package: racafeDrive
+Type: Package
+Title: Integracion con Microsoft Graph y OneDrive para Racafe
+Version: 1.0.0
+Authors@R: person("H. Camilo", "Yate T.", email = "camilo.yate@racafe.com",
+    role = c("aut", "cre"))
+Description: Capa de integracion con Microsoft Graph API, OneDrive y
+    SharePoint. Gestiona autenticacion con cache de token, navegacion
+    de carpetas, descarga y lectura de archivos Excel. Requiere racafeCore.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.1
+Depends:
+    R (>= 4.1.0)
+Imports:
+    racafeCore,
+    httr2,
+    readxl,
+    openxlsx2,
+    purrr,
+    tibble
+Suggests:
+    testthat (>= 3.0.0),
+    withr,
+    httptest2
+Config/testthat/edition: 3
+Remotes:
+    HCamiloYateT/Racafe/racafeCore

@@ -1,0 +1,138 @@
+---
+title: "Arquitectura del monorepo Racafe"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Arquitectura del monorepo Racafe}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = FALSE)
+```
+
+## Estructura del repositorio
+
+El repositorio `HCamiloYateT/Racafe` es un **monorepo**: un único repositorio
+GitHub que contiene 6 paquetes R independientes, cada uno instalable por separado.
+
+```
+HCamiloYateT/Racafe/          ← raiz del repo (no es un paquete R)
+├── racafeCore/               ← paquete R independiente
+├── racafeBD/                 ← paquete R independiente
+├── racafeDrive/              ← paquete R independiente
+├── racafeGraph/              ← paquete R independiente
+├── racafeShiny/              ← paquete R independiente
+├── racafeForecast/           ← paquete R independiente
+├── dev.R                     ← script de desarrollo local
+└── README.md
+```
+
+## Grafo de dependencias
+
+```
+racafeCore              (sin dependencias internas)
+    ├── racafeBD        (requiere racafeCore)
+    ├── racafeDrive     (requiere racafeCore)
+    ├── racafeGraph     (requiere racafeCore)
+    │       └── racafeShiny   (requiere racafeCore + racafeGraph)
+    └── racafeForecast  (requiere racafeCore)
+```
+
+La regla es: **nunca instalar en orden incorrecto**. `racafeCore` siempre primero.
+
+## Instalación selectiva
+
+```r
+# Proyecto que solo necesita transformacion de datos y gt
+remotes::install_github("HCamiloYateT/Racafe/racafeCore")
+remotes::install_github("HCamiloYateT/Racafe/racafeShiny")
+
+# Script de carga de datos desde OneDrive
+remotes::install_github("HCamiloYateT/Racafe/racafeCore")
+remotes::install_github("HCamiloYateT/Racafe/racafeDrive")
+
+# App Shiny completa con visualizaciones
+remotes::install_github("HCamiloYateT/Racafe/racafeCore")
+remotes::install_github("HCamiloYateT/Racafe/racafeGraph")
+remotes::install_github("HCamiloYateT/Racafe/racafeShiny")
+
+# Motor de pronosticos en produccion (sin Shiny)
+remotes::install_github("HCamiloYateT/Racafe/racafeCore")
+remotes::install_github("HCamiloYateT/Racafe/racafeForecast")
+```
+
+## Cómo funciona `remotes::install_github` con subcarpetas
+
+`remotes` acepta la ruta `"usuario/repo/subcarpeta"`. Al encontrar un
+`DESCRIPTION` en esa subcarpeta, instala ese paquete con sus dependencias
+declaradas en `Imports:`.
+
+El campo `Remotes:` en cada `DESCRIPTION` le indica a `remotes` dónde
+encontrar los paquetes hermanos dentro del mismo repositorio:
+
+```
+# En racafeBD/DESCRIPTION:
+Remotes:
+    HCamiloYateT/Racafe/racafeCore
+```
+
+Esto permite que `remotes::install_github("HCamiloYateT/Racafe/racafeBD")`
+instale automáticamente `racafeCore` desde el mismo repo, sin que el
+usuario tenga que hacerlo manualmente.
+
+## Desarrollo local
+
+```bash
+# Desde la raiz del monorepo:
+
+# Instalar todos en orden correcto
+Rscript dev.R install
+
+# Instalar solo uno
+Rscript dev.R install racafeGraph
+
+# Correr tests de un paquete
+Rscript dev.R test racafeCore
+
+# Correr todos los tests
+Rscript dev.R test
+
+# Regenerar documentacion
+Rscript dev.R document racafeShiny
+
+# R CMD check
+Rscript dev.R check racafeForecast
+
+# Reporte de cobertura
+Rscript dev.R coverage racafeCore
+```
+
+## Registro de formatos compartido
+
+`racafeCore` gestiona el registro global de formatos (`.formatos_racafe`).
+`racafeShiny` re-exporta `DefinirFormato`, `ObtenerFormato` y `ListarFormatos`
+desde `racafeCore`, de forma que el usuario puede usar estas funciones
+cargando solo `racafeShiny`:
+
+```r
+library(racafeShiny)              # no hace falta library(racafeCore)
+
+DefinirFormato("usd", scales::dollar_format(prefix = "USD "))
+FormatearNumero(1500, "usd")
+```
+
+Internamente, `racafeGraph` también accede al registro mediante
+`racafeCore::ObtenerFormato()` para formatear los ejes de los gráficos.
+
+## Ciclo de vida de versiones
+
+Cada paquete versiona de forma independiente. Cambios en `racafeGraph`
+no requieren publicar una nueva versión de `racafeCore`. El campo `Version:`
+en cada `DESCRIPTION` sigue semver (`MAYOR.MENOR.PARCHE`):
+
+| Tipo de cambio | Incrementar |
+|---|---|
+| Corrección de bug sin cambio de API | PARCHE (0.0.X) |
+| Nueva función compatible hacia atrás | MENOR (0.X.0) |
+| Cambio de API o eliminación de función | MAYOR (X.0.0) |
