@@ -1,4 +1,4 @@
-# Racafe — Monorepo
+# Racafe
 
 Repositorio centralizado con 6 paquetes R independientes.
 Cada subcarpeta es un paquete instalable de forma autónoma.
@@ -17,12 +17,12 @@ Cada subcarpeta es un paquete instalable de forma autónoma.
 ## Instalacion
 
 ```r
-remotes::install_github("HCamiloYateT/Racafe/racafeCore")
-remotes::install_github("HCamiloYateT/Racafe/racafeBD")
-remotes::install_github("HCamiloYateT/Racafe/racafeDrive")
-remotes::install_github("HCamiloYateT/Racafe/racafeGraph")
-remotes::install_github("HCamiloYateT/Racafe/racafeShiny")
-remotes::install_github("HCamiloYateT/Racafe/racafeForecast")
+remotes::install_github("HCamiloYateT/Libreria-Racafe/racafeCore")
+remotes::install_github("HCamiloYateT/Libreria-Racafe/racafeBD")
+remotes::install_github("HCamiloYateT/Libreria-Racafe/racafeDrive")
+remotes::install_github("HCamiloYateT/Libreria-Racafe/racafeGraph")
+remotes::install_github("HCamiloYateT/Libreria-Racafe/racafeShiny")
+remotes::install_github("HCamiloYateT/Libreria-Racafe/racafeForecast")
 ```
 
 ## Grafo de dependencias
