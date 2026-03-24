@@ -5,16 +5,16 @@ Cada subcarpeta es un paquete instalable de forma autónoma.
 
 ## Paquetes
 
-| Paquete | Descripcion | Dependencias |
+| Paquete | Descripción | Dependencias |
 |---|---|---|
-| `racafeCore` | Texto, fechas, numericas, transformacion, operadores | base R, dplyr, stringi, lubridate, scales |
+| `racafeCore` | Texto, fechas, numericas, transformación, operadores | base R, dplyr, stringi, lubridate, scales |
 | `racafeBD` | Conexion y operaciones SQL Server | racafeCore, DBI, odbc, janitor |
 | `racafeDrive` | Microsoft Graph / OneDrive / SharePoint | racafeCore, httr2, readxl, openxlsx2 |
-| `racafeGraph` | Visualizacion con plotly | racafeCore, plotly |
+| `racafeGraph` | Visualización con plotly | racafeCore, plotly |
 | `racafeShiny` | Componentes Shiny, formatos gt, modulos UI/Server | racafeCore, racafeGraph, shiny, gt, shinyWidgets |
-| `racafeForecast` | Pronosticos de series de tiempo | racafeCore, forecast, zoo |
+| `racafeForecast` | Pron+osticos de series de tiempo | racafeCore, forecast, zoo |
 
-## Instalacion
+## Instalación
 
 ```r
 remotes::install_github("HCamiloYateT/Libreria-Racafe/racafeCore")
@@ -44,6 +44,6 @@ pkgs <- c("racafeCore","racafeBD","racafeDrive","racafeGraph",
           "racafeShiny","racafeForecast")
 for (p in pkgs) devtools::install(file.path(".", p))
 
-# Test de un paquete especifico
+# Test de un paquete específico
 devtools::test("racafeCore")
 ```
