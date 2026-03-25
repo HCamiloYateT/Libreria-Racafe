@@ -32,20 +32,28 @@ ConectarBD <- function(
   pwd <- Sys.getenv("DB_PWD")
 
   if (nchar(uid) == 0 || nchar(pwd) == 0) {
-    stop(
-      "Variables de entorno DB_UID y DB_PWD no definidas.",
-      call. = FALSE
+    .error_bd(
+      "ConectarBD - faltan credenciales en variables de entorno (DB_UID/DB_PWD)",
+      "definir DB_UID y DB_PWD antes de invocar la conexion"
     )
   }
 
-  DBI::dbConnect(
-    odbc::odbc(),
-    Driver   = "SQL Server",
-    Server   = server,
-    Database = bd,
-    UID      = uid,
-    PWD      = pwd,
-    Port     = port
+  tryCatch(
+    DBI::dbConnect(
+      odbc::odbc(),
+      Driver   = "SQL Server",
+      Server   = server,
+      Database = bd,
+      UID      = uid,
+      PWD      = pwd,
+      Port     = port
+    ),
+    error = function(e) {
+      .error_bd(
+        sprintf("ConectarBD - fallo al abrir conexion con '%s/%s:%s' (%s)", server, bd, port, conditionMessage(e)),
+        "validar conectividad, credenciales y parametros DB_SERVER/DB_NAME/DB_PORT"
+      )
+    }
   )
 }
 
@@ -65,10 +73,23 @@ ConectarBD <- function(
 #'   EscribirDatos(df, "mi_tabla")
 #' }
 EscribirDatos <- function(df, tabla, bd = Sys.getenv("DB_NAME")) {
-  stopifnot(is.data.frame(df), nchar(tabla) > 0)
+  if (!is.data.frame(df)) {
+    .error_bd("EscribirDatos - `df` no es data.frame", "enviar un data.frame valido")
+  }
+  if (!is.character(tabla) || length(tabla) != 1 || nchar(tabla) == 0) {
+    .error_bd("EscribirDatos - `tabla` no es un nombre valido", "usar un nombre de tabla no vacio")
+  }
   con <- ConectarBD(bd = bd)
   on.exit(DBI::dbDisconnect(con))
-  DBI::dbWriteTable(con, tabla, df, overwrite = TRUE, row.names = FALSE)
+  tryCatch(
+    DBI::dbWriteTable(con, tabla, df, overwrite = TRUE, row.names = FALSE),
+    error = function(e) {
+      .error_bd(
+        sprintf("EscribirDatos - no se pudo sobrescribir la tabla '%s' (%s)", tabla, conditionMessage(e)),
+        "revisar permisos de escritura y estructura de columnas"
+      )
+    }
+  )
   invisible(TRUE)
 }
 
@@ -81,10 +102,23 @@ EscribirDatos <- function(df, tabla, bd = Sys.getenv("DB_NAME")) {
 #' @return Invisible `TRUE` si exitoso.
 #' @export
 AgregarDatos <- function(df, tabla, bd = Sys.getenv("DB_NAME")) {
-  stopifnot(is.data.frame(df), nchar(tabla) > 0)
+  if (!is.data.frame(df)) {
+    .error_bd("AgregarDatos - `df` no es data.frame", "enviar un data.frame valido")
+  }
+  if (!is.character(tabla) || length(tabla) != 1 || nchar(tabla) == 0) {
+    .error_bd("AgregarDatos - `tabla` no es un nombre valido", "usar un nombre de tabla no vacio")
+  }
   con <- ConectarBD(bd = bd)
   on.exit(DBI::dbDisconnect(con))
-  DBI::dbWriteTable(con, tabla, df, append = TRUE, row.names = FALSE)
+  tryCatch(
+    DBI::dbWriteTable(con, tabla, df, append = TRUE, row.names = FALSE),
+    error = function(e) {
+      .error_bd(
+        sprintf("AgregarDatos - no se pudieron insertar filas en '%s' (%s)", tabla, conditionMessage(e)),
+        "verificar tipos de columnas y permisos de insercion"
+      )
+    }
+  )
   invisible(TRUE)
 }
 
@@ -106,7 +140,15 @@ AgregarDatos <- function(df, tabla, bd = Sys.getenv("DB_NAME")) {
 #'   ReemplazarDatos(df, "mi_tabla", list(id = 1, fecha = "2024-01-01"))
 #' }
 ReemplazarDatos <- function(df, tabla, llaves, bd = Sys.getenv("DB_NAME")) {
-  stopifnot(is.data.frame(df), is.list(llaves), length(llaves) > 0)
+  if (!is.data.frame(df)) {
+    .error_bd("ReemplazarDatos - `df` no es data.frame", "enviar un data.frame valido")
+  }
+  if (!is.list(llaves) || length(llaves) == 0) {
+    .error_bd("ReemplazarDatos - `llaves` no contiene criterios de reemplazo", "enviar una lista nombrada con al menos una llave")
+  }
+  if (!is.character(tabla) || length(tabla) != 1 || nchar(tabla) == 0) {
+    .error_bd("ReemplazarDatos - `tabla` no es un nombre valido", "usar un nombre de tabla no vacio")
+  }
 
   con <- ConectarBD(bd = bd)
   on.exit(DBI::dbDisconnect(con))
@@ -119,10 +161,18 @@ ReemplazarDatos <- function(df, tabla, llaves, bd = Sys.getenv("DB_NAME")) {
   where_sql <- paste(condiciones, collapse = " AND ")
   delete_sql <- sprintf("DELETE FROM %s WHERE %s", tabla, where_sql)
 
-  DBI::dbWithTransaction(con, {
-    DBI::dbExecute(con, delete_sql)
-    DBI::dbWriteTable(con, tabla, df, append = TRUE, row.names = FALSE)
-  })
+  tryCatch(
+    DBI::dbWithTransaction(con, {
+      DBI::dbExecute(con, delete_sql)
+      DBI::dbWriteTable(con, tabla, df, append = TRUE, row.names = FALSE)
+    }),
+    error = function(e) {
+      .error_bd(
+        sprintf("ReemplazarDatos - fallo transaccion en tabla '%s' (%s)", tabla, conditionMessage(e)),
+        "validar llaves, permisos y consistencia de tipos en la tabla destino"
+      )
+    }
+  )
 
   invisible(TRUE)
 }
@@ -168,9 +218,20 @@ CargarDatos <- function(
 #'   resultado <- Consulta("SELECT COUNT(*) AS n FROM mi_tabla")
 #' }
 Consulta <- function(consulta, bd = Sys.getenv("DB_NAME")) {
+  if (!is.character(consulta) || length(consulta) != 1 || nchar(consulta) == 0) {
+    .error_bd("Consulta - `consulta` no es SQL valido", "enviar una cadena SQL no vacia")
+  }
   con <- ConectarBD(bd = bd)
   on.exit(DBI::dbDisconnect(con))
-  resultado <- DBI::dbGetQuery(con, consulta)
+  resultado <- tryCatch(
+    DBI::dbGetQuery(con, consulta),
+    error = function(e) {
+      .error_bd(
+        sprintf("Consulta - ejecucion SQL fallo (%s)", conditionMessage(e)),
+        "revisar sintaxis SQL y permisos de lectura sobre los objetos consultados"
+      )
+    }
+  )
   janitor::clean_names(resultado)
 }
 
@@ -198,17 +259,40 @@ ConsultaSistema <- function(
 
   .check_pkg("odbc", "Base de datos")
 
-  con <- DBI::dbConnect(
-    odbc::odbc(),
-    Driver   = "SQL Server",
-    Server   = server,
-    Database = bd,
-    UID      = uid,
-    PWD      = pwd,
-    Port     = port
+  if (nchar(uid) == 0 || nchar(pwd) == 0) {
+    .error_bd(
+      "ConsultaSistema - faltan credenciales explicitas (uid/pwd)",
+      "definir argumentos uid/pwd o variables DB_UID/DB_PWD"
+    )
+  }
+
+  con <- tryCatch(
+    DBI::dbConnect(
+      odbc::odbc(),
+      Driver   = "SQL Server",
+      Server   = server,
+      Database = bd,
+      UID      = uid,
+      PWD      = pwd,
+      Port     = port
+    ),
+    error = function(e) {
+      .error_bd(
+        sprintf("ConsultaSistema - no se pudo abrir conexion a '%s/%s:%s' (%s)", server, bd, port, conditionMessage(e)),
+        "revisar parametros de conexion y estado del servidor SQL"
+      )
+    }
   )
   on.exit(DBI::dbDisconnect(con))
 
-  resultado <- DBI::dbGetQuery(con, query)
+  resultado <- tryCatch(
+    DBI::dbGetQuery(con, query),
+    error = function(e) {
+      .error_bd(
+        sprintf("ConsultaSistema - fallo al ejecutar query (%s)", conditionMessage(e)),
+        "validar sintaxis SQL y permisos sobre la base de datos solicitada"
+      )
+    }
+  )
   janitor::clean_names(resultado)
 }
