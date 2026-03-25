@@ -3,6 +3,30 @@
 # Top, joins, duplicados, operadores y helpers de data frames
 # ============================================================
 
+.validar_data_frame <- function(x, arg = "data") {
+  if (!is.data.frame(x)) {
+    stop(sprintf("`%s` debe ser un data.frame.", arg), call. = FALSE)
+  }
+}
+
+.validar_string_unico <- function(x, arg) {
+  if (!is.character(x) || length(x) != 1 || is.na(x) || trimws(x) == "") {
+    stop(sprintf("`%s` debe ser un string no vacio de longitud 1.", arg), call. = FALSE)
+  }
+}
+
+.validar_columnas_existentes <- function(data, cols, arg_cols = "by", arg_data = "data") {
+  faltantes <- setdiff(cols, names(data))
+  if (length(faltantes) > 0) {
+    stop(
+      sprintf(
+        "Columnas no encontradas en `%s` para `%s`: %s.",
+        arg_data, arg_cols, paste(faltantes, collapse = ", ")
+      ),
+      call. = FALSE
+    )
+  }
+}
 
 # ---- Recodificacion de categorias ----
 
@@ -39,6 +63,17 @@ RecodificarTop <- function(
     pct_min         = 0.05,
     nom_var,
     lab_recodificar = "OTROS") {
+  .validar_data_frame(data, "data")
+  .validar_string_unico(fun_Top, "fun_Top")
+  .validar_string_unico(nom_var, "nom_var")
+  .validar_string_unico(lab_recodificar, "lab_recodificar")
+
+  if (!is.numeric(n) || length(n) != 1 || is.na(n) || n < 1 || n %% 1 != 0) {
+    stop("`n` debe ser un entero mayor o igual a 1.", call. = FALSE)
+  }
+  if (!is.numeric(pct_min) || length(pct_min) != 1 || is.na(pct_min) || pct_min < 0 || pct_min > 1) {
+    stop("`pct_min` debe ser numerico en el rango [0, 1].", call. = FALSE)
+  }
 
   estrategia <- match.arg(estrategia)
 
@@ -144,7 +179,10 @@ TopRelativo <- function(
 #' @return `data.frame` con nuevas columnas HTML.
 #' @export
 AdicionarBotones <- function(tabla, botones) {
-  stopifnot(is.data.frame(tabla), is.character(botones))
+  .validar_data_frame(tabla, "tabla")
+  if (!is.character(botones) || length(botones) == 0 || any(is.na(botones)) || any(trimws(botones) == "")) {
+    stop("`botones` debe ser un vector character no vacio sin NA ni cadenas vacias.", call. = FALSE)
+  }
 
   for (boton in botones) {
     col_nombre <- janitor::make_clean_names(boton)
@@ -172,6 +210,13 @@ AdicionarBotones <- function(tabla, botones) {
 #' bind_rows_na(df1, df2, df3)
 bind_rows_na <- function(...) {
   lista <- list(...)
+  invalidos <- which(!vapply(lista, function(x) is.null(x) || is.data.frame(x), logical(1)))
+  if (length(invalidos) > 0) {
+    stop(
+      sprintf("Todos los argumentos deben ser data.frame o NULL. Invalidos en posiciones: %s.", paste(invalidos, collapse = ", ")),
+      call. = FALSE
+    )
+  }
   lista_valida <- Filter(
     function(df) !is.null(df) && is.data.frame(df) && nrow(df) > 0,
     lista
@@ -195,6 +240,21 @@ bind_rows_na <- function(...) {
 #' extra2 <- data.frame(id = 2:3, b = c("p", "q"))
 #' left_join_all(base, list(extra1, extra2), by = "id")
 left_join_all <- function(x, y_list, by, type = "left") {
+  .validar_data_frame(x, "x")
+  if (!is.list(y_list) || length(y_list) == 0) {
+    stop("`y_list` debe ser una lista no vacia de data.frames.", call. = FALSE)
+  }
+  if (!all(vapply(y_list, is.data.frame, logical(1)))) {
+    stop("`y_list` debe contener solo data.frames.", call. = FALSE)
+  }
+  if (!is.character(by) || length(by) < 1 || any(is.na(by)) || any(trimws(by) == "")) {
+    stop("`by` debe ser un vector character no vacio con nombres de columnas.", call. = FALSE)
+  }
+  .validar_columnas_existentes(x, by, arg_cols = "by", arg_data = "x")
+  for (i in seq_along(y_list)) {
+    .validar_columnas_existentes(y_list[[i]], by, arg_cols = "by", arg_data = sprintf("y_list[[%d]]", i))
+  }
+
   join_fn <- switch(
     type,
     left  = dplyr::left_join,
@@ -221,6 +281,14 @@ left_join_all <- function(x, y_list, by, type = "left") {
 #' b <- data.frame(id = c(1, 2, 2))
 #' RevisarDuplicados(a, b, by = "id")
 RevisarDuplicados <- function(x, y, by) {
+  .validar_data_frame(x, "x")
+  .validar_data_frame(y, "y")
+  if (!is.character(by) || length(by) < 1 || any(is.na(by)) || any(trimws(by) == "")) {
+    stop("`by` debe ser un vector character no vacio con nombres de columnas.", call. = FALSE)
+  }
+  .validar_columnas_existentes(x, by, arg_cols = "by", arg_data = "x")
+  .validar_columnas_existentes(y, by, arg_cols = "by", arg_data = "y")
+
   dup_x <- x |>
     dplyr::group_by(dplyr::across(dplyr::all_of(by))) |>
     dplyr::filter(dplyr::n() > 1) |>
