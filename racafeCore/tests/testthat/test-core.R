@@ -143,12 +143,30 @@ test_that("left_join_all encadena joins correctamente", {
   expect_true("b" %in% names(resultado))
 })
 
+test_that("left_join_all valida columnas de cruce", {
+  base <- data.frame(id = 1:2)
+  extra <- data.frame(codigo = 1:2)
+  expect_error(
+    left_join_all(base, list(extra), by = "id"),
+    "Columnas no encontradas en `y_list\\[\\[1\\]\\]` para `by`: id."
+  )
+})
+
 test_that("RevisarDuplicados detecta llaves repetidas", {
   a <- data.frame(id = c(1, 1, 2))
   b <- data.frame(id = c(1, 2, 2))
   resultado <- suppressMessages(RevisarDuplicados(a, b, by = "id"))
   expect_equal(nrow(resultado$duplicados_x), 2)
   expect_equal(nrow(resultado$duplicados_y), 2)
+})
+
+test_that("RevisarDuplicados valida existencia de columnas", {
+  a <- data.frame(id = c(1, 1, 2))
+  b <- data.frame(codigo = c(1, 2, 2))
+  expect_error(
+    RevisarDuplicados(a, b, by = "id"),
+    "Columnas no encontradas en `y` para `by`: id."
+  )
 })
 
 test_that("operador %||% funciona correctamente", {
@@ -166,6 +184,18 @@ test_that("RecodificarTop estrategia absoluta conserva top N", {
     n = 2, nom_var = "cat_top")
   cats_top <- unique(resultado$cat_top[resultado$cat_top != "OTROS"])
   expect_lte(length(cats_top), 2)
+})
+
+test_that("RecodificarTop valida rango y tipos de entrada", {
+  df <- data.frame(cat = c("A", "B"), val = c(1, 2))
+  expect_error(
+    RecodificarTop(df, cat, val, "sum", "absoluto", n = 0, nom_var = "cat_top"),
+    "`n` debe ser un entero mayor o igual a 1."
+  )
+  expect_error(
+    RecodificarTop(df, cat, val, "sum", "relativo", pct_min = 2, nom_var = "cat_top"),
+    "`pct_min` debe ser numerico en el rango \\[0, 1\\]."
+  )
 })
 
 
