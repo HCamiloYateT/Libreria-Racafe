@@ -13,3 +13,12 @@
     ), call. = FALSE)
   }
 }
+
+# Helper interno: error homologado para integraciones de BD
+.error_bd <- function(causa, accion, funcion = NULL) {
+  contexto <- if (!is.null(funcion)) sprintf("%s - %s", funcion, causa) else causa
+  stop(
+    sprintf("[racafeBD] %s. Accion sugerida: %s.", contexto, accion),
+    call. = FALSE
+  )
+}

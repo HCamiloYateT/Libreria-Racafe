@@ -34,10 +34,10 @@ ObtenerTokenAcceso <- function(force = FALSE) {
   client_secret <- Sys.getenv("GRAPH_CLIENT_SECRET")
 
   if (any(nchar(c(token_url, client_id, client_secret)) == 0)) {
-    stop(
-      "Variables de entorno GRAPH_TOKEN_URL, GRAPH_CLIENT_ID ",
-      "y GRAPH_CLIENT_SECRET deben estar definidas.",
-      call. = FALSE
+    .error_graph(
+      "faltan variables de entorno GRAPH_TOKEN_URL/GRAPH_CLIENT_ID/GRAPH_CLIENT_SECRET",
+      "definir las tres variables antes de solicitar token",
+      funcion = "ObtenerTokenAcceso"
     )
   }
 
@@ -51,11 +51,11 @@ ObtenerTokenAcceso <- function(force = FALSE) {
     httr2::req_error(is_error = function(resp) FALSE) |>
     httr2::req_perform()
 
-  if (httr2::resp_status(resp) != 200) {
-    stop("Error al obtener token: ", httr2::resp_body_string(resp), call. = FALSE)
-  }
-
-  datos <- httr2::resp_body_json(resp)
+  datos <- .graph_resp_json(
+    resp,
+    funcion = "ObtenerTokenAcceso",
+    accion_default = "verificar credenciales de Azure AD y alcance .default del app registration"
+  )
   .token_cache$token  <- datos$access_token
   .token_cache$expira <- ahora + datos$expires_in - 60
 
@@ -87,8 +87,13 @@ ObtenerIdSite <- function(hostname, site_path) {
   )
   resp <- httr2::request(url) |>
     httr2::req_headers(!!!CabecerasGraph()) |>
-    httr2::req_perform() |>
-    httr2::resp_body_json()
+    httr2::req_error(is_error = function(resp) FALSE) |>
+    httr2::req_perform()
+  resp <- .graph_resp_json(
+    resp,
+    funcion = "ObtenerIdSite",
+    accion_default = "validar hostname/site_path y permisos Sites.Read.All en Microsoft Graph"
+  )
   resp$id
 }
 
@@ -103,8 +108,13 @@ ObtenerIdDriveSite <- function(site_id, nombre_drive = NULL) {
   url <- sprintf("https://graph.microsoft.com/v1.0/sites/%s/drives", site_id)
   resp <- httr2::request(url) |>
     httr2::req_headers(!!!CabecerasGraph()) |>
-    httr2::req_perform() |>
-    httr2::resp_body_json()
+    httr2::req_error(is_error = function(resp) FALSE) |>
+    httr2::req_perform()
+  resp <- .graph_resp_json(
+    resp,
+    funcion = "ObtenerIdDriveSite",
+    accion_default = "confirmar que el site_id sea valido y que el token tenga permisos sobre el sitio"
+  )
 
   drives <- resp$value
 
@@ -114,7 +124,11 @@ ObtenerIdDriveSite <- function(site_id, nombre_drive = NULL) {
 
   match_drive <- Filter(function(d) d$name == nombre_drive, drives)
   if (length(match_drive) == 0) {
-    stop(sprintf("Drive '%s' no encontrado en el sitio.", nombre_drive), call. = FALSE)
+    .error_graph(
+      sprintf("no se encontro el drive '%s' en el sitio", nombre_drive),
+      "listar los drives disponibles y usar un nombre exacto",
+      funcion = "ObtenerIdDriveSite"
+    )
   }
   match_drive[[1]]$id
 }
@@ -132,8 +146,13 @@ ObtenerIdDrive <- function(usuario) {
   url <- sprintf("https://graph.microsoft.com/v1.0/users/%s/drive", upn)
   resp <- httr2::request(url) |>
     httr2::req_headers(!!!CabecerasGraph()) |>
-    httr2::req_perform() |>
-    httr2::resp_body_json()
+    httr2::req_error(is_error = function(resp) FALSE) |>
+    httr2::req_perform()
+  resp <- .graph_resp_json(
+    resp,
+    funcion = "ObtenerIdDrive",
+    accion_default = "verificar usuario/UPN y permisos Files.Read.All o equivalentes"
+  )
 
   resp$id
 }
@@ -154,8 +173,13 @@ ListarCarpetas <- function(usuario) {
   )
   resp <- httr2::request(url) |>
     httr2::req_headers(!!!CabecerasGraph()) |>
-    httr2::req_perform() |>
-    httr2::resp_body_json()
+    httr2::req_error(is_error = function(resp) FALSE) |>
+    httr2::req_perform()
+  resp <- .graph_resp_json(
+    resp,
+    funcion = "ListarCarpetas",
+    accion_default = "confirmar que el usuario exista y el token tenga acceso al drive"
+  )
 
   .graph_items_a_df(resp$value)
 }
@@ -171,7 +195,11 @@ ObtenerIdCarpeta <- function(usuario, nombre_carpeta) {
   carpetas <- ListarCarpetas(usuario)
   idx <- which(carpetas$nombre == nombre_carpeta)
   if (length(idx) == 0) {
-    stop(sprintf("Carpeta '%s' no encontrada.", nombre_carpeta), call. = FALSE)
+    .error_graph(
+      sprintf("no se encontro la carpeta '%s'", nombre_carpeta),
+      "usar un nombre de carpeta exacto o consultar ListarCarpetas()",
+      funcion = "ObtenerIdCarpeta"
+    )
   }
   carpetas$id[[idx[[1]]]]
 }
@@ -203,8 +231,13 @@ ListarContenidoCarpetaId <- function(usuario, carpeta_id) {
   )
   resp <- httr2::request(url) |>
     httr2::req_headers(!!!CabecerasGraph()) |>
-    httr2::req_perform() |>
-    httr2::resp_body_json()
+    httr2::req_error(is_error = function(resp) FALSE) |>
+    httr2::req_perform()
+  resp <- .graph_resp_json(
+    resp,
+    funcion = "ListarContenidoCarpetaId",
+    accion_default = "verificar carpeta_id y permisos de lectura sobre el drive"
+  )
 
   .graph_items_a_df(resp$value)
 }
@@ -262,8 +295,13 @@ ListarDriveRecursivo <- function(
   )
   resp <- httr2::request(url) |>
     httr2::req_headers(!!!CabecerasGraph()) |>
-    httr2::req_perform() |>
-    httr2::resp_body_json()
+    httr2::req_error(is_error = function(resp) FALSE) |>
+    httr2::req_perform()
+  resp <- .graph_resp_json(
+    resp,
+    funcion = "ListarDriveRecursivo",
+    accion_default = "confirmar drive_id/item_id validos y acceso del token al recurso"
+  )
 
   items <- resp$value
   if (length(items) == 0) return(tibble::tibble())
@@ -317,9 +355,14 @@ DescargarArchivoId <- function(archivo_id, usuario) {
   )
 
   tmp <- tempfile()
-  httr2::request(url) |>
+  resp <- httr2::request(url) |>
     httr2::req_headers(!!!CabecerasGraph()) |>
     httr2::req_perform(path = tmp)
+  .graph_resp_ok(
+    resp,
+    funcion = "DescargarArchivoId",
+    accion_default = "confirmar archivo_id valido y permisos de lectura en el drive del usuario"
+  )
 
   tmp
 }
@@ -371,9 +414,14 @@ CargarExcelDesdeOneDrive <- function(usuario, ruta, archivo) {
     drive_id, utils::URLencode(ruta_completa)
   )
   tmp <- tempfile(fileext = ".xlsx")
-  httr2::request(url) |>
+  resp <- httr2::request(url) |>
     httr2::req_headers(!!!CabecerasGraph()) |>
     httr2::req_perform(path = tmp)
+  .graph_resp_ok(
+    resp,
+    funcion = "CargarExcelDesdeOneDrive",
+    accion_default = "verificar ruta/archivo y acceso al contenido solicitado"
+  )
   openxlsx2::wb_load(tmp)
 }
 
@@ -394,9 +442,14 @@ DescargarExcelDesdeOneDrive <- function(usuario, ruta, archivo, nombre_salida) {
     drive_id, utils::URLencode(ruta_completa)
   )
   destino <- paste0(nombre_salida, ".xlsx")
-  httr2::request(url) |>
+  resp <- httr2::request(url) |>
     httr2::req_headers(!!!CabecerasGraph()) |>
     httr2::req_perform(path = destino)
+  .graph_resp_ok(
+    resp,
+    funcion = "DescargarExcelDesdeOneDrive",
+    accion_default = "confirmar ruta/archivo origen y permisos de descarga"
+  )
   invisible(destino)
 }
 
@@ -415,9 +468,14 @@ CargarExcelSite <- function(drive_id, item_id, hoja = NULL, ...) {
     drive_id, item_id
   )
   tmp <- tempfile(fileext = ".xlsx")
-  httr2::request(url) |>
+  resp <- httr2::request(url) |>
     httr2::req_headers(!!!CabecerasGraph()) |>
     httr2::req_perform(path = tmp)
+  .graph_resp_ok(
+    resp,
+    funcion = "CargarExcelSite",
+    accion_default = "revisar drive_id/item_id y permisos sobre el sitio de SharePoint"
+  )
   on.exit(unlink(tmp))
 
   args <- list(path = tmp, ...)
