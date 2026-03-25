@@ -1,20 +1,31 @@
 # Racafe
 
-Repositorio centralizado con 6 paquetes R independientes.
-Cada subcarpeta es un paquete instalable de forma autónoma.
+Monorepo centralizado con 6 paquetes de R independientes.
+Cada subcarpeta corresponde a un paquete instalable de forma autónoma.
+
+## Compatibilidad y dependencias críticas
+
+| Paquete | Versión mínima de R | Dependencias críticas | Instalación local recomendada (desde la raíz del monorepo) |
+|---|---:|---|---|
+| `racafeCore` | `>= 4.1.0` | `dplyr`, `stringi`, `lubridate`, `janitor` | `devtools::install("./racafeCore")` |
+| `racafeBD` | `>= 4.1.0` | `racafeCore`, `DBI`, `odbc` | `devtools::install("./racafeBD")` |
+| `racafeDrive` | `>= 4.1.0` | `racafeCore`, `httr2`, `readxl`, `openxlsx2` | `devtools::install("./racafeDrive")` |
+| `racafeGraph` | `>= 4.1.0` | `racafeCore`, `plotly` | `devtools::install("./racafeGraph")` |
+| `racafeShiny` | `>= 4.1.0` | `racafeCore`, `racafeGraph`, `shiny`, `gt` | `devtools::install("./racafeShiny")` |
+| `racafeForecast` | `>= 4.1.0` | `racafeCore`, `forecast`, `zoo` | `devtools::install("./racafeForecast")` |
 
 ## Paquetes
 
-| Paquete | Descripción | Dependencias |
-|---|---|---|
-| `racafeCore` | Texto, fechas, numericas, transformación, operadores | base R, dplyr, stringi, lubridate, scales |
-| `racafeBD` | Conexion y operaciones SQL Server | racafeCore, DBI, odbc, janitor |
-| `racafeDrive` | Microsoft Graph / OneDrive / SharePoint | racafeCore, httr2, readxl, openxlsx2 |
-| `racafeGraph` | Visualización con plotly | racafeCore, plotly |
-| `racafeShiny` | Componentes Shiny, formatos gt, modulos UI/Server | racafeCore, racafeGraph, shiny, gt, shinyWidgets |
-| `racafeForecast` | Pron+osticos de series de tiempo | racafeCore, forecast, zoo |
+| Paquete | Descripción |
+|---|---|
+| `racafeCore` | Utilidades base: limpieza de texto, validación, fechas, transformación y operadores utilitarios. |
+| `racafeBD` | Conexión y operaciones con SQL Server. |
+| `racafeDrive` | Integración con Microsoft Graph, OneDrive y SharePoint. |
+| `racafeGraph` | Visualización corporativa con `plotly`. |
+| `racafeShiny` | Componentes Shiny, formatos `gt` y módulos UI/Server. |
+| `racafeForecast` | Pronósticos de series de tiempo. |
 
-## Instalación
+## Instalación desde GitHub
 
 ```r
 remotes::install_github("HCamiloYateT/Libreria-Racafe/racafeCore")
@@ -27,23 +38,32 @@ remotes::install_github("HCamiloYateT/Libreria-Racafe/racafeForecast")
 
 ## Grafo de dependencias
 
-```
+```text
 racafeCore
     ├── racafeBD
     ├── racafeDrive
     ├── racafeGraph
-    │       └── racafeShiny
+    │   └── racafeShiny
     └── racafeForecast
 ```
 
-## Desarrollo local
+## Desarrollo local (ruta recomendada)
 
 ```r
-# Instalar todos en orden correcto
-pkgs <- c("racafeCore","racafeBD","racafeDrive","racafeGraph",
-          "racafeShiny","racafeForecast")
+# 1) Ubícate en la raíz del monorepo
+setwd("/ruta/local/Libreria-Racafe")
+
+# 2) Instala en orden de dependencia
+pkgs <- c(
+  "racafeCore",
+  "racafeBD",
+  "racafeDrive",
+  "racafeGraph",
+  "racafeShiny",
+  "racafeForecast"
+)
 for (p in pkgs) devtools::install(file.path(".", p))
 
-# Test de un paquete específico
+# 3) Ejecuta pruebas de un paquete específico
 devtools::test("racafeCore")
 ```
