@@ -1,4 +1,4 @@
-name: R tests (subpackages)
+name: R tests (subpackages + integration + coverage)
 
 on:
   pull_request:
@@ -40,3 +40,68 @@ jobs:
       - name: Run devtools::test
         run: |
           Rscript -e "devtools::test(pkg = '${{ matrix.package }}', stop_on_failure = TRUE)"
+
+  integration-e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: |
+            any::testthat
+            any::remotes
+            any::mockery
+            any::plotly
+            any::forecast
+            any::zoo
+
+      - name: Install local Racafe dependencies
+        run: |
+          Rscript -e 'remotes::install_local(c("racafeCore", "racafeGraph", "racafeBD", "racafeDrive", "racafeForecast", "racafeShiny"), dependencies = TRUE, upgrade = "never", force = TRUE)'
+
+      - name: Run E2E integration tests
+        run: |
+          Rscript scripts/run_integration_tests.R
+
+  coverage-gate:
+    runs-on: ubuntu-latest
+    env:
+      MIN_COVERAGE: "75"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: |
+            any::covr
+            any::remotes
+            any::devtools
+
+      - name: Install local Racafe dependencies
+        run: |
+          Rscript -e 'remotes::install_local(c("racafeCore", "racafeGraph", "racafeBD", "racafeDrive", "racafeForecast", "racafeShiny"), dependencies = TRUE, upgrade = "never", force = TRUE)'
+
+      - name: Compute baseline coverage from base branch (pull_request only)
+        if: github.event_name == 'pull_request'
+        run: |
+          BASE_REF="${{ github.base_ref }}"
+          git checkout "origin/${BASE_REF}"
+          Rscript -e "cov <- covr::package_coverage(path = c('racafeCore','racafeBD','racafeDrive','racafeGraph','racafeForecast','racafeShiny')); cat(as.numeric(covr::percent_coverage(cov)), file = 'baseline_coverage.txt')"
+          git checkout "${{ github.sha }}"
+
+      - name: Validate coverage threshold and non-regression
+        env:
+          BASELINE_COVERAGE_FILE: baseline_coverage.txt
+        run: |
+          Rscript scripts/coverage_gate.R "$MIN_COVERAGE" racafeCore racafeBD racafeDrive racafeGraph racafeForecast racafeShiny

@@ -79,3 +79,11 @@ for (p in pkgs) devtools::install(file.path(".", p))
 # 3) Ejecuta pruebas de un paquete específico
 devtools::test("racafeCore")
 ```
+
+## Quality gates y reproducibilidad
+
+- CI bloquea cambios cuando falla `R CMD check` en cualquiera de los subpaquetes.
+- CI ejecuta gate de cobertura con `covr` (umbral inicial `75%`) y valida no regresión contra la rama base en PR.
+- CI ejecuta pruebas de integración E2E (`core -> bd/drive -> graph/shiny -> forecast`) con datasets de juguete y stubs para servicios externos.
+- Política de dependencias y actualización mensual documentada en [`docs/dependency-policy.md`](./docs/dependency-policy.md).
+- Lockfile de entorno de desarrollo en `renv.lock`.
