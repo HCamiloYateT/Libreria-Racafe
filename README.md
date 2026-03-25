@@ -36,6 +36,18 @@ remotes::install_github("HCamiloYateT/Libreria-Racafe/racafeShiny")
 remotes::install_github("HCamiloYateT/Libreria-Racafe/racafeForecast")
 ```
 
+## Versionado y changelog
+
+- Cada paquete usa **SemVer** independiente (`MAJOR.MINOR.PATCH`) en su `DESCRIPTION`.
+- La política completa está documentada en [`VERSIONING.md`](./VERSIONING.md).
+- El historial de cambios se mantiene en `NEWS.md` dentro de cada paquete:
+  - `racafeCore/NEWS.md`
+  - `racafeBD/NEWS.md`
+  - `racafeDrive/NEWS.md`
+  - `racafeGraph/NEWS.md`
+  - `racafeShiny/NEWS.md`
+  - `racafeForecast/NEWS.md`
+
 ## Grafo de dependencias
 
 ```text
