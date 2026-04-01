@@ -135,6 +135,18 @@ test_that("Boton valida alineacion correcta", {
   expect_error(Boton("id", align = "middle"))
 })
 
+
+test_that("Boton valida size correcto", {
+  expect_no_error(Boton("id", size = "sm"))
+  expect_no_error(Boton("id", size = "lg"))
+  expect_error(Boton("id", size = "xxl"))
+})
+
+test_that("Boton incorpora clase segun size", {
+  btn <- Boton("id_btn", size = "md")
+  html <- as.character(btn)
+  expect_match(html, "racafe-btn-guardar--md")
+})
 test_that("Boton admite texto, icono o ambos", {
   expect_no_error(Boton("btn_texto", label = "Guardar", icono = NULL))
   expect_no_error(Boton("btn_icono", label = NULL, icono = "floppy-disk"))

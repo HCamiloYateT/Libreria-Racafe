@@ -204,6 +204,7 @@ BotonEstado <- function(...) {
 #' @param label Texto del boton. Use `NULL` para omitir texto.
 #' @param icono Nombre del icono Font Awesome. Use `NULL` para omitir icono.
 #' @param align Alineacion: `"left"`, `"center"`, `"right"`.
+#' @param size Tamano visual del boton: `"xs"`, `"sm"`, `"md"`, `"lg"`.
 #' @param ... Argumentos adicionales para `shiny::actionButton`.
 #' @return Componente Shiny.
 #' @export
@@ -218,9 +219,11 @@ Boton <- function(
     label = "Guardar",
     icono = "floppy-disk",
     align = "right",
+    size = "sm",
     ...) {
 
   align <- match.arg(align, c("left", "center", "right"))
+  size <- match.arg(size, c("xs", "sm", "md", "lg"))
   if (is.null(label) && is.null(icono)) {
     stop("Debe especificar al menos `label` o `icono`.", call. = FALSE)
   }
@@ -232,14 +235,28 @@ Boton <- function(
     right  = "text-right"
   )
 
-  shiny::div(
-    class = clase_align,
-    shiny::actionButton(
-      inputId = id,
-      label   = label,
-      class   = "btn btn-success btn-sm racafe-btn-guardar",
-      icon    = if (!is.null(icono)) shiny::icon(icono) else NULL,
-      ...
+  contenido_boton <- shiny::tagList(
+    if (!is.null(icono)) shiny::icon(icono, class = "racafe-btn-icon") else NULL,
+    if (!is.null(label)) shiny::tags$span(class = "racafe-btn-label", label) else NULL
+  )
+
+  shiny::tagList(
+    htmltools::htmlDependency(
+      name = "racafe-shiny",
+      version = "1.0.0",
+      package = "racafeShiny",
+      src = "www",
+      stylesheet = "racafe-shiny.css"
+    ),
+    shiny::div(
+      class = clase_align,
+      shiny::actionButton(
+        inputId = id,
+        label   = contenido_boton,
+        class   = sprintf("btn btn-success racafe-btn-guardar racafe-btn-guardar--%s", size),
+        icon    = NULL,
+        ...
+      )
     )
   )
 }
