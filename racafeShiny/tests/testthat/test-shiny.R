@@ -129,10 +129,17 @@ test_that("BotonDescarga valida size correcto", {
   expect_error(BotonDescarga("id", size = "xxl"))
 })
 
-test_that("BotonGuardar valida alineacion correcta", {
-  expect_no_error(BotonGuardar("id", align = "right"))
-  expect_no_error(BotonGuardar("id", align = "center"))
-  expect_error(BotonGuardar("id", align = "middle"))
+test_that("Boton valida alineacion correcta", {
+  expect_no_error(Boton("id", align = "right"))
+  expect_no_error(Boton("id", align = "center"))
+  expect_error(Boton("id", align = "middle"))
+})
+
+test_that("Boton admite texto, icono o ambos", {
+  expect_no_error(Boton("btn_texto", label = "Guardar", icono = NULL))
+  expect_no_error(Boton("btn_icono", label = NULL, icono = "floppy-disk"))
+  expect_no_error(Boton("btn_ambos", label = "Guardar", icono = "floppy-disk"))
+  expect_error(Boton("btn_vacio", label = NULL, icono = NULL))
 })
 
 test_that("CajaValor retorna objeto shiny.tag", {

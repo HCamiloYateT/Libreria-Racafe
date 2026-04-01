@@ -24,7 +24,7 @@ export(ListaDesplegable)
 export(pick_opt)
 export(BotonesRadiales)
 export(BotonEstado)
-export(BotonGuardar)
+export(Boton)
 
 # ---- Outputs Shiny y modulos ----
 export(BotonDescarga)
