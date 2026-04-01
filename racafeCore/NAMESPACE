@@ -4,6 +4,7 @@
 export(DefinirFormato)
 export(ObtenerFormato)
 export(ListarFormatos)
+export(FormatearNumero)
 
 # ---- Transformacion ----
 export(RecodificarTop)

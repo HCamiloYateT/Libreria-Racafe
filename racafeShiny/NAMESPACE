@@ -34,6 +34,5 @@ export(cajaValor_ui)
 export(cajaValor_server)
 
 importFrom(racafeCore, "%||%")
-importFrom(racafeCore, "FormatearNumero")
 importFrom(racafeGraph, "ColoresGreenBlue")
 importFrom(rlang, ".data")
