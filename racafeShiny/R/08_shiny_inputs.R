@@ -240,23 +240,14 @@ Boton <- function(
     if (!is.null(label)) shiny::tags$span(class = "racafe-btn-label", label) else NULL
   )
 
-  shiny::tagList(
-    htmltools::htmlDependency(
-      name = "racafe-shiny",
-      version = "1.0.0",
-      package = "racafeShiny",
-      src = "www",
-      stylesheet = "racafe-shiny.css"
-    ),
-    shiny::div(
-      class = clase_align,
-      shiny::actionButton(
-        inputId = id,
-        label   = contenido_boton,
-        class   = sprintf("btn btn-success racafe-btn-guardar racafe-btn-guardar--%s", size),
-        icon    = NULL,
-        ...
-      )
+  shiny::div(
+    class = clase_align,
+    shiny::actionButton(
+      inputId = id,
+      label   = contenido_boton,
+      class   = sprintf("btn btn-success racafe-btn-guardar racafe-btn-guardar--%s", size),
+      icon    = NULL,
+      ...
     )
   )
 }
