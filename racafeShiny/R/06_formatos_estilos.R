@@ -71,45 +71,9 @@ FormatoHOT <- function(formato) {
 
 # ---- Formateo de valores ----
 
-#' Aplicar formato numerico con estilos HTML condicionales
-#'
-#' Genera HTML con color y negrita segun cumplimiento de meta.
-#'
-#' @param x Valor numerico.
-#' @param formato Nombre del formato registrado.
-#' @param negrita Logico. Aplicar negrita.
-#' @param color Color por defecto del texto.
-#' @param meta Valor de meta para colorear condicionalmente. `NA` desactiva.
-#' @param prop Logico. Si `TRUE`, `x` y `meta` son proporciones (cumplimiento).
-#' @return Cadena HTML con el valor formateado.
+#' @rdname FormatearNumero
 #' @export
-#' @examples
-#' FormatearNumero(0.85, "porcentaje", meta = 0.80)
-#' FormatearNumero(1250000, "dinero")
-FormatearNumero <- function(
-    x,
-    formato,
-    negrita = TRUE,
-    color   = "#000000",
-    meta    = NA,
-    prop    = TRUE) {
-
-  fn    <- ObtenerFormato(formato)
-  texto <- fn(x)
-
-  if (!is.na(meta)) {
-    cumple <- if (prop) x >= meta else x >= meta
-    color <- if (cumple) "#1A7A5E" else "#C0392B"
-  }
-
-  estilo <- sprintf(
-    "color:%s;%s",
-    color,
-    if (negrita) "font-weight:600;" else ""
-  )
-
-  htmltools::HTML(sprintf('<span style="%s">%s</span>', estilo, texto))
-}
+FormatearNumero <- racafeCore::FormatearNumero
 
 
 #' Aplicar estilo HTML a texto plano
