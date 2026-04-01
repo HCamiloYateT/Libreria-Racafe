@@ -198,20 +198,32 @@ BotonEstado <- function(...) {
 }
 
 
-#' Boton de accion con alineacion configurable
+#' Boton de accion generico con alineacion configurable
 #'
 #' @param id ID del boton.
-#' @param label Texto del boton.
+#' @param label Texto del boton. Use `NULL` para omitir texto.
+#' @param icono Nombre del icono Font Awesome. Use `NULL` para omitir icono.
 #' @param align Alineacion: `"left"`, `"center"`, `"right"`.
 #' @param ... Argumentos adicionales para `shiny::actionButton`.
 #' @return Componente Shiny.
 #' @export
 #' @examples
 #' \dontrun{
-#'   BotonGuardar("guardar_form", label = "Guardar cambios", align = "center")
+#'   Boton("guardar_form", label = "Guardar cambios", align = "center")
+#'   Boton("guardar_icono", label = NULL, icono = "floppy-disk")
+#'   Boton("guardar_completo", label = "Guardar", icono = "floppy-disk")
 #' }
-BotonGuardar <- function(id, label = "Guardar", align = "right", ...) {
+Boton <- function(
+    id,
+    label = "Guardar",
+    icono = "floppy-disk",
+    align = "right",
+    ...) {
+
   align <- match.arg(align, c("left", "center", "right"))
+  if (is.null(label) && is.null(icono)) {
+    stop("Debe especificar al menos `label` o `icono`.", call. = FALSE)
+  }
 
   clase_align <- switch(
     align,
@@ -226,7 +238,7 @@ BotonGuardar <- function(id, label = "Guardar", align = "right", ...) {
       inputId = id,
       label   = label,
       class   = "btn btn-success btn-sm racafe-btn-guardar",
-      icon    = shiny::icon("floppy-disk"),
+      icon    = if (!is.null(icono)) shiny::icon(icono) else NULL,
       ...
     )
   )

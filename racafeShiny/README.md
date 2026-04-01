@@ -15,7 +15,7 @@ remotes::install_github("HCamiloYateT/Racafe/racafeShiny")
 
 `racafeShiny` re-exporta `DefinirFormato`, `ObtenerFormato` y `ListarFormatos`
 desde `racafeCore`, por lo que no es necesario cargar `racafeCore`
-explícitamente para usarlos.
+explícitamente para registrarlos y consultarlos.
 
 ```r
 library(racafeShiny)
@@ -58,7 +58,8 @@ BotonesRadiales("periodo", "Periodo",
   alineacion = "center")
 
 BotonEstado("activar_comp", "Activar comparativo")
-BotonGuardar("guardar",     label = "Guardar cambios", align = "right")
+Boton("guardar",     label = "Guardar cambios", align = "right")
+Boton("icon_only",   label = NULL, icono = "floppy-disk")
 ```
 
 ## Outputs y módulo CajaValor
