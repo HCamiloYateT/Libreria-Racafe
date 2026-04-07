@@ -207,6 +207,7 @@ BotonEstado <- function(...) {
 #' @param size Tamano visual del boton: `"xxs"`, `"xs"`, `"sm"`, `"md"`, `"lg"`, `"xl"`, `"xxl"`.
 #' @param hover_color Color del hover del boton. Por defecto `"firebrick"`.
 #' @param label_posicion Posicion del label respecto al icono: `"right"` o `"below"`.
+#' @param titulo Tooltip del boton al pasar el cursor. `NULL` para omitir.
 #' @param ... Argumentos adicionales para `shiny::actionButton`.
 #' @return Componente Shiny.
 #' @export
@@ -225,6 +226,7 @@ Boton <- function(
     size = "sm",
     hover_color = "firebrick",
     label_posicion = "right",
+    titulo = NULL,
     ...) {
 
   align <- match.arg(align, c("left", "center", "right"))
@@ -236,6 +238,9 @@ Boton <- function(
   }
   if (!is.character(hover_color) || nchar(hover_color) == 0) {
     stop("`hover_color` debe ser una cadena de color valida.", call. = FALSE)
+  }
+  if (!is.null(titulo) && (!is.character(titulo) || length(titulo) != 1)) {
+    stop("`titulo` debe ser `NULL` o una cadena de longitud 1.", call. = FALSE)
   }
 
   hover_color_css <- tryCatch(
@@ -285,7 +290,8 @@ Boton <- function(
   boton <- shiny::tagAppendAttributes(
     boton,
     `data-racafe-hover-color` = hover_color_css,
-    `data-racafe-label-pos` = label_posicion
+    `data-racafe-label-pos` = label_posicion,
+    title = titulo
   )
 
   shiny::div(

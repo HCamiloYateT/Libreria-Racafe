@@ -161,6 +161,13 @@ test_that("Boton permite hover_color y posicion del label", {
   expect_error(Boton("id_btn3", hover_color = ""))
   expect_error(Boton("id_btn4", hover_color = "color_no_valido"))
 })
+
+test_that("Boton permite titulo hover", {
+  btn <- Boton("id_btn5", titulo = "Guardar cambios")
+  html <- as.character(btn)
+  expect_match(html, "title=\"Guardar cambios\"")
+  expect_error(Boton("id_btn6", titulo = c("A", "B")))
+})
 test_that("Boton admite texto, icono o ambos", {
   expect_no_error(Boton("btn_texto", label = "Guardar", icono = NULL))
   expect_no_error(Boton("btn_icono", label = NULL, icono = "floppy-disk"))
