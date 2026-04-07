@@ -139,13 +139,27 @@ test_that("Boton valida alineacion correcta", {
 test_that("Boton valida size correcto", {
   expect_no_error(Boton("id", size = "sm"))
   expect_no_error(Boton("id", size = "lg"))
-  expect_error(Boton("id", size = "xxl"))
+  expect_no_error(Boton("id", size = "xxs"))
+  expect_no_error(Boton("id", size = "xxl"))
+  expect_error(Boton("id", size = "xxxl"))
 })
 
 test_that("Boton incorpora clase segun size", {
   btn <- Boton("id_btn", size = "md")
   html <- as.character(btn)
   expect_match(html, "racafe-btn-guardar--md")
+})
+
+test_that("Boton permite hover_color y posicion del label", {
+  btn <- Boton("id_btn2", label = "Guardar", icono = "floppy-disk",
+               hover_color = "firebrick", label_posicion = "below")
+  html <- as.character(btn)
+  expect_match(html, "data-racafe-hover-color=\"rgb\\(178,34,34\\)\"")
+  expect_match(html, "data-racafe-label-pos=\"below\"")
+  expect_match(html, "racafe-btn-content--column")
+  expect_no_match(html, "<style")
+  expect_error(Boton("id_btn3", hover_color = ""))
+  expect_error(Boton("id_btn4", hover_color = "color_no_valido"))
 })
 test_that("Boton admite texto, icono o ambos", {
   expect_no_error(Boton("btn_texto", label = "Guardar", icono = NULL))
