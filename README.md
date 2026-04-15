@@ -27,13 +27,22 @@ Cada subcarpeta corresponde a un paquete instalable de forma autónoma.
 
 ## Instalación desde GitHub
 
+> En monorepos es más robusto usar `subdir` explícito (en lugar de concatenar la subcarpeta en la URL).
+
 ```r
-remotes::install_github("HCamiloYateT/Libreria-Racafe/racafeCore")
-remotes::install_github("HCamiloYateT/Libreria-Racafe/racafeBD")
-remotes::install_github("HCamiloYateT/Libreria-Racafe/racafeDrive")
-remotes::install_github("HCamiloYateT/Libreria-Racafe/racafeGraph")
-remotes::install_github("HCamiloYateT/Libreria-Racafe/racafeShiny")
-remotes::install_github("HCamiloYateT/Libreria-Racafe/racafeForecast")
+repo <- "HCamiloYateT/Libreria-Racafe"
+remotes::install_github(repo, subdir = "racafeCore")
+remotes::install_github(repo, subdir = "racafeBD")
+remotes::install_github(repo, subdir = "racafeDrive")
+remotes::install_github(repo, subdir = "racafeGraph")
+remotes::install_github(repo, subdir = "racafeShiny")
+remotes::install_github(repo, subdir = "racafeForecast")
+```
+
+Si el repositorio es privado, autentica antes de instalar:
+
+```r
+Sys.setenv(GITHUB_PAT = "<tu_token>")
 ```
 
 ## Versionado y changelog
