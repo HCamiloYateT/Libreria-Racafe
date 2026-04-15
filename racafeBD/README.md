@@ -40,6 +40,7 @@ ReemplazarDatos(df_corregido, "fact_ventas",
   llaves = list(id = 42, fecha = "2024-01-15"))
 
 # Servidor alternativo (migracion / consultas historicas)
+# Usa SYS_UID/SYS_PWD por defecto (si no se pasan uid/pwd)
 df <- ConsultaSistema("syscafe_old", "SELECT * FROM tabla_legacy",
   server = "172.16.19.10")
 ```
