@@ -201,6 +201,17 @@ test_that("RecodificarTop valida rango y tipos de entrada", {
 
 # ---- Formatos ----
 
+test_that("Loadpkg carga paquetes ya instalados", {
+  resultado <- suppressMessages(Loadpkg("stats"))
+  expect_true(is.logical(resultado))
+  expect_true(isTRUE(unname(resultado["stats"])))
+})
+
+test_that("Loadpkg valida entrada", {
+  expect_error(Loadpkg(character(0)), "debe ser un vector character no vacio")
+  expect_error(Loadpkg(NA_character_), "debe ser un vector character no vacio")
+})
+
 test_that("ObtenerFormato falla con nombre invalido", {
   expect_error(ObtenerFormato("formato_que_no_existe"))
 })

@@ -5,6 +5,7 @@ export(DefinirFormato)
 export(ObtenerFormato)
 export(ListarFormatos)
 export(FormatearNumero)
+export(Loadpkg)
 
 # ---- Transformacion ----
 export(RecodificarTop)
