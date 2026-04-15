@@ -25,4 +25,4 @@ Suggests:
     RSQLite
 Config/testthat/edition: 3
 Remotes:
-    HCamiloYateT/Racafe/racafeCore
+    HCamiloYateT/Libreria-Racafe/racafeCore
