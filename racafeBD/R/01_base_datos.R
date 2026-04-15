@@ -243,8 +243,8 @@ Consulta <- function(consulta, bd = Sys.getenv("DB_NAME")) {
 #'
 #' @param bd Nombre de la base de datos.
 #' @param query Consulta SQL.
-#' @param uid Usuario. Por defecto `Sys.getenv("DB_UID")`.
-#' @param pwd Contrasena. Por defecto `Sys.getenv("DB_PWD")`.
+#' @param uid Usuario. Por defecto `Sys.getenv("SYS_UID")`.
+#' @param pwd Contrasena. Por defecto `Sys.getenv("SYS_PWD")`.
 #' @param server IP del servidor.
 #' @param port Puerto TCP.
 #' @return `data.frame` con columnas limpias.
@@ -252,8 +252,8 @@ Consulta <- function(consulta, bd = Sys.getenv("DB_NAME")) {
 ConsultaSistema <- function(
     bd,
     query,
-    uid    = Sys.getenv("DB_UID"),
-    pwd    = Sys.getenv("DB_PWD"),
+    uid    = Sys.getenv("SYS_UID"),
+    pwd    = Sys.getenv("SYS_PWD"),
     server = "172.16.19.21",
     port   = 1433) {
 
@@ -262,7 +262,7 @@ ConsultaSistema <- function(
   if (nchar(uid) == 0 || nchar(pwd) == 0) {
     .error_bd(
       "ConsultaSistema - faltan credenciales explicitas (uid/pwd)",
-      "definir argumentos uid/pwd o variables DB_UID/DB_PWD"
+      "definir argumentos uid/pwd o variables SYS_UID/SYS_PWD"
     )
   }
 

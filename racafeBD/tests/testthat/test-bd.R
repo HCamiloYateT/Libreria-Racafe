@@ -59,7 +59,7 @@ test_that("Consulta con janitor::clean_names normaliza columnas", {
 
 test_that("ConsultaSistema usa env vars si no se pasan uid/pwd", {
   withr::with_envvar(
-    list(DB_UID = "usuario_test", DB_PWD = ""),
+    list(SYS_UID = "usuario_test", SYS_PWD = ""),
     {
       # Solo verifica que intente conectar con el uid de env var
       # La conexion fallara (servidor no disponible en CI) pero el
