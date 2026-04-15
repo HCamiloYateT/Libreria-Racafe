@@ -247,7 +247,7 @@ Consulta <- function(consulta, bd = Sys.getenv("DB_NAME")) {
 #' @param pwd Contrasena. Por defecto `Sys.getenv("SYS_PWD")`.
 #' @param server IP del servidor.
 #' @param port Puerto TCP.
-#' @return `data.frame` con columnas limpias.
+#' @return `data.frame` con los nombres de columnas originales.
 #' @export
 ConsultaSistema <- function(
     bd,
@@ -317,7 +317,7 @@ ConsultaSistema <- function(
         resultado[columnas_fecha] <- lapply(resultado[columnas_fecha], as.Date)
       }
 
-      janitor::clean_names(resultado)
+      resultado
     },
     error = function(e) {
       .error_bd(
