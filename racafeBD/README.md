@@ -41,6 +41,6 @@ ReemplazarDatos(df_corregido, "fact_ventas",
 
 # Servidor alternativo (migracion / consultas historicas)
 # Usa SYS_UID/SYS_PWD por defecto (si no se pasan uid/pwd)
-df <- ConsultaSistema("syscafe_old", "SELECT * FROM tabla_legacy",
+df <- ConsultaSistema("syscafe", "SELECT * FROM tabla_legacy",
   server = "172.16.19.10")
 ```

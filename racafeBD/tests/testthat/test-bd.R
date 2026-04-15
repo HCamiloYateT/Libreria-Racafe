@@ -65,7 +65,7 @@ test_that("ConsultaSistema usa env vars si no se pasan uid/pwd", {
       # La conexion fallara (servidor no disponible en CI) pero el
       # uid debe coincidir con lo que esta en la env var
       expect_error(
-        ConsultaSistema("bd", "SELECT 1", server = "127.0.0.1")
+        ConsultaSistema("syscafe", "SELECT 1", server = "127.0.0.1")
       )
     }
   )

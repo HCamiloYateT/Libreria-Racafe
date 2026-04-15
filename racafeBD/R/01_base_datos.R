@@ -259,6 +259,28 @@ ConsultaSistema <- function(
 
   .check_pkg("odbc", "Base de datos")
 
+  base <- switch(
+    bd,
+    "syscafe" = "ContabRacafe",
+    "cafesys" = "Cafesys",
+    "estad"   = "EstadRacafe",
+    NA_character_
+  )
+
+  if (is.na(base)) {
+    .error_bd(
+      "ConsultaSistema - base invalida",
+      "las bases disponibles son: 'syscafe', 'cafesys' o 'estad'"
+    )
+  }
+
+  if (!is.character(query) || length(query) != 1 || nchar(query) == 0) {
+    .error_bd(
+      "ConsultaSistema - `query` no es SQL valido",
+      "enviar una cadena SQL no vacia"
+    )
+  }
+
   if (nchar(uid) == 0 || nchar(pwd) == 0) {
     .error_bd(
       "ConsultaSistema - faltan credenciales explicitas (uid/pwd)",
@@ -269,24 +291,34 @@ ConsultaSistema <- function(
   con <- tryCatch(
     DBI::dbConnect(
       odbc::odbc(),
-      Driver   = "SQL Server",
-      Server   = server,
-      Database = bd,
-      UID      = uid,
-      PWD      = pwd,
-      Port     = port
+      Driver                 = "ODBC Driver 18 for SQL Server",
+      Server                 = server,
+      Database               = base,
+      uid                    = uid,
+      pwd                    = pwd,
+      port                   = port,
+      TrustServerCertificate = "yes"
     ),
     error = function(e) {
       .error_bd(
-        sprintf("ConsultaSistema - no se pudo abrir conexion a '%s/%s:%s' (%s)", server, bd, port, conditionMessage(e)),
+        sprintf("ConsultaSistema - no se pudo abrir conexion a '%s/%s:%s' (%s)", server, base, port, conditionMessage(e)),
         "revisar parametros de conexion y estado del servidor SQL"
       )
     }
   )
-  on.exit(DBI::dbDisconnect(con))
+  on.exit(DBI::dbDisconnect(con), add = TRUE)
 
-  resultado <- tryCatch(
-    DBI::dbGetQuery(con, query),
+  tryCatch(
+    {
+      resultado <- DBI::dbGetQuery(con, query)
+
+      columnas_fecha <- grepl("^Fec", names(resultado)) | names(resultado) == "Fecha"
+      if (any(columnas_fecha)) {
+        resultado[columnas_fecha] <- lapply(resultado[columnas_fecha], as.Date)
+      }
+
+      janitor::clean_names(resultado)
+    },
     error = function(e) {
       .error_bd(
         sprintf("ConsultaSistema - fallo al ejecutar query (%s)", conditionMessage(e)),
@@ -294,5 +326,4 @@ ConsultaSistema <- function(
       )
     }
   )
-  janitor::clean_names(resultado)
 }
