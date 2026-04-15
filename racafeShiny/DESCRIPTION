@@ -29,5 +29,5 @@ Suggests:
     shinytest2
 Config/testthat/edition: 3
 Remotes:
-    HCamiloYateT/Racafe/racafeCore,
-    HCamiloYateT/Racafe/racafeGraph
+    HCamiloYateT/Libreria-Racafe/racafeCore,
+    HCamiloYateT/Libreria-Racafe/racafeGraph
