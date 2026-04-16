@@ -21,10 +21,10 @@
 #'   con <- ConectarBD()
 #'   DBI::dbDisconnect(con)
 #' }
-ConectarBD <- function() {
+ConectarBD <- function(bd = Sys.getenv("DB_NAME")) {
   con <- DBI::dbConnect(
     RMySQL::MySQL(),
-    dbname = Sys.getenv("DB_NAME"),
+    dbname = bd,
     host = Sys.getenv("DB_HOST"),
     port = as.integer(Sys.getenv("DB_PORT")),
     user = Sys.getenv("DB_USER"),
