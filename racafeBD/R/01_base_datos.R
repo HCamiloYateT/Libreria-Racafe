@@ -236,7 +236,7 @@ Consulta <- function(consulta, bd = Sys.getenv("DB_NAME")) {
 ConsultaSistema <- function(
     bd,
     query,
-    capitalizacion = c("ninguna", "mayusculas", "minusculas", "titulo"),
+    capitalizacion = c("mayusculas", "ninguna", "minusculas", "titulo"),
     uid    = Sys.getenv("SYS_UID"),
     pwd    = Sys.getenv("SYS_PWD"),
     server = "172.16.19.21",
@@ -309,7 +309,7 @@ ConsultaSistema <- function(
 }
 
 
-.postprocesar_consulta_sistema <- function(resultado, capitalizacion = "ninguna") {
+.postprocesar_consulta_sistema <- function(resultado, capitalizacion = "mayusculas") {
   columnas_char <- vapply(resultado, is.character, logical(1))
   if (any(columnas_char)) {
     resultado[columnas_char] <- lapply(resultado[columnas_char], function(x) {
