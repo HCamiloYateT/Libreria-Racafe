@@ -82,6 +82,17 @@ test_that("postproceso de ConsultaSistema limpia y capitaliza texto", {
   expect_equal(salida$Nombre, c("Jose Perez", "Maria"))
 })
 
+test_that("postproceso de ConsultaSistema usa mayusculas por defecto", {
+  entrada <- data.frame(
+    Nombre = c("  jOsé  pérez!! ", "MARIA###"),
+    stringsAsFactors = FALSE
+  )
+
+  salida <- racafeBD:::.postprocesar_consulta_sistema(entrada)
+
+  expect_equal(salida$Nombre, c("JOSE PEREZ", "MARIA"))
+})
+
 test_that("postproceso de ConsultaSistema convierte columnas fecha por nombre", {
   entrada <- data.frame(
     FechaRegistro = c("2026-01-03", "2026/02/04"),
