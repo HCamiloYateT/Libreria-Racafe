@@ -310,9 +310,26 @@ ConsultaSistema <- function(
 
 
 .postprocesar_consulta_sistema <- function(resultado, capitalizacion = "mayusculas") {
+  .es_codigo_numerico <- function(x) {
+    if (!is.character(x)) {
+      return(FALSE)
+    }
+
+    valores_con_dato <- !is.na(x) & nzchar(trimws(x))
+    if (!any(valores_con_dato)) {
+      return(FALSE)
+    }
+
+    all(grepl("^[0-9]+$", trimws(x[valores_con_dato])))
+  }
+
   columnas_char <- vapply(resultado, is.character, logical(1))
   if (any(columnas_char)) {
     resultado[columnas_char] <- lapply(resultado[columnas_char], function(x) {
+      if (.es_codigo_numerico(x)) {
+        return(trimws(x))
+      }
+
       limpio <- racafeCore::LimpiarCadena(x)
       switch(
         capitalizacion,

@@ -93,6 +93,19 @@ test_that("postproceso de ConsultaSistema usa mayusculas por defecto", {
   expect_equal(salida$Nombre, c("JOSE PEREZ", "MARIA"))
 })
 
+test_that("postproceso de ConsultaSistema conserva codigos numericos en texto", {
+  entrada <- data.frame(
+    CtaCod = c("41351432095", " 42100510005 ", NA_character_),
+    CtaNom = c(" cafe robusta ", "intereses cías", "otros"),
+    stringsAsFactors = FALSE
+  )
+
+  salida <- racafeBD:::.postprocesar_consulta_sistema(entrada)
+
+  expect_equal(salida$CtaCod, c("41351432095", "42100510005", NA_character_))
+  expect_equal(salida$CtaNom, c("CAFE ROBUSTA", "INTERESES CIAS", "OTROS"))
+})
+
 test_that("postproceso de ConsultaSistema convierte columnas fecha por nombre", {
   entrada <- data.frame(
     FechaRegistro = c("2026-01-03", "2026/02/04"),
