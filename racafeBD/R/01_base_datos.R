@@ -21,40 +21,18 @@
 #'   con <- ConectarBD()
 #'   DBI::dbDisconnect(con)
 #' }
-ConectarBD <- function(
-    bd     = Sys.getenv("DB_NAME"),
-    server = Sys.getenv("DB_SERVER", Sys.getenv("DB_HOST")),
-    port   = as.integer(Sys.getenv("DB_PORT", "1433"))) {
-
-  .check_pkg("odbc", "Base de datos")
-
-  uid <- Sys.getenv("DB_UID", Sys.getenv("DB_USER"))
-  pwd <- Sys.getenv("DB_PWD", Sys.getenv("DB_PASSWORD"))
-
-  if (nchar(uid) == 0 || nchar(pwd) == 0) {
-    .error_bd(
-      "ConectarBD - faltan credenciales en variables de entorno (DB_UID/DB_PWD o DB_USER/DB_PASSWORD)",
-      "definir DB_UID y DB_PWD (o aliases DB_USER/DB_PASSWORD) antes de invocar la conexion"
-    )
-  }
-
-  tryCatch(
-    DBI::dbConnect(
-      odbc::odbc(),
-      Driver   = "SQL Server",
-      Server   = server,
-      Database = bd,
-      UID      = uid,
-      PWD      = pwd,
-      Port     = port
-    ),
-    error = function(e) {
-      .error_bd(
-        sprintf("ConectarBD - fallo al abrir conexion con '%s/%s:%s' (%s)", server, bd, port, conditionMessage(e)),
-        "validar conectividad, credenciales y parametros DB_SERVER/DB_NAME/DB_PORT"
-      )
-    }
+ConectarBD <- function() {
+  con <- DBI::dbConnect(
+    RMySQL::MySQL(),
+    dbname = Sys.getenv("DB_NAME"),
+    host = Sys.getenv("DB_HOST"),
+    port = as.integer(Sys.getenv("DB_PORT")),
+    user = Sys.getenv("DB_USER"),
+    password = Sys.getenv("DB_PASSWORD"),
+    DBMSencoding = Sys.getenv("DB_ENCODING")
   )
+  DBI::dbGetQuery(con, "SET NAMES 'utf8'")
+  return(con)
 }
 
 
