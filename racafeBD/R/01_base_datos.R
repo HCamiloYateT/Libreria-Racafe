@@ -223,6 +223,8 @@ Consulta <- function(consulta, bd = Sys.getenv("DB_NAME")) {
 #' Funcion de compatibilidad para conectarse a servidores alternos.
 #' Preferir `Consulta()` con variables de entorno para nuevos desarrollos.
 #'
+#' @param capitalizacion Modo de capitalizacion para columnas de texto:
+#' `"ninguna"`, `"mayusculas"`, `"minusculas"` o `"titulo"`.
 #' @param bd Nombre de la base de datos.
 #' @param query Consulta SQL.
 #' @param uid Usuario. Por defecto `Sys.getenv("SYS_UID")`.
@@ -234,12 +236,14 @@ Consulta <- function(consulta, bd = Sys.getenv("DB_NAME")) {
 ConsultaSistema <- function(
     bd,
     query,
+    capitalizacion = c("ninguna", "mayusculas", "minusculas", "titulo"),
     uid    = Sys.getenv("SYS_UID"),
     pwd    = Sys.getenv("SYS_PWD"),
     server = "172.16.19.21",
     port   = 1433) {
 
   .check_pkg("odbc", "Base de datos")
+  capitalizacion <- match.arg(capitalizacion)
 
   base <- switch(
     bd,
@@ -293,13 +297,7 @@ ConsultaSistema <- function(
   tryCatch(
     {
       resultado <- DBI::dbGetQuery(con, query)
-
-      columnas_fecha <- grepl("^Fec", names(resultado)) | names(resultado) == "Fecha"
-      if (any(columnas_fecha)) {
-        resultado[columnas_fecha] <- lapply(resultado[columnas_fecha], as.Date)
-      }
-
-      resultado
+      .postprocesar_consulta_sistema(resultado, capitalizacion = capitalizacion)
     },
     error = function(e) {
       .error_bd(
@@ -308,4 +306,56 @@ ConsultaSistema <- function(
       )
     }
   )
+}
+
+
+.postprocesar_consulta_sistema <- function(resultado, capitalizacion = "ninguna") {
+  columnas_char <- vapply(resultado, is.character, logical(1))
+  if (any(columnas_char)) {
+    resultado[columnas_char] <- lapply(resultado[columnas_char], function(x) {
+      limpio <- racafeCore::LimpiarCadena(x)
+      switch(
+        capitalizacion,
+        "mayusculas" = toupper(limpio),
+        "minusculas" = tolower(limpio),
+        "titulo" = tools::toTitleCase(tolower(limpio)),
+        limpio
+      )
+    })
+  }
+
+  columnas_fecha <- grepl("fec|fecha", names(resultado), ignore.case = TRUE)
+  if (any(columnas_fecha)) {
+    resultado[columnas_fecha] <- lapply(resultado[columnas_fecha], function(x) {
+      if (inherits(x, "Date")) {
+        return(x)
+      }
+      if (inherits(x, c("POSIXct", "POSIXt"))) {
+        return(as.Date(x))
+      }
+
+      if (!is.character(x)) {
+        return(x)
+      }
+
+      convertido <- as.Date(
+        x,
+        tryFormats = c(
+          "%Y-%m-%d",
+          "%Y/%m/%d",
+          "%d/%m/%Y",
+          "%d-%m-%Y",
+          "%m/%d/%Y",
+          "%d.%m.%Y"
+        )
+      )
+      valores_con_dato <- !is.na(x) & nzchar(trimws(x))
+      if (!any(!is.na(convertido[valores_con_dato]))) {
+        return(x)
+      }
+      convertido
+    })
+  }
+
+  resultado
 }
