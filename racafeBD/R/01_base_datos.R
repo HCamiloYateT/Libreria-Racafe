@@ -184,7 +184,6 @@ ReemplazarDatos <- function(df, tabla, llaves, bd = Sys.getenv("DB_NAME")) {
 #'
 #' @param tabla Nombre de la tabla.
 #' @param condicion Cadena SQL para clausula WHERE (sin la palabra WHERE).
-#' @param bd Nombre de la base de datos.
 #' @return `data.frame` con los resultados.
 #' @export
 #' @examples
@@ -194,16 +193,21 @@ ReemplazarDatos <- function(df, tabla, llaves, bd = Sys.getenv("DB_NAME")) {
 #' }
 CargarDatos <- function(
     tabla,
-    condicion = NULL,
-    bd = Sys.getenv("DB_NAME")) {
-
-  sql <- if (!is.null(condicion) && nchar(condicion) > 0) {
-    sprintf("SELECT * FROM %s WHERE %s", tabla, condicion)
-  } else {
-    sprintf("SELECT * FROM %s", tabla)
+    condicion = NULL) {
+  con <- ConectarBD()
+  on.exit(DBI::dbDisconnect(con))
+  consulta <- paste("SELECT * FROM", tabla)
+  if (!is.null(condicion)) {
+    consulta <- paste(consulta, "WHERE", condicion)
   }
-
-  Consulta(sql, bd = bd)
+  resultado <- DBI::dbGetQuery(con, consulta)
+  nombres <- names(resultado)
+  if (length(nombres) > 0) {
+    nombres_sin_acentos <- iconv(nombres, from = "UTF-8", to = "ASCII//TRANSLIT")
+    nombres_sin_acentos[is.na(nombres_sin_acentos)] <- nombres[is.na(nombres_sin_acentos)]
+    names(resultado) <- nombres_sin_acentos
+  }
+  resultado
 }
 
 
