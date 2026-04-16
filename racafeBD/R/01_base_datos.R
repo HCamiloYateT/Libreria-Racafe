@@ -223,8 +223,6 @@ Consulta <- function(consulta, bd = Sys.getenv("DB_NAME")) {
 #' Funcion de compatibilidad para conectarse a servidores alternos.
 #' Preferir `Consulta()` con variables de entorno para nuevos desarrollos.
 #'
-#' @param capitalizacion Modo de capitalizacion para columnas de texto:
-#' `"ninguna"`, `"mayusculas"`, `"minusculas"` o `"titulo"`.
 #' @param bd Nombre de la base de datos.
 #' @param query Consulta SQL.
 #' @param uid Usuario. Por defecto `Sys.getenv("SYS_UID")`.
@@ -236,28 +234,21 @@ Consulta <- function(consulta, bd = Sys.getenv("DB_NAME")) {
 ConsultaSistema <- function(
     bd,
     query,
-    capitalizacion = c("mayusculas", "ninguna", "minusculas", "titulo"),
     uid    = Sys.getenv("SYS_UID"),
     pwd    = Sys.getenv("SYS_PWD"),
     server = "172.16.19.21",
     port   = 1433) {
 
   .check_pkg("odbc", "Base de datos")
-  capitalizacion <- match.arg(capitalizacion)
 
-  base <- switch(
-    bd,
-    "syscafe" = "ContabRacafe",
-    "cafesys" = "Cafesys",
-    "estad"   = "EstadRacafe",
-    NA_character_
+  base <- dplyr::case_when(
+    bd == "syscafe" ~ "ContabRacafe",
+    bd == "cafesys" ~ "Cafesys",
+    bd == "estad" ~ "EstadRacafe"
   )
 
   if (is.na(base)) {
-    .error_bd(
-      "ConsultaSistema - base invalida",
-      "las bases disponibles son: 'syscafe', 'cafesys' o 'estad'"
-    )
+    stop("las bases de datos disponibles son: 'syscafe', 'cafesys' o 'estad'")
   }
 
   if (!is.character(query) || length(query) != 1 || nchar(query) == 0) {
@@ -295,84 +286,9 @@ ConsultaSistema <- function(
   on.exit(DBI::dbDisconnect(con), add = TRUE)
 
   tryCatch(
-    {
-      resultado <- DBI::dbGetQuery(con, query)
-      .postprocesar_consulta_sistema(resultado, capitalizacion = capitalizacion)
-    },
+    DBI::dbGetQuery(con, query),
     error = function(e) {
-      .error_bd(
-        sprintf("ConsultaSistema - fallo al ejecutar query (%s)", conditionMessage(e)),
-        "validar sintaxis SQL y permisos sobre la base de datos solicitada"
-      )
+      stop("Error al ejecutar la consulta: ", e$message)
     }
   )
-}
-
-
-.postprocesar_consulta_sistema <- function(resultado, capitalizacion = "mayusculas") {
-  .es_codigo_numerico <- function(x) {
-    if (!is.character(x)) {
-      return(FALSE)
-    }
-
-    valores_con_dato <- !is.na(x) & nzchar(trimws(x))
-    if (!any(valores_con_dato)) {
-      return(FALSE)
-    }
-
-    all(grepl("^[0-9]+$", trimws(x[valores_con_dato])))
-  }
-
-  columnas_char <- vapply(resultado, is.character, logical(1))
-  if (any(columnas_char)) {
-    resultado[columnas_char] <- lapply(resultado[columnas_char], function(x) {
-      if (.es_codigo_numerico(x)) {
-        return(trimws(x))
-      }
-
-      limpio <- racafeCore::LimpiarCadena(x)
-      switch(
-        capitalizacion,
-        "mayusculas" = toupper(limpio),
-        "minusculas" = tolower(limpio),
-        "titulo" = tools::toTitleCase(tolower(limpio)),
-        limpio
-      )
-    })
-  }
-
-  columnas_fecha <- grepl("fec|fecha", names(resultado), ignore.case = TRUE)
-  if (any(columnas_fecha)) {
-    resultado[columnas_fecha] <- lapply(resultado[columnas_fecha], function(x) {
-      if (inherits(x, "Date")) {
-        return(x)
-      }
-      if (inherits(x, c("POSIXct", "POSIXt"))) {
-        return(as.Date(x))
-      }
-
-      if (!is.character(x)) {
-        return(x)
-      }
-
-      convertido <- as.Date(
-        x,
-        tryFormats = c(
-          "%Y-%m-%d",
-          "%Y/%m/%d",
-          "%d/%m/%Y",
-          "%d-%m-%Y",
-          "%m/%d/%Y",
-          "%d.%m.%Y"
-        )
-      )
-      valores_con_dato <- !is.na(x) & nzchar(trimws(x))
-      if (!any(!is.na(convertido[valores_con_dato]))) {
-        return(x)
-      }
-      convertido
-    })
-  }
-
-  resultado
 }
