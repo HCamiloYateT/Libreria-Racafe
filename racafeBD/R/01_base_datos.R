@@ -23,18 +23,18 @@
 #' }
 ConectarBD <- function(
     bd     = Sys.getenv("DB_NAME"),
-    server = Sys.getenv("DB_SERVER"),
+    server = Sys.getenv("DB_SERVER", Sys.getenv("DB_HOST")),
     port   = as.integer(Sys.getenv("DB_PORT", "1433"))) {
 
   .check_pkg("odbc", "Base de datos")
 
-  uid <- Sys.getenv("DB_UID")
-  pwd <- Sys.getenv("DB_PWD")
+  uid <- Sys.getenv("DB_UID", Sys.getenv("DB_USER"))
+  pwd <- Sys.getenv("DB_PWD", Sys.getenv("DB_PASSWORD"))
 
   if (nchar(uid) == 0 || nchar(pwd) == 0) {
     .error_bd(
-      "ConectarBD - faltan credenciales en variables de entorno (DB_UID/DB_PWD)",
-      "definir DB_UID y DB_PWD antes de invocar la conexion"
+      "ConectarBD - faltan credenciales en variables de entorno (DB_UID/DB_PWD o DB_USER/DB_PASSWORD)",
+      "definir DB_UID y DB_PWD (o aliases DB_USER/DB_PASSWORD) antes de invocar la conexion"
     )
   }
 
