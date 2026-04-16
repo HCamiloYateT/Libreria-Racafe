@@ -70,3 +70,27 @@ test_that("ConsultaSistema usa env vars si no se pasan uid/pwd", {
     }
   )
 })
+
+test_that("postproceso de ConsultaSistema limpia y capitaliza texto", {
+  entrada <- data.frame(
+    Nombre = c("  jOsé  pérez!! ", "MARIA###"),
+    stringsAsFactors = FALSE
+  )
+
+  salida <- racafeBD:::.postprocesar_consulta_sistema(entrada, capitalizacion = "titulo")
+
+  expect_equal(salida$Nombre, c("Jose Perez", "Maria"))
+})
+
+test_that("postproceso de ConsultaSistema convierte columnas fecha por nombre", {
+  entrada <- data.frame(
+    FechaRegistro = c("2026-01-03", "2026/02/04"),
+    OtraColumna = c("x", "y"),
+    stringsAsFactors = FALSE
+  )
+
+  salida <- racafeBD:::.postprocesar_consulta_sistema(entrada, capitalizacion = "ninguna")
+
+  expect_s3_class(salida$FechaRegistro, "Date")
+  expect_equal(salida$FechaRegistro, as.Date(c("2026-01-03", "2026-02-04")))
+})
