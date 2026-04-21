@@ -200,9 +200,11 @@ CargarDatos <- function(
 #'   resultado <- Consulta("SELECT COUNT(*) AS n FROM mi_tabla")
 #' }
 Consulta <- function(consulta, bd = Sys.getenv("DB_NAME")) {
+  # Validacion de argumento SQL
   if (!is.character(consulta) || length(consulta) != 1 || nchar(consulta) == 0) {
     .error_bd("Consulta - `consulta` no es SQL valido", "enviar una cadena SQL no vacia")
   }
+  # Conexion y ejecucion con trazabilidad de errores
   con <- ConectarBD(bd = bd)
   on.exit(DBI::dbDisconnect(con))
   resultado <- tryCatch(
@@ -214,7 +216,9 @@ Consulta <- function(consulta, bd = Sys.getenv("DB_NAME")) {
       )
     }
   )
-  janitor::clean_names(resultado)
+  # Normalizacion de nombres y postprocesamiento estandar
+  resultado <- janitor::clean_names(resultado)
+  .postprocesar_resultado(resultado)
 }
 
 
@@ -241,6 +245,7 @@ ConsultaSistema <- function(
 
   .check_pkg("odbc", "Base de datos")
 
+  # Resolucion del nombre de base de datos segun alias
   base <- dplyr::case_when(
     bd == "syscafe" ~ "ContabRacafe",
     bd == "cafesys" ~ "Cafesys",
@@ -251,6 +256,7 @@ ConsultaSistema <- function(
     stop("las bases de datos disponibles son: 'syscafe', 'cafesys' o 'estad'")
   }
 
+  # Validacion de argumentos de entrada
   if (!is.character(query) || length(query) != 1 || nchar(query) == 0) {
     .error_bd(
       "ConsultaSistema - `query` no es SQL valido",
@@ -265,6 +271,7 @@ ConsultaSistema <- function(
     )
   }
 
+  # Apertura de conexion con manejo de error descriptivo
   con <- tryCatch(
     DBI::dbConnect(
       odbc::odbc(),
@@ -285,10 +292,28 @@ ConsultaSistema <- function(
   )
   on.exit(DBI::dbDisconnect(con), add = TRUE)
 
-  tryCatch(
+  # Ejecucion de consulta y postprocesamiento estandar
+  resultado <- tryCatch(
     DBI::dbGetQuery(con, query),
     error = function(e) {
       stop("Error al ejecutar la consulta: ", e$message)
     }
   )
+  .postprocesar_resultado(resultado)
+}
+
+
+# Helper interno: postprocesamiento estandar de resultados SQL ----
+.postprocesar_resultado <- function(df) {
+  # Conversion de columnas fecha detectadas por patron en nombre
+  cols_fecha <- grep("fec", names(df), ignore.case = TRUE, value = TRUE)
+  for (col in cols_fecha) {
+    df[[col]] <- as.Date(df[[col]])
+  }
+  # Limpieza de cadenas en columnas caracter
+  cols_char <- names(df)[sapply(df, is.character)]
+  for (col in cols_char) {
+    df[[col]] <- racafeCore::LimpiarCadena(df[[col]])
+  }
+  df
 }
