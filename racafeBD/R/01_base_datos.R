@@ -310,10 +310,17 @@ ConsultaSistema <- function(
   for (col in cols_fecha) {
     df[[col]] <- as.Date(df[[col]])
   }
-  # Limpieza de cadenas en columnas caracter
+  # Limpieza conservadora de cadenas en columnas caracter
+  # Nota: no remover numeros ni caracteres especiales para evitar
+  # alterar codigos alfanumericos de sistemas fuente.
   cols_char <- names(df)[sapply(df, is.character)]
   for (col in cols_char) {
-    df[[col]] <- racafeCore::LimpiarCadena(df[[col]])
+    df[[col]] <- racafeCore::LimpiarCadena(
+      df[[col]],
+      rem_numeros = FALSE,
+      rem_caresp = FALSE,
+      rem_acentos = FALSE
+    )
   }
   df
 }

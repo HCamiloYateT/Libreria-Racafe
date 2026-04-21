@@ -70,3 +70,16 @@ test_that("ConsultaSistema usa env vars si no se pasan uid/pwd", {
     }
   )
 })
+
+test_that("postprocesamiento de ConsultaSistema conserva codigos alfanumericos", {
+  entrada <- data.frame(
+    codigo = c("AB-123", "X9_77"),
+    descripcion = c("Lote 001", "Café #2"),
+    stringsAsFactors = FALSE
+  )
+
+  salida <- racafeBD:::.postprocesar_resultado(entrada)
+
+  expect_identical(salida$codigo, entrada$codigo)
+  expect_identical(salida$descripcion, entrada$descripcion)
+})
