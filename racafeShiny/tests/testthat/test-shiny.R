@@ -141,6 +141,7 @@ test_that("BotonDescarga incorpora clases y atributos de Boton", {
   expect_match(html, "data-racafe-label-pos=\"below\"")
   expect_match(html, "racafe-btn-content--column")
   expect_match(html, "title=\"Descargar archivo\"")
+  expect_no_match(html, "fa-download")
 })
 
 test_that("BotonDescarga conserva parametros retrocompatibles", {

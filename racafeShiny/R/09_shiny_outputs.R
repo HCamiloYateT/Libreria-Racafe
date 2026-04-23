@@ -112,6 +112,7 @@ BotonDescarga <- function(
     outputId = output_id,
     label    = contenido_boton,
     class    = paste(clase_boton, collapse = " "),
+    icon     = NULL,
     ...
   )
 
