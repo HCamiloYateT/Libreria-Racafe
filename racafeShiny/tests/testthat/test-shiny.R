@@ -125,7 +125,7 @@ test_that("BotonDescarga valida size correcto", {
   expect_error(BotonDescarga("id", size = "xxxl"))
 })
 
-test_that("BotonDescarga incorpora clases y atributos de Boton", {
+test_that("BotonDescarga incorpora clases y atributos de su estilo propio", {
   btn <- BotonDescarga(
     "descarga_1",
     label = "Descargar",
@@ -136,7 +136,7 @@ test_that("BotonDescarga incorpora clases y atributos de Boton", {
     titulo = "Descargar archivo"
   )
   html <- as.character(btn)
-  expect_match(html, "racafe-btn-guardar--md")
+  expect_match(html, "racafe-btn-descarga--md")
   expect_match(html, "data-racafe-hover-color=\"rgb\\(178,34,34\\)\"")
   expect_match(html, "data-racafe-label-pos=\"below\"")
   expect_match(html, "racafe-btn-content--column")
