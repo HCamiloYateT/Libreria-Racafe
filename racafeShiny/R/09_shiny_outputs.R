@@ -6,113 +6,67 @@
 
 # ---- Botones de descarga ----
 
-#' Botón de descarga con el estilo visual de racafe
+#' Botón de descarga estilizado con clases racafe y tamaños unificados
 #'
-#' Genera un `downloadButton` visualmente idéntico a [Boton()] usando su
-#' propia clase base `racafe-btn-descarga`, independiente de
-#' `racafe-btn-guardar`. Requiere el bloque `.racafe-btn-descarga` en
-#' `style.css`. Debe usarse junto con un `downloadHandler` en el server
-#' bajo el mismo `id`.
+#' Genera un `downloadButton` con clase base `racafe-btn-descarga`, tamaños
+#' normalizados y color configurable vía atributo `data-racafe-color`.
 #'
-#' @param id String. `outputId` del botón. Debe coincidir con el
-#'   `downloadHandler` registrado en el server.
-#' @param label String o `NULL`. Texto visible. `NULL` muestra solo el ícono.
-#' @param icono String o `NULL`. Nombre FontAwesome. Default `"download"`.
-#' @param align String. Alineación del contenedor: `"left"`, `"center"`,
-#'   `"right"`. Default `"right"`.
-#' @param size String. Tamaño del botón: `"xxs"`, `"xs"`, `"sm"`, `"md"`,
-#'   `"lg"`, `"xl"`, `"xxl"`. Default `"sm"`.
-#' @param hover_color String. Color R válido aplicado al hover. Default
-#'   `"firebrick"`.
-#' @param label_posicion String. Posición del label respecto al ícono:
-#'   `"right"` o `"below"`. Default `"right"`.
-#' @param titulo String o `NULL`. Tooltip HTML (atributo `title`). Default `NULL`.
-#' @param ... Argumentos adicionales pasados a `shiny::downloadButton()`.
+#' @param button_id String. `outputId` del botón.
+#' @param icono String. Nombre FontAwesome. Default `"download"`.
+#' @param color String. Color reconocido por R (nombre o hexadecimal).
+#' @param ns `NULL` o función de namespace (ej. `shiny::NS`).
+#' @param title String o `NULL`. Tooltip del contenedor.
+#' @param size String. Tamaño: `"xxs"`, `"xs"`, `"sm"`, `"md"`, `"lg"`,
+#'   `"xl"`, `"xxl"`.
+#' @param align String. Alineación: `"left"`, `"center"` o `"right"`.
 #'
 #' @return `shiny.tag` div contenedor con el `downloadButton` estilizado.
 #' @export
-BotonDescarga <- function(
-    id,
-    label          = "Descargar",
-    icono          = "download",
-    align          = "right",
-    size           = "sm",
-    hover_color    = "firebrick",
-    label_posicion = "right",
-    titulo         = NULL,
-    ...
-) {
-  # Validación de argumentos ----
-  align          <- match.arg(align, c("left", "center", "right"))
-  size           <- match.arg(size, c("xxs", "xs", "sm", "md", "lg", "xl", "xxl"))
-  label_posicion <- match.arg(label_posicion, c("right", "below"))
+BotonDescarga <- function(button_id, icono = "download", color = "#28b78d",
+                           ns = NULL, title = "Descargar", size = "sm", align = "right") {
+  align <- match.arg(align, c("left", "center", "right"))
+  size  <- match.arg(size,  c("xxs", "xs", "sm", "md", "lg", "xl", "xxl"))
 
-  if (is.null(label) && is.null(icono)) {
-    stop("Debe especificar al menos `label` o `icono`.", call. = FALSE)
-  }
-  if (!is.character(hover_color) || nchar(hover_color) == 0) {
-    stop("`hover_color` debe ser una cadena de color valida.", call. = FALSE)
-  }
-  if (!is.null(titulo) && (!is.character(titulo) || length(titulo) != 1)) {
-    stop("`titulo` debe ser `NULL` o una cadena de longitud 1.", call. = FALSE)
-  }
+  if (!is.character(button_id) || length(button_id) != 1 || !nzchar(button_id))
+    stop("'button_id' debe ser una cadena de caracteres no vacía.", call. = FALSE)
+  if (!is.character(icono) || length(icono) != 1 || !nzchar(icono))
+    stop("'icono' debe ser una cadena de caracteres no vacía.", call. = FALSE)
+  if (!is.character(color) || length(color) != 1 || !nzchar(color))
+    stop("'color' debe ser una cadena de caracteres no vacía.", call. = FALSE)
 
-  # Resolución del color hover a RGB ----
-  hover_color_css <- tryCatch({
-    rgb_vals <- grDevices::col2rgb(hover_color)
-    sprintf("rgb(%d,%d,%d)", rgb_vals[1], rgb_vals[2], rgb_vals[3])
-  }, error = function(e) {
-    stop(sprintf("Color '%s' no reconocido.", hover_color), call. = FALSE)
-  })
+  color_is_valid <- TRUE
+  tryCatch(grDevices::col2rgb(color), error = function(...) color_is_valid <<- FALSE)
+  if (!color_is_valid)
+    stop("'color' debe ser un color reconocido por R (ej. nombre o código hexadecimal).", call. = FALSE)
 
-  # Clases y contenido interno ----
+  if (!is.null(ns) && !is.function(ns))
+    stop("'ns' debe ser NULL o una función de namespace válida (p. ej. shiny::NS).", call. = FALSE)
+  if (!is.null(title) && (!is.character(title) || length(title) != 1))
+    stop("'title' debe ser NULL o una cadena de caracteres de longitud uno.", call. = FALSE)
+
+  final_id    <- if (is.null(ns)) button_id else ns(button_id)
   clase_align <- switch(align, left = "text-left", center = "text-center", right = "text-right")
-
-  clase_label <- if (!is.null(icono) && !is.null(label) && identical(label_posicion, "below")) {
-    "racafe-btn-content racafe-btn-content--column"
-  } else {
-    "racafe-btn-content"
-  }
-
-  contenido_boton <- shiny::tags$span(
-    class = clase_label,
-    if (!is.null(icono)) shiny::icon(icono, class = "racafe-btn-icon") else NULL,
-    if (!is.null(label)) shiny::tags$span(class = "racafe-btn-label", label) else NULL
-  )
-
-  clase_boton <- c(
-    "btn btn-success racafe-btn-descarga",
+  clase_boton <- paste(
+    "btn racafe-btn-descarga",
     sprintf("racafe-btn-descarga--%s", size),
-    "racafe-btn-content-host",
-    if (identical(label_posicion, "below")) "racafe-btn-content-host--column" else NULL
+    collapse = " "
   )
 
+  # Construcción del botón con clases racafe y atributos de color/título
   boton <- shiny::downloadButton(
-    outputId = id,
-    label    = contenido_boton,
-    class    = paste(clase_boton, collapse = " "),
-    icon     = NULL,
-    ...
+    outputId = final_id,
+    label    = NULL,
+    icon     = shiny::icon(icono, class = "racafe-btn-icon"),
+    class    = clase_boton
   )
+  boton <- shiny::tagAppendAttributes(boton, `data-racafe-color` = color)
 
-  boton <- shiny::tagAppendAttributes(
-    boton,
-    `data-racafe-label-pos` = label_posicion,
-    title                   = titulo
-  )
-
-  # Estilo hover escopado por ID ----
-  # Se inyecta un <style> por instancia porque el JS de hover_color opera
-  # sobre <button> y no alcanza el <a> que genera downloadButton. El selector
-  # #id.racafe-btn-descarga garantiza que no afecta ningun otro elemento.
-  hover_style <- shiny::tags$style(sprintf(
-    "#%s.racafe-btn-descarga:hover,\n     #%s.racafe-btn-descarga:focus,\n     #%s.racafe-btn-descarga:active {\n       background-color: %s !important;\n       border-color:     %s !important;\n     }",
-    id, id, id, hover_color_css, hover_color_css
-  ))
-
-  shiny::tagList(
-    hover_style,
-    shiny::div(class = clase_align, boton)
+  # Div contenedor con alineación y tooltip
+  shiny::div(
+    style = "cursor: pointer;",
+    class = clase_align,
+    title = title,
+    boton
   )
 }
 
