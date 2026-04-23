@@ -13,7 +13,10 @@
 #'
 #' @param button_id String. `outputId` del botón.
 #' @param icono String. Nombre FontAwesome. Default `"download"`.
-#' @param color String. Color reconocido por R (nombre o hexadecimal).
+#' @param color_fondo String. Color de fondo reconocido por R (nombre o hexadecimal).
+#'   Por defecto usa el mismo color base de `racafeShiny::Boton()`.
+#' @param color_fuente String. Color de fuente reconocido por R (nombre o hexadecimal).
+#'   Por defecto usa el mismo color de texto de `racafeShiny::Boton()`.
 #' @param ns `NULL` o función de namespace (ej. `shiny::NS`).
 #' @param title String o `NULL`. Tooltip del contenedor.
 #' @param size String. Tamaño: `"xxs"`, `"xs"`, `"sm"`, `"md"`, `"lg"`,
@@ -22,7 +25,8 @@
 #'
 #' @return `shiny.tag` div contenedor con el `downloadButton` estilizado.
 #' @export
-BotonDescarga <- function(button_id, icono = "download", color = "#28b78d",
+BotonDescarga <- function(button_id, icono = "download",
+                           color_fondo = "#28B78D", color_fuente = "#FFFFFF",
                            ns = NULL, title = "Descargar", size = "sm", align = "right") {
   align <- match.arg(align, c("left", "center", "right"))
   size  <- match.arg(size,  c("xxs", "xs", "sm", "md", "lg", "xl", "xxl"))
@@ -31,13 +35,19 @@ BotonDescarga <- function(button_id, icono = "download", color = "#28b78d",
     stop("'button_id' debe ser una cadena de caracteres no vacía.", call. = FALSE)
   if (!is.character(icono) || length(icono) != 1 || !nzchar(icono))
     stop("'icono' debe ser una cadena de caracteres no vacía.", call. = FALSE)
-  if (!is.character(color) || length(color) != 1 || !nzchar(color))
-    stop("'color' debe ser una cadena de caracteres no vacía.", call. = FALSE)
+  if (!is.character(color_fondo) || length(color_fondo) != 1 || !nzchar(color_fondo))
+    stop("'color_fondo' debe ser una cadena de caracteres no vacía.", call. = FALSE)
+  if (!is.character(color_fuente) || length(color_fuente) != 1 || !nzchar(color_fuente))
+    stop("'color_fuente' debe ser una cadena de caracteres no vacía.", call. = FALSE)
 
-  color_is_valid <- TRUE
-  tryCatch(grDevices::col2rgb(color), error = function(...) color_is_valid <<- FALSE)
-  if (!color_is_valid)
-    stop("'color' debe ser un color reconocido por R (ej. nombre o código hexadecimal).", call. = FALSE)
+  fondo_es_valido <- TRUE
+  fuente_es_valida <- TRUE
+  tryCatch(grDevices::col2rgb(color_fondo), error = function(...) fondo_es_valido <<- FALSE)
+  tryCatch(grDevices::col2rgb(color_fuente), error = function(...) fuente_es_valida <<- FALSE)
+  if (!fondo_es_valido)
+    stop("'color_fondo' debe ser un color reconocido por R (ej. nombre o código hexadecimal).", call. = FALSE)
+  if (!fuente_es_valida)
+    stop("'color_fuente' debe ser un color reconocido por R (ej. nombre o código hexadecimal).", call. = FALSE)
 
   if (!is.null(ns) && !is.function(ns))
     stop("'ns' debe ser NULL o una función de namespace válida (p. ej. shiny::NS).", call. = FALSE)
@@ -59,7 +69,12 @@ BotonDescarga <- function(button_id, icono = "download", color = "#28b78d",
     icon     = shiny::icon(icono, class = "racafe-btn-icon"),
     class    = clase_boton
   )
-  boton <- shiny::tagAppendAttributes(boton, `data-racafe-color` = color)
+  boton <- shiny::tagAppendAttributes(
+    boton,
+    `data-racafe-color-fondo` = color_fondo,
+    `data-racafe-color-fuente` = color_fuente,
+    style = sprintf("background-color:%s;color:%s;", color_fondo, color_fuente)
+  )
 
   # Div contenedor con alineación y tooltip
   shiny::div(

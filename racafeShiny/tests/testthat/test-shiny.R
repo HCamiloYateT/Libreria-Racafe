@@ -114,9 +114,19 @@ test_that("Obligatorio incluye asterisco con color rojo", {
 
 # ---- Componentes Shiny (estructura HTML) ----
 
-test_that("BotonDescarga rechaza color invalido", {
-  expect_error(BotonDescarga("id", color = ""))
-  expect_error(BotonDescarga("id", color = "color_que_no_existe_xyz"))
+test_that("BotonDescarga rechaza colores invalidos", {
+  expect_error(BotonDescarga("id", color_fondo = ""))
+  expect_error(BotonDescarga("id", color_fuente = ""))
+  expect_error(BotonDescarga("id", color_fondo = "color_que_no_existe_xyz"))
+  expect_error(BotonDescarga("id", color_fuente = "color_que_no_existe_xyz"))
+})
+
+test_that("BotonDescarga aplica colores de fondo y fuente", {
+  btn <- BotonDescarga("id_colores", color_fondo = "#112233", color_fuente = "#f5f5f5")
+  html <- as.character(btn)
+  expect_match(html, 'data-racafe-color-fondo="#112233"')
+  expect_match(html, 'data-racafe-color-fuente="#f5f5f5"')
+  expect_match(html, 'background-color:#112233;color:#f5f5f5;')
 })
 
 test_that("BotonDescarga valida size correcto", {
