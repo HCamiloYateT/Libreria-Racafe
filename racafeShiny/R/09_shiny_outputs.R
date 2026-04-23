@@ -57,7 +57,7 @@ BotonDescarga <- function(
     stop("`titulo` debe ser `NULL` o una cadena de longitud 1.", call. = FALSE)
   }
 
-  # Resolución del color hover a RGB para inyección CSS ----
+  # Resolución del color hover a RGB ----
   hover_color_css <- tryCatch({
     rgb_vals <- grDevices::col2rgb(hover_color)
     sprintf("rgb(%d,%d,%d)", rgb_vals[1], rgb_vals[2], rgb_vals[3])
@@ -87,9 +87,6 @@ BotonDescarga <- function(
     if (identical(label_posicion, "below")) "racafe-btn-content-host--column" else NULL
   )
 
-  # Construcción del downloadButton ----
-  # icon = NULL suprime el ícono por defecto de downloadButton;
-  # el ícono va dentro de contenido_boton con clase racafe-btn-icon
   boton <- shiny::downloadButton(
     outputId = id,
     label    = contenido_boton,
@@ -98,16 +95,27 @@ BotonDescarga <- function(
     ...
   )
 
-  # Inyección de atributos de comportamiento CSS/JS ----
   boton <- shiny::tagAppendAttributes(
     boton,
-    `data-racafe-hover-color` = hover_color_css,
-    `data-racafe-label-pos`   = label_posicion,
-    title                     = titulo
+    `data-racafe-label-pos` = label_posicion,
+    title                   = titulo
   )
 
-  shiny::div(class = clase_align, boton)
+  # Estilo hover escopado por ID ----
+  # Se inyecta un <style> por instancia porque el JS de hover_color opera
+  # sobre <button> y no alcanza el <a> que genera downloadButton. El selector
+  # #id.racafe-btn-descarga garantiza que no afecta ningun otro elemento.
+  hover_style <- shiny::tags$style(sprintf(
+    "#%s.racafe-btn-descarga:hover,\n     #%s.racafe-btn-descarga:focus,\n     #%s.racafe-btn-descarga:active {\n       background-color: %s !important;\n       border-color:     %s !important;\n     }",
+    id, id, id, hover_color_css, hover_color_css
+  ))
+
+  shiny::tagList(
+    hover_style,
+    shiny::div(class = clase_align, boton)
+  )
 }
+
 
 
 # ---- Cajas de indicadores ----
