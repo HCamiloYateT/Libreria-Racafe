@@ -116,6 +116,11 @@ BotonDescarga <- function(
     ...
   )
 
+  if (!is.null(boton$attribs$class)) {
+    clases <- unique(strsplit(boton$attribs$class, "\\s+")[[1]])
+    boton$attribs$class <- paste(setdiff(clases, "btn-default"), collapse = " ")
+  }
+
   boton <- shiny::tagAppendAttributes(
     boton,
     `data-racafe-hover-color` = hover_color_css,
