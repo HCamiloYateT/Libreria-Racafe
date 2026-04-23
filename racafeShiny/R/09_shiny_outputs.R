@@ -17,6 +17,7 @@
 #'   Por defecto usa el mismo color base de `racafeShiny::Boton()`.
 #' @param color_fuente String. Color de fuente reconocido por R (nombre o hexadecimal).
 #'   Por defecto usa el mismo color de texto de `racafeShiny::Boton()`.
+#' @param color_hover Color de fondo al hover. `NULL` aplica oscurecimiento automatico.
 #' @param ns `NULL` o función de namespace (ej. `shiny::NS`).
 #' @param title String o `NULL`. Tooltip del contenedor.
 #' @param size String. Tamaño: `"xxs"`, `"xs"`, `"sm"`, `"md"`, `"lg"`,
@@ -25,60 +26,44 @@
 #'
 #' @return `shiny.tag` div contenedor con el `downloadButton` estilizado.
 #' @export
-BotonDescarga <- function(button_id, icono = "download",
-                           color_fondo = "#28B78D", color_fuente = "#FFFFFF",
-                           ns = NULL, title = "Descargar", size = "sm", align = "right") {
+BotonDescarga <- function(
+    button_id,
+    icono        = "download",
+    color_fondo  = "#28B78D",
+    color_fuente = "#FFFFFF",
+    color_hover  = NULL,
+    ns           = NULL,
+    title        = "Descargar",
+    size         = "sm",
+    align        = "right") {
   align <- match.arg(align, c("left", "center", "right"))
-  size  <- match.arg(size,  c("xxs", "xs", "sm", "md", "lg", "xl", "xxl"))
+  size  <- match.arg(size, c("xxs", "xs", "sm", "md", "lg", "xl", "xxl"))
 
   if (!is.character(button_id) || length(button_id) != 1 || !nzchar(button_id))
     stop("'button_id' debe ser una cadena de caracteres no vacía.", call. = FALSE)
   if (!is.character(icono) || length(icono) != 1 || !nzchar(icono))
     stop("'icono' debe ser una cadena de caracteres no vacía.", call. = FALSE)
-  if (!is.character(color_fondo) || length(color_fondo) != 1 || !nzchar(color_fondo))
-    stop("'color_fondo' debe ser una cadena de caracteres no vacía.", call. = FALSE)
-  if (!is.character(color_fuente) || length(color_fuente) != 1 || !nzchar(color_fuente))
-    stop("'color_fuente' debe ser una cadena de caracteres no vacía.", call. = FALSE)
-
-  fondo_es_valido <- TRUE
-  fuente_es_valida <- TRUE
-  tryCatch(grDevices::col2rgb(color_fondo), error = function(...) fondo_es_valido <<- FALSE)
-  tryCatch(grDevices::col2rgb(color_fuente), error = function(...) fuente_es_valida <<- FALSE)
-  if (!fondo_es_valido)
-    stop("'color_fondo' debe ser un color reconocido por R (ej. nombre o código hexadecimal).", call. = FALSE)
-  if (!fuente_es_valida)
-    stop("'color_fuente' debe ser un color reconocido por R (ej. nombre o código hexadecimal).", call. = FALSE)
-
   if (!is.null(ns) && !is.function(ns))
-    stop("'ns' debe ser NULL o una función de namespace válida (p. ej. shiny::NS).", call. = FALSE)
+    stop("'ns' debe ser NULL o una función de namespace válida.", call. = FALSE)
   if (!is.null(title) && (!is.character(title) || length(title) != 1))
     stop("'title' debe ser NULL o una cadena de caracteres de longitud uno.", call. = FALSE)
 
+  css_vars <- .btn_css_vars(color_fondo, color_fuente, color_hover)
+
   final_id    <- if (is.null(ns)) button_id else ns(button_id)
   clase_align <- switch(align, left = "text-left", center = "text-center", right = "text-right")
-  clase_boton <- paste(
-    "btn racafe-btn-descarga",
-    sprintf("racafe-btn-descarga--%s", size),
-    collapse = " "
-  )
+  clase_boton <- paste("btn racafe-btn racafe-btn-descarga", sprintf("racafe-btn-descarga--%s", size))
 
-  # Construcción del botón con clases racafe y atributos de color/título
   boton <- shiny::downloadButton(
     outputId = final_id,
     label    = NULL,
     icon     = shiny::icon(icono, class = "racafe-btn-icon"),
-    class    = clase_boton
-  )
-  boton <- shiny::tagAppendAttributes(
-    boton,
-    `data-racafe-color-fondo` = color_fondo,
-    `data-racafe-color-fuente` = color_fuente,
-    style = sprintf("background-color:%s;color:%s;", color_fondo, color_fuente)
+    class    = clase_boton,
+    style    = css_vars
   )
 
-  # Div contenedor con alineación y tooltip
   shiny::div(
-    style = "cursor: pointer;",
+    style = "cursor:pointer;",
     class = clase_align,
     title = title,
     boton

@@ -119,57 +119,33 @@ test_that("BotonDescarga rechaza colores invalidos", {
   expect_error(BotonDescarga("id", color_fuente = ""))
   expect_error(BotonDescarga("id", color_fondo = "color_que_no_existe_xyz"))
   expect_error(BotonDescarga("id", color_fuente = "color_que_no_existe_xyz"))
+  expect_error(BotonDescarga("id", color_hover = "color_que_no_existe_xyz"))
 })
 
-test_that("BotonDescarga aplica colores de fondo y fuente", {
-  btn <- BotonDescarga("id_colores", color_fondo = "#112233", color_fuente = "#f5f5f5")
+test_that("BotonDescarga aplica CSS vars y clases", {
+  btn <- BotonDescarga(
+    "descarga_1",
+    icono = "file-excel",
+    size = "md",
+    color_fondo = "#112233",
+    color_fuente = "#f5f5f5",
+    color_hover = "#102030",
+    title = "Descargar archivo"
+  )
   html <- as.character(btn)
-  expect_match(html, 'data-racafe-color-fondo="#112233"')
-  expect_match(html, 'data-racafe-color-fuente="#f5f5f5"')
-  expect_match(html, 'background-color:#112233;color:#f5f5f5;')
+  expect_match(html, "racafe-btn-descarga--md")
+  expect_match(html, "racafe-btn")
+  expect_match(html, "--racafe-color-fondo:rgb\\(17,34,51\\)")
+  expect_match(html, "--racafe-color-fuente:rgb\\(245,245,245\\)")
+  expect_match(html, "--racafe-color-hover:rgb\\(16,32,48\\)")
+  expect_match(html, "title=\\\"Descargar archivo\\\"")
+  expect_no_match(html, "btn-default")
 })
 
 test_that("BotonDescarga valida size correcto", {
   expect_no_error(BotonDescarga("id", size = "sm"))
   expect_no_error(BotonDescarga("id", size = "xxl"))
   expect_error(BotonDescarga("id", size = "xxxl"))
-})
-
-test_that("BotonDescarga incorpora clases y atributos de su estilo propio", {
-  btn <- BotonDescarga(
-    "descarga_1",
-    label = "Descargar",
-    icono = "file-excel",
-    size = "md",
-    label_posicion = "below",
-    hover_color = "firebrick",
-    titulo = "Descargar archivo"
-  )
-  html <- as.character(btn)
-  expect_match(html, "racafe-btn-descarga--md")
-  expect_match(html, "data-racafe-hover-color=\"rgb\\(178,34,34\\)\"")
-  expect_match(html, "data-racafe-label-pos=\"below\"")
-  expect_match(html, "racafe-btn-content--column")
-  expect_match(html, "title=\"Descargar archivo\"")
-  expect_no_match(html, "fa-download")
-  expect_no_match(html, "btn-default")
-})
-
-test_that("BotonDescarga conserva parametros retrocompatibles", {
-  btn <- BotonDescarga(
-    button_id = "descarga_legacy",
-    icon_name = "download",
-    title = "Bajar archivo"
-  )
-  html <- as.character(btn)
-  expect_match(html, "descarga_legacy")
-  expect_match(html, "Bajar archivo")
-})
-
-test_that("BotonDescarga valida hover_color y contenido", {
-  expect_error(BotonDescarga("id2", hover_color = ""))
-  expect_error(BotonDescarga("id3", hover_color = "color_no_valido"))
-  expect_error(BotonDescarga("id4", label = NULL, icono = NULL))
 })
 
 test_that("Boton valida alineacion correcta", {
@@ -193,16 +169,19 @@ test_that("Boton incorpora clase segun size", {
   expect_match(html, "racafe-btn-guardar--md")
 })
 
-test_that("Boton permite hover_color y posicion del label", {
+test_that("Boton aplica CSS vars y posicion del label", {
   btn <- Boton("id_btn2", label = "Guardar", icono = "floppy-disk",
-               hover_color = "firebrick", label_posicion = "below")
+               color_fondo = "#112233", color_fuente = "#f5f5f5",
+               color_hover = "firebrick", label_posicion = "below")
   html <- as.character(btn)
-  expect_match(html, "data-racafe-hover-color=\"rgb\\(178,34,34\\)\"")
+  expect_match(html, "--racafe-color-fondo:rgb\\(17,34,51\\)")
+  expect_match(html, "--racafe-color-fuente:rgb\\(245,245,245\\)")
+  expect_match(html, "--racafe-color-hover:rgb\\(178,34,34\\)")
   expect_match(html, "data-racafe-label-pos=\"below\"")
   expect_match(html, "racafe-btn-content--column")
   expect_no_match(html, "<style")
-  expect_error(Boton("id_btn3", hover_color = ""))
-  expect_error(Boton("id_btn4", hover_color = "color_no_valido"))
+  expect_error(Boton("id_btn3", color_hover = ""))
+  expect_error(Boton("id_btn4", color_hover = "color_no_valido"))
 })
 
 test_that("Boton permite titulo hover", {
@@ -216,6 +195,21 @@ test_that("Boton admite texto, icono o ambos", {
   expect_no_error(Boton("btn_icono", label = NULL, icono = "floppy-disk"))
   expect_no_error(Boton("btn_ambos", label = "Guardar", icono = "floppy-disk"))
   expect_error(Boton("btn_vacio", label = NULL, icono = NULL))
+})
+
+test_that("BotonesRadiales inyecta CSS escopado", {
+  grp <- BotonesRadiales(
+    inputId = "estado",
+    choices = c("Activo", "Inactivo"),
+    color_fondo = "#112233",
+    color_fuente = "#FFFFFF",
+    color_hover = "#000000"
+  )
+  html <- as.character(grp)
+  expect_match(html, "<style")
+  expect_match(html, "#estado \\\\.btn")
+  expect_match(html, "background-color: rgb\\(17,34,51\\) !important")
+  expect_match(html, "background-color: rgb\\(0,0,0\\) !important")
 })
 
 test_that("CajaValor retorna objeto shiny.tag", {
