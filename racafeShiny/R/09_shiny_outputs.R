@@ -6,58 +6,44 @@
 
 # ---- Botones de descarga ----
 
-#' Boton de descarga con la misma apariencia de `Boton`
+#' Botón de descarga con el estilo visual de racafe
 #'
-#' @param id ID del boton de descarga.
-#' @param label Texto del boton. Puede ser `NULL` si se desea solo icono.
-#' @param icono Nombre del icono FontAwesome (sin prefijo `fa-`).
-#' @param align Alineacion horizontal del contenedor: `"left"`, `"center"`, `"right"`.
-#' @param size Tamano del boton: `"xxs"`, `"xs"`, `"sm"`, `"md"`, `"lg"`, `"xl"`, `"xxl"`.
-#' @param hover_color Color del estado hover. Cualquier color valido en R o hexadecimal.
-#' @param label_posicion Posicion del texto cuando hay icono y label: `"right"` o `"below"`.
-#' @param titulo Tooltip del boton.
-#' @param ns Funcion namespace de modulo Shiny. `NULL` si no es modulo.
-#' @param button_id Alias retrocompatible de `id`.
-#' @param icon_name Alias retrocompatible de `icono`.
-#' @param title Alias retrocompatible de `titulo`.
-#' @param ... Argumentos adicionales para `shiny::downloadButton`.
-#' @return Componente Shiny con boton de descarga.
+#' Genera un `downloadButton` con la misma apariencia y opciones de
+#' configuración que [Boton()]: tamaño, alineación, hover color, posición
+#' del label y tooltip. Debe usarse junto con un `downloadHandler` en el
+#' server bajo el mismo `id`.
+#'
+#' @param id String. `outputId` del botón. Debe coincidir con el
+#'   `downloadHandler` registrado en el server.
+#' @param label String o `NULL`. Texto visible. `NULL` muestra solo el ícono.
+#' @param icono String o `NULL`. Nombre FontAwesome. Default `"download"`.
+#' @param align String. Alineación del contenedor: `"left"`, `"center"`,
+#'   `"right"`. Default `"right"`.
+#' @param size String. Tamaño del botón: `"xxs"`, `"xs"`, `"sm"`, `"md"`,
+#'   `"lg"`, `"xl"`, `"xxl"`. Default `"sm"`.
+#' @param hover_color String. Color R válido aplicado al hover. Default
+#'   `"firebrick"`.
+#' @param label_posicion String. Posición del label respecto al ícono:
+#'   `"right"` o `"below"`. Default `"right"`.
+#' @param titulo String o `NULL`. Tooltip HTML (atributo `title`). Default `NULL`.
+#' @param ... Argumentos adicionales pasados a `shiny::downloadButton()`.
+#'
+#' @return `shiny.tag` div contenedor con el `downloadButton` estilizado.
 #' @export
-#' @examples
-#' \dontrun{
-#'   BotonDescarga("descargar")
-#'   BotonDescarga("descargar_resumen", label = "Descargar resumen", size = "md",
-#'     hover_color = "steelblue", titulo = "Descargar resumen semanal")
-#' }
 BotonDescarga <- function(
-    id = NULL,
-    label = "Descargar",
-    icono = "file-excel",
-    align = "right",
-    size = "sm",
-    hover_color = "firebrick",
+    id,
+    label          = "Descargar",
+    icono          = "download",
+    align          = "right",
+    size           = "sm",
+    hover_color    = "firebrick",
     label_posicion = "right",
-    titulo = NULL,
-    ns = NULL,
-    button_id = NULL,
-    icon_name = NULL,
-    title = NULL,
-    ...) {
-
-  id <- id %||% button_id
-  if (is.null(id) || !is.character(id) || length(id) != 1 || nchar(id) == 0) {
-    stop("Debe especificar `id` (o `button_id`) como cadena de longitud 1.", call. = FALSE)
-  }
-
-  if (!is.null(icon_name)) {
-    icono <- icon_name
-  }
-  if (!is.null(title)) {
-    titulo <- title
-  }
-
-  align <- match.arg(align, c("left", "center", "right"))
-  size <- match.arg(size, c("xxs", "xs", "sm", "md", "lg", "xl", "xxl"))
+    titulo         = NULL,
+    ...
+) {
+  # Validación de argumentos ----
+  align          <- match.arg(align, c("left", "center", "right"))
+  size           <- match.arg(size, c("xxs", "xs", "sm", "md", "lg", "xl", "xxl"))
   label_posicion <- match.arg(label_posicion, c("right", "below"))
 
   if (is.null(label) && is.null(icono)) {
@@ -70,22 +56,16 @@ BotonDescarga <- function(
     stop("`titulo` debe ser `NULL` o una cadena de longitud 1.", call. = FALSE)
   }
 
-  hover_color_css <- tryCatch(
-    {
-      rgb_vals <- grDevices::col2rgb(hover_color)
-      sprintf("rgb(%d,%d,%d)", rgb_vals[1], rgb_vals[2], rgb_vals[3])
-    },
-    error = function(e) {
-      stop(sprintf("Color '%s' no reconocido.", hover_color), call. = FALSE)
-    }
-  )
+  # Resolución del color hover a RGB para inyección CSS ----
+  hover_color_css <- tryCatch({
+    rgb_vals <- grDevices::col2rgb(hover_color)
+    sprintf("rgb(%d,%d,%d)", rgb_vals[1], rgb_vals[2], rgb_vals[3])
+  }, error = function(e) {
+    stop(sprintf("Color '%s' no reconocido.", hover_color), call. = FALSE)
+  })
 
-  clase_align <- switch(
-    align,
-    left   = "text-left",
-    center = "text-center",
-    right  = "text-right"
-  )
+  # Clases y contenido interno ----
+  clase_align <- switch(align, left = "text-left", center = "text-center", right = "text-right")
 
   clase_label <- if (!is.null(icono) && !is.null(label) && identical(label_posicion, "below")) {
     "racafe-btn-content racafe-btn-content--column"
@@ -106,32 +86,26 @@ BotonDescarga <- function(
     if (identical(label_posicion, "below")) "racafe-btn-content-host--column" else NULL
   )
 
-  output_id <- if (!is.null(ns)) ns(id) else id
-
+  # Construcción del downloadButton ----
+  # Se suprime el ícono por defecto con icon = NULL para evitar duplicar
+  # el ícono que ya va dentro de contenido_boton
   boton <- shiny::downloadButton(
-    outputId = output_id,
+    outputId = id,
     label    = contenido_boton,
     class    = paste(clase_boton, collapse = " "),
     icon     = NULL,
     ...
   )
 
-  if (!is.null(boton$attribs$class)) {
-    clases <- unique(strsplit(boton$attribs$class, "\\s+")[[1]])
-    boton$attribs$class <- paste(setdiff(clases, "btn-default"), collapse = " ")
-  }
-
+  # Inyección de atributos de comportamiento CSS/JS ----
   boton <- shiny::tagAppendAttributes(
     boton,
     `data-racafe-hover-color` = hover_color_css,
-    `data-racafe-label-pos` = label_posicion,
-    title = titulo
+    `data-racafe-label-pos`   = label_posicion,
+    title                     = titulo
   )
 
-  shiny::div(
-    class = clase_align,
-    boton
-  )
+  shiny::div(class = clase_align, boton)
 }
 
 
