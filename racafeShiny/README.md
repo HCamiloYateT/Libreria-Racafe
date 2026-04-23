@@ -86,7 +86,11 @@ observeEvent(mod$click_detalle(), {
   showModal(modalDialog(title = "Detalle ventas", ...))
 })
 
-# Boton de descarga con color corporativo
+# Boton de descarga con misma apariencia de Boton()
 BotonDescarga("export_excel",
-  color = "#28B78D", title = "Exportar a Excel")
+  label = "Exportar a Excel",
+  icono = "file-excel",
+  size = "sm",
+  hover_color = "firebrick",
+  titulo = "Exportar a Excel")
 ```

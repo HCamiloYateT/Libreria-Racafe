@@ -6,66 +6,125 @@
 
 # ---- Botones de descarga ----
 
-#' Boton de descarga personalizado con icono y color configurable
+#' Boton de descarga con la misma apariencia de `Boton`
 #'
-#' @param button_id ID del boton de descarga.
-#' @param icon_name Nombre del icono FontAwesome (sin prefijo `fa-`).
-#' @param color Color del boton. Cualquier color valido en R o hexadecimal.
+#' @param id ID del boton de descarga.
+#' @param label Texto del boton. Puede ser `NULL` si se desea solo icono.
+#' @param icono Nombre del icono FontAwesome (sin prefijo `fa-`).
+#' @param align Alineacion horizontal del contenedor: `"left"`, `"center"`, `"right"`.
+#' @param size Tamano del boton: `"xxs"`, `"xs"`, `"sm"`, `"md"`, `"lg"`, `"xl"`, `"xxl"`.
+#' @param hover_color Color del estado hover. Cualquier color valido en R o hexadecimal.
+#' @param label_posicion Posicion del texto cuando hay icono y label: `"right"` o `"below"`.
+#' @param titulo Tooltip del boton.
 #' @param ns Funcion namespace de modulo Shiny. `NULL` si no es modulo.
-#' @param size Tamano del boton: `"xs"`, `"sm"`, `"md"`, `"lg"`.
-#' @param title Tooltip del boton.
+#' @param button_id Alias retrocompatible de `id`.
+#' @param icon_name Alias retrocompatible de `icono`.
+#' @param title Alias retrocompatible de `titulo`.
 #' @param ... Argumentos adicionales para `shiny::downloadButton`.
 #' @return Componente Shiny con boton de descarga.
 #' @export
 #' @examples
 #' \dontrun{
 #'   BotonDescarga("descargar")
-#'   BotonDescarga("descargar_resumen", color = "steelblue", size = "md",
-#'     title = "Descargar resumen semanal")
+#'   BotonDescarga("descargar_resumen", label = "Descargar resumen", size = "md",
+#'     hover_color = "steelblue", titulo = "Descargar resumen semanal")
 #' }
 BotonDescarga <- function(
-    button_id,
-    icon_name = "file-excel",
-    color     = "#28b78d",
-    ns        = NULL,
-    size      = "sm",
-    title     = "Descargar",
+    id = NULL,
+    label = "Descargar",
+    icono = "file-excel",
+    align = "right",
+    size = "sm",
+    hover_color = "firebrick",
+    label_posicion = "right",
+    titulo = NULL,
+    ns = NULL,
+    button_id = NULL,
+    icon_name = NULL,
+    title = NULL,
     ...) {
 
-  # Validacion de argumentos
-  size <- match.arg(size, c("xs", "sm", "md", "lg"))
-  if (!is.character(color) || nchar(color) == 0) {
-    stop("`color` debe ser una cadena de color valida.", call. = FALSE)
+  id <- id %||% button_id
+  if (is.null(id) || !is.character(id) || length(id) != 1 || nchar(id) == 0) {
+    stop("Debe especificar `id` (o `button_id`) como cadena de longitud 1.", call. = FALSE)
   }
 
-  # Normalizar color a hex
-  color_hex <- tryCatch(
+  if (!is.null(icon_name)) {
+    icono <- icon_name
+  }
+  if (!is.null(title)) {
+    titulo <- title
+  }
+
+  align <- match.arg(align, c("left", "center", "right"))
+  size <- match.arg(size, c("xxs", "xs", "sm", "md", "lg", "xl", "xxl"))
+  label_posicion <- match.arg(label_posicion, c("right", "below"))
+
+  if (is.null(label) && is.null(icono)) {
+    stop("Debe especificar al menos `label` o `icono`.", call. = FALSE)
+  }
+  if (!is.character(hover_color) || nchar(hover_color) == 0) {
+    stop("`hover_color` debe ser una cadena de color valida.", call. = FALSE)
+  }
+  if (!is.null(titulo) && (!is.character(titulo) || length(titulo) != 1)) {
+    stop("`titulo` debe ser `NULL` o una cadena de longitud 1.", call. = FALSE)
+  }
+
+  hover_color_css <- tryCatch(
     {
-      rgb_vals <- grDevices::col2rgb(color)
-      sprintf(
-        "rgb(%d,%d,%d)",
-        rgb_vals[1], rgb_vals[2], rgb_vals[3]
-      )
+      rgb_vals <- grDevices::col2rgb(hover_color)
+      sprintf("rgb(%d,%d,%d)", rgb_vals[1], rgb_vals[2], rgb_vals[3])
     },
     error = function(e) {
-      stop(sprintf("Color '%s' no reconocido.", color), call. = FALSE)
+      stop(sprintf("Color '%s' no reconocido.", hover_color), call. = FALSE)
     }
   )
 
-  input_id <- if (!is.null(ns)) ns(button_id) else button_id
+  clase_align <- switch(
+    align,
+    left   = "text-left",
+    center = "text-center",
+    right  = "text-right"
+  )
 
-  shiny::downloadButton(
-    outputId = input_id,
-    label    = shiny::tagList(
-      shiny::icon(icon_name),
-      shiny::tags$span(title)
-    ),
-    class    = sprintf("btn btn-%s racafe-btn-descarga", size),
-    style    = sprintf(
-      "background-color:%s;border-color:%s;color:white;",
-      color_hex, color_hex
-    ),
+  clase_label <- if (!is.null(icono) && !is.null(label) && identical(label_posicion, "below")) {
+    "racafe-btn-content racafe-btn-content--column"
+  } else {
+    "racafe-btn-content"
+  }
+
+  contenido_boton <- shiny::tags$span(
+    class = clase_label,
+    if (!is.null(icono)) shiny::icon(icono, class = "racafe-btn-icon") else NULL,
+    if (!is.null(label)) shiny::tags$span(class = "racafe-btn-label", label) else NULL
+  )
+
+  clase_boton <- c(
+    "btn btn-success racafe-btn-guardar",
+    sprintf("racafe-btn-guardar--%s", size),
+    "racafe-btn-content-host",
+    if (identical(label_posicion, "below")) "racafe-btn-content-host--column" else NULL
+  )
+
+  output_id <- if (!is.null(ns)) ns(id) else id
+
+  boton <- shiny::downloadButton(
+    outputId = output_id,
+    label    = contenido_boton,
+    class    = paste(clase_boton, collapse = " "),
     ...
+  )
+
+  boton <- shiny::tagAppendAttributes(
+    boton,
+    `data-racafe-hover-color` = hover_color_css,
+    `data-racafe-label-pos` = label_posicion,
+    title = titulo
+  )
+
+  shiny::div(
+    class = clase_align,
+    boton
   )
 }
 

@@ -119,14 +119,45 @@ test_that("BotonDescarga rechaza color invalido", {
   expect_error(BotonDescarga("id", color = "color_que_no_existe_xyz"))
 })
 
-test_that("BotonDescarga acepta colores por nombre R", {
-  expect_no_error(BotonDescarga("id", color = "steelblue"))
-  expect_no_error(BotonDescarga("id", color = "#28b78d"))
-})
-
 test_that("BotonDescarga valida size correcto", {
   expect_no_error(BotonDescarga("id", size = "sm"))
-  expect_error(BotonDescarga("id", size = "xxl"))
+  expect_no_error(BotonDescarga("id", size = "xxl"))
+  expect_error(BotonDescarga("id", size = "xxxl"))
+})
+
+test_that("BotonDescarga incorpora clases y atributos de Boton", {
+  btn <- BotonDescarga(
+    "descarga_1",
+    label = "Descargar",
+    icono = "file-excel",
+    size = "md",
+    label_posicion = "below",
+    hover_color = "firebrick",
+    titulo = "Descargar archivo"
+  )
+  html <- as.character(btn)
+  expect_match(html, "racafe-btn-guardar--md")
+  expect_match(html, "data-racafe-hover-color=\"rgb\\(178,34,34\\)\"")
+  expect_match(html, "data-racafe-label-pos=\"below\"")
+  expect_match(html, "racafe-btn-content--column")
+  expect_match(html, "title=\"Descargar archivo\"")
+})
+
+test_that("BotonDescarga conserva parametros retrocompatibles", {
+  btn <- BotonDescarga(
+    button_id = "descarga_legacy",
+    icon_name = "download",
+    title = "Bajar archivo"
+  )
+  html <- as.character(btn)
+  expect_match(html, "descarga_legacy")
+  expect_match(html, "Bajar archivo")
+})
+
+test_that("BotonDescarga valida hover_color y contenido", {
+  expect_error(BotonDescarga("id2", hover_color = ""))
+  expect_error(BotonDescarga("id3", hover_color = "color_no_valido"))
+  expect_error(BotonDescarga("id4", label = NULL, icono = NULL))
 })
 
 test_that("Boton valida alineacion correcta", {
