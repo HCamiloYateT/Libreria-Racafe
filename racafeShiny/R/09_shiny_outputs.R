@@ -8,10 +8,11 @@
 
 #' Botón de descarga con el estilo visual de racafe
 #'
-#' Genera un `downloadButton` con la misma apariencia y opciones de
-#' configuración que [Boton()]: tamaño, alineación, hover color, posición
-#' del label y tooltip. Debe usarse junto con un `downloadHandler` en el
-#' server bajo el mismo `id`.
+#' Genera un `downloadButton` visualmente idéntico a [Boton()] usando su
+#' propia clase base `racafe-btn-descarga`, independiente de
+#' `racafe-btn-guardar`. Requiere el bloque `.racafe-btn-descarga` en
+#' `style.css`. Debe usarse junto con un `downloadHandler` en el server
+#' bajo el mismo `id`.
 #'
 #' @param id String. `outputId` del botón. Debe coincidir con el
 #'   `downloadHandler` registrado en el server.
@@ -80,15 +81,15 @@ BotonDescarga <- function(
   )
 
   clase_boton <- c(
-    "btn btn-success racafe-btn-guardar",
-    sprintf("racafe-btn-guardar--%s", size),
+    "btn btn-success racafe-btn-descarga",
+    sprintf("racafe-btn-descarga--%s", size),
     "racafe-btn-content-host",
     if (identical(label_posicion, "below")) "racafe-btn-content-host--column" else NULL
   )
 
   # Construcción del downloadButton ----
-  # Se suprime el ícono por defecto con icon = NULL para evitar duplicar
-  # el ícono que ya va dentro de contenido_boton
+  # icon = NULL suprime el ícono por defecto de downloadButton;
+  # el ícono va dentro de contenido_boton con clase racafe-btn-icon
   boton <- shiny::downloadButton(
     outputId = id,
     label    = contenido_boton,
