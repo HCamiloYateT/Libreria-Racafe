@@ -219,3 +219,33 @@ test_that("CajaValor retorna objeto shiny.tag", {
   )
   expect_true(inherits(resultado, "shiny.tag"))
 })
+
+test_that("InputFecha crea widget y deriva parametros por tipo", {
+  dia <- InputFecha("f_dia", tipo = "dia", value = as.Date("2026-04-23"))
+  mes <- InputFecha("f_mes", tipo = "mes", value = as.Date("2026-04-23"))
+  anio <- InputFecha("f_anio", tipo = "anio", value = as.Date("2026-04-23"))
+
+  dia_html <- as.character(dia)
+  mes_html <- as.character(mes)
+  anio_html <- as.character(anio)
+
+  expect_match(dia_html, "yyyy-MM-dd")
+  expect_match(mes_html, "yyyy-MM")
+  expect_match(anio_html, "yyyy")
+  expect_match(mes_html, "monthsShort")
+  expect_match(anio_html, "language=\\\"es\\\"|language:\\\"es\\\"|\\\"language\\\":\\\"es\\\"")
+})
+
+test_that("InputFecha valida y ajusta fechas", {
+  expect_error(InputFecha("f_bad", value = "no_fecha"), "fecha valida")
+  expect_error(InputFecha("f_bad_min", min_date = "x"), "fecha valida")
+  expect_error(InputFecha("f_bad_max", max_date = "x"), "fecha valida")
+
+  clamped <- InputFecha(
+    id = "f_clamp",
+    value = as.Date("2026-01-01"),
+    min_date = as.Date("2026-03-01"),
+    max_date = as.Date("2026-12-31")
+  )
+  expect_match(as.character(clamped), "2026-03-01")
+})

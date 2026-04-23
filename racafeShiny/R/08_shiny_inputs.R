@@ -198,6 +198,107 @@ BotonEstado <- function(...) {
 }
 
 
+#' Selector de fecha con configuracion derivada por tipo de vista
+#'
+#' Wrapper de [shinyWidgets::airDatepickerInput()] que deriva automaticamente
+#' `view`, `minView`, `dateFormat`, `startView` y constantes de idioma a
+#' partir del tipo de granularidad solicitada. Solo requiere los parametros
+#' sustantivos: id, valor inicial, tipo y rango.
+#'
+#' @param id String. `inputId` del widget.
+#' @param label String o `NULL`. Etiqueta visible. `NULL` la omite.
+#' @param value Date. Fecha inicial seleccionada. Default `Sys.Date()`.
+#' @param tipo String. Granularidad: `"dia"`, `"mes"`, `"anio"`.
+#' @param min_date Date o `NULL`. Fecha minima seleccionable. `NULL` sin limite.
+#' @param max_date Date o `NULL`. Fecha maxima seleccionable. `NULL` sin limite.
+#' @param inline Logical. `TRUE` muestra el calendario embebido (sin dropdown).
+#'   Default `FALSE`.
+#' @param width String. Ancho CSS del input. Default `"100%"`.
+#' @param ... Argumentos adicionales pasados a `airDatepickerInput()`.
+#'
+#' @return `shiny.tag` del widget `airDatepickerInput` configurado.
+#' @export
+#'
+#' @examples
+#' InputFecha("fecha_dia",  label = "Dia",  tipo = "dia")
+#' InputFecha("fecha_mes",  label = "Mes",  tipo = "mes",  value = Sys.Date(),
+#'            min_date = as.Date("2023-01-01"), max_date = Sys.Date())
+#' InputFecha("fecha_anio", label = "Anio", tipo = "anio", inline = TRUE)
+InputFecha <- function(
+    id,
+    label    = NULL,
+    value    = Sys.Date(),
+    tipo     = c("dia", "mes", "anio"),
+    min_date = NULL,
+    max_date = NULL,
+    inline   = FALSE,
+    width    = "100%",
+    ...) {
+
+  .check_pkg("shinyWidgets", "Shiny inputs")
+  tipo <- match.arg(tipo)
+
+  if (!inherits(value, "Date")) {
+    value <- as.Date(value)
+  }
+  if (is.na(value)) {
+    stop("`value` no es una fecha valida.", call. = FALSE)
+  }
+
+  if (!is.null(min_date) && !inherits(min_date, "Date")) min_date <- as.Date(min_date)
+  if (!is.null(max_date) && !inherits(max_date, "Date")) max_date <- as.Date(max_date)
+
+  if (!is.null(min_date) && is.na(min_date)) {
+    stop("`min_date` no es una fecha valida.", call. = FALSE)
+  }
+  if (!is.null(max_date) && is.na(max_date)) {
+    stop("`max_date` no es una fecha valida.", call. = FALSE)
+  }
+
+  if (!is.null(min_date) && value < min_date) value <- min_date
+  if (!is.null(max_date) && value > max_date) value <- max_date
+
+  params <- switch(
+    tipo,
+    dia = list(
+      view       = "days",
+      minView    = "days",
+      dateFormat = "yyyy-MM-dd",
+      startView  = value
+    ),
+    mes = list(
+      view       = "months",
+      minView    = "months",
+      dateFormat = "yyyy-MM",
+      startView  = lubridate::floor_date(value, "month")
+    ),
+    anio = list(
+      view       = "years",
+      minView    = "years",
+      dateFormat = "yyyy",
+      startView  = lubridate::floor_date(value, "year")
+    )
+  )
+
+  shinyWidgets::airDatepickerInput(
+    inputId     = id,
+    label       = label,
+    value       = value,
+    view        = params$view,
+    minView     = params$minView,
+    dateFormat  = params$dateFormat,
+    startView   = params$startView,
+    minDate     = min_date,
+    maxDate     = max_date,
+    monthsField = "monthsShort",
+    language    = "es",
+    inline      = inline,
+    width       = width,
+    ...
+  )
+}
+
+
 #' Boton de accion generico con alineacion configurable
 #'
 #' @param id ID del boton.

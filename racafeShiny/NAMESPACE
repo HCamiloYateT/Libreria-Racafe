@@ -25,6 +25,7 @@ export(pick_opt)
 export(BotonesRadiales)
 export(BotonEstado)
 export(Boton)
+export(InputFecha)
 
 # ---- Outputs Shiny y modulos ----
 export(BotonDescarga)

@@ -23,6 +23,7 @@ Imports:
     htmltools,
     scales,
     dplyr,
+    lubridate,
     rlang
 Suggests:
     testthat (>= 3.0.0),
