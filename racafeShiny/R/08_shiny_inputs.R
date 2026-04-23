@@ -134,12 +134,68 @@ pick_opt <- function(cho, fem = TRUE) {
 }
 
 
+
+
+# ---- Utils internos de botones ----
+
+#' Valida que un valor sea un color reconocido por R
+#' @keywords internal
+.btn_validar_color <- function(color, nombre) {
+  if (!is.character(color) || length(color) != 1 || !nzchar(color)) {
+    stop(sprintf("'%s' debe ser una cadena de color no vacía.", nombre), call. = FALSE)
+  }
+  tryCatch(
+    grDevices::col2rgb(color),
+    error = function(e) {
+      stop(sprintf("'%s' no es un color válido: '%s'.", nombre, color), call. = FALSE)
+    }
+  )
+  invisible(color)
+}
+
+#' Oscurece un color R en un factor dado (0–1). Devuelve string CSS rgb().
+#' @keywords internal
+.btn_oscurecer <- function(color, factor = 0.18) {
+  v <- grDevices::col2rgb(color)
+  v <- pmax(0L, as.integer(v * (1 - factor)))
+  sprintf("rgb(%d,%d,%d)", v[1L], v[2L], v[3L])
+}
+
+#' Convierte un color R a su representación CSS rgb() normalizada
+#' @keywords internal
+.btn_a_css <- function(color) {
+  v <- grDevices::col2rgb(color)
+  sprintf("rgb(%d,%d,%d)", v[1L], v[2L], v[3L])
+}
+
+#' Construye el bloque de CSS custom properties para color_fondo/fuente/hover.
+#' @keywords internal
+.btn_css_vars <- function(color_fondo, color_fuente, color_hover) {
+  .btn_validar_color(color_fondo, "color_fondo")
+  .btn_validar_color(color_fuente, "color_fuente")
+  fondo_css <- .btn_a_css(color_fondo)
+  fuente_css <- .btn_a_css(color_fuente)
+  hover_css <- if (is.null(color_hover)) {
+    .btn_oscurecer(color_fondo)
+  } else {
+    .btn_validar_color(color_hover, "color_hover")
+    .btn_a_css(color_hover)
+  }
+  sprintf(
+    "--racafe-color-fondo:%s;--racafe-color-fuente:%s;--racafe-color-hover:%s;background-color:%s;color:%s;border-color:%s;",
+    fondo_css, fuente_css, hover_css, fondo_css, fuente_css, fondo_css
+  )
+}
+
 #' Botones radiales estilizados (radioGroupButtons)
 #'
 #' @param inputId ID del input.
 #' @param label Etiqueta del grupo. `NULL` sin etiqueta.
 #' @param choices Vector de opciones.
 #' @param selected Opcion seleccionada por defecto.
+#' @param color_fondo Color de fondo base.
+#' @param color_fuente Color de texto/icono.
+#' @param color_hover Color de hover/activo. `NULL` aplica oscurecimiento automatico.
 #' @param alineacion Alineacion del grupo: `"left"`, `"center"`, `"right"`.
 #' @param ... Argumentos adicionales para `shinyWidgets::radioGroupButtons`.
 #' @return Componente Shiny.
@@ -150,14 +206,48 @@ pick_opt <- function(cho, fem = TRUE) {
 #' }
 BotonesRadiales <- function(
     inputId,
-    label      = NULL,
+    label       = NULL,
     choices,
-    selected   = NULL,
-    alineacion = c("left", "center", "right"),
+    selected    = NULL,
+    color_fondo = "#6c757d",
+    color_fuente = "#FFFFFF",
+    color_hover = NULL,
+    alineacion  = c("left", "center", "right"),
     ...) {
 
-  .check_pkg("shinyWidgets", "Shiny inputs")
+  .check_pkg("shinyWidgets", "BotonesRadiales")
   alineacion <- match.arg(alineacion)
+
+  .btn_validar_color(color_fondo, "color_fondo")
+  .btn_validar_color(color_fuente, "color_fuente")
+  fondo_css  <- .btn_a_css(color_fondo)
+  fuente_css <- .btn_a_css(color_fuente)
+  hover_css  <- if (is.null(color_hover)) {
+    .btn_oscurecer(color_fondo)
+  } else {
+    .btn_validar_color(color_hover, "color_hover")
+    .btn_a_css(color_hover)
+  }
+
+  css_escopado <- shiny::tags$style(shiny::HTML(sprintf(
+    "#%1$s .btn {
+      background-color: %2$s !important;
+      color:            %3$s !important;
+      border-color:     %2$s !important;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+    #%1$s .btn:hover,
+    #%1$s .btn:focus {
+      background-color: %4$s !important;
+      border-color:     %4$s !important;
+    }
+    #%1$s .btn.active,
+    #%1$s .btn.active:hover {
+      background-color: %4$s !important;
+      border-color:     %4$s !important;
+    }",
+    inputId, fondo_css, fuente_css, hover_css
+  )))
 
   clase_alineacion <- switch(
     alineacion,
@@ -166,14 +256,17 @@ BotonesRadiales <- function(
     right  = "justify-content-end"
   )
 
-  shiny::div(
-    class = paste("racafe-radio-group", clase_alineacion),
-    shinyWidgets::radioGroupButtons(
-      inputId  = inputId,
-      label    = label,
-      choices  = choices,
-      selected = selected %||% choices[[1]],
-      ...
+  shiny::tagList(
+    css_escopado,
+    shiny::div(
+      class = paste("racafe-radio-group", clase_alineacion),
+      shinyWidgets::radioGroupButtons(
+        inputId  = inputId,
+        label    = label,
+        choices  = choices,
+        selected = selected %||% choices[[1]],
+        ...
+      )
     )
   )
 }
@@ -306,7 +399,9 @@ InputFecha <- function(
 #' @param icono Nombre del icono Font Awesome. Use `NULL` para omitir icono.
 #' @param align Alineacion: `"left"`, `"center"`, `"right"`.
 #' @param size Tamano visual del boton: `"xxs"`, `"xs"`, `"sm"`, `"md"`, `"lg"`, `"xl"`, `"xxl"`.
-#' @param hover_color Color del hover del boton. Por defecto `"firebrick"`.
+#' @param color_fondo Color de fondo base (nombre R o hex CSS).
+#' @param color_fuente Color de texto/icono.
+#' @param color_hover Color de fondo al hover. `NULL` aplica oscurecimiento automatico.
 #' @param label_posicion Posicion del label respecto al icono: `"right"` o `"below"`.
 #' @param titulo Tooltip del boton al pasar el cursor. `NULL` para omitir.
 #' @param ... Argumentos adicionales para `shiny::actionButton`.
@@ -321,38 +416,29 @@ InputFecha <- function(
 #' }
 Boton <- function(
     id,
-    label = "Guardar",
-    icono = "floppy-disk",
-    align = "right",
-    size = "sm",
-    hover_color = "firebrick",
+    label          = "Guardar",
+    icono          = "floppy-disk",
+    align          = "right",
+    size           = "sm",
+    color_fondo    = "#198754",
+    color_fuente   = "#FFFFFF",
+    color_hover    = NULL,
     label_posicion = "right",
-    titulo = NULL,
+    titulo         = NULL,
     ...) {
 
-  align <- match.arg(align, c("left", "center", "right"))
-  size <- match.arg(size, c("xxs", "xs", "sm", "md", "lg", "xl", "xxl"))
+  align          <- match.arg(align, c("left", "center", "right"))
+  size           <- match.arg(size, c("xxs", "xs", "sm", "md", "lg", "xl", "xxl"))
   label_posicion <- match.arg(label_posicion, c("right", "below"))
 
   if (is.null(label) && is.null(icono)) {
     stop("Debe especificar al menos `label` o `icono`.", call. = FALSE)
   }
-  if (!is.character(hover_color) || nchar(hover_color) == 0) {
-    stop("`hover_color` debe ser una cadena de color valida.", call. = FALSE)
-  }
   if (!is.null(titulo) && (!is.character(titulo) || length(titulo) != 1)) {
     stop("`titulo` debe ser `NULL` o una cadena de longitud 1.", call. = FALSE)
   }
 
-  hover_color_css <- tryCatch(
-    {
-      rgb_vals <- grDevices::col2rgb(hover_color)
-      sprintf("rgb(%d,%d,%d)", rgb_vals[1], rgb_vals[2], rgb_vals[3])
-    },
-    error = function(e) {
-      stop(sprintf("Color '%s' no reconocido.", hover_color), call. = FALSE)
-    }
-  )
+  css_vars <- .btn_css_vars(color_fondo, color_fuente, color_hover)
 
   clase_align <- switch(
     align,
@@ -373,24 +459,24 @@ Boton <- function(
     if (!is.null(label)) shiny::tags$span(class = "racafe-btn-label", label) else NULL
   )
 
-  clase_boton <- c(
-    "btn btn-success racafe-btn-guardar",
+  clase_boton <- paste(c(
+    "btn racafe-btn racafe-btn-guardar",
     sprintf("racafe-btn-guardar--%s", size),
     "racafe-btn-content-host",
     if (identical(label_posicion, "below")) "racafe-btn-content-host--column" else NULL
-  )
+  ), collapse = " ")
 
   boton <- shiny::actionButton(
     inputId = id,
     label   = contenido_boton,
-    class   = paste(clase_boton, collapse = " "),
+    class   = clase_boton,
     icon    = NULL,
+    style   = css_vars,
     ...
   )
 
   boton <- shiny::tagAppendAttributes(
     boton,
-    `data-racafe-hover-color` = hover_color_css,
     `data-racafe-label-pos` = label_posicion,
     title = titulo
   )
