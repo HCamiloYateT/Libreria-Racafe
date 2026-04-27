@@ -2,6 +2,7 @@
 
 # ---- Registro de formatos ----
 export(DefinirFormato)
+export(DefinirFormatos)
 export(ObtenerFormato)
 export(ListarFormatos)
 export(FormatearNumero)

@@ -15,95 +15,74 @@
 
 # ---- Formatos por defecto al cargar el paquete ----
 .onLoad <- function(libname, pkgname) {
-  assign("numero",     scales::number_format(
-    big.mark = ".", decimal.mark = ",", accuracy = 1
-  ), envir = .formatos_racafe)
-  assign("decimal",    scales::number_format(
-    big.mark = ".", decimal.mark = ",", accuracy = 0.01
-  ), envir = .formatos_racafe)
-  assign("dinero",     scales::dollar_format(
-    prefix = "$", big.mark = ".", decimal.mark = ",", accuracy = 1
-  ), envir = .formatos_racafe)
-  assign("porcentaje", scales::percent_format(
-    accuracy = 0.1, decimal.mark = ",", big.mark = "."
-  ), envir = .formatos_racafe)
-  assign("variacion",  scales::percent_format(
-    accuracy = 0.1, decimal.mark = ",", big.mark = ".",
-    style_positive = "plus"
-  ), envir = .formatos_racafe)
+  DefinirFormato("coma")
+  DefinirFormato("numero")
+  DefinirFormato("dinero")
+  DefinirFormato("dolares")
+  DefinirFormato("miles")
+  DefinirFormato("porcentaje")
+  DefinirFormato("cientifico")
+  DefinirFormato("millones")
+  DefinirFormato("entero")
+  DefinirFormato("tiempo")
+  DefinirFormato("kwh")
+  DefinirFormato("log")
+  # Alias retrocompatibles
+  DefinirFormato("decimal", scales::label_number(
+    accuracy = 0.01,
+    big.mark = ","
+  ))
+  DefinirFormato("variacion", scales::label_number(
+    accuracy = 0.01,
+    scale = 100,
+    suffix = "%",
+    style_positive = "plus",
+    big.mark = ","
+  ))
 }
 
 # ---- API publica del registro de formatos ----
 
 #' Definir formato preconfigurado
 #' @param formato Nombre del formato.
+#' @param fn Funcion de formato personalizada (opcional).
 #' @param ... Argumentos adicionales pasados al generador de `scales`.
 #' @return Funcion de formato.
 #' @export
-DefinirFormato <- function(formato, ...) {
+DefinirFormato <- function(formato, fn = NULL, ...) {
   if (missing(formato) || length(formato) == 0L || is.na(formato[1])) {
     stop("Debe especificar un formato valido.", call. = FALSE)
   }
 
   formato <- tolower(trimws(as.character(formato[1])))
 
+  if (!is.null(fn)) {
+    if (!is.function(fn)) {
+      stop("`fn` debe ser una funcion de formato.", call. = FALSE)
+    }
+    assign(formato, fn, envir = .formatos_racafe)
+    return(invisible(fn))
+  }
+
   generadores <- list(
-    coma = function(...) scales::label_number(
-      accuracy = 1,
-      big.mark = ",",
-      ...
-    ),
-    numero = function(...) scales::label_number(
-      accuracy = 0.01,
-      big.mark = ",",
-      ...
-    ),
-    dinero = function(...) scales::label_number(
-      accuracy = 1,
-      prefix = "$",
-      big.mark = ",",
-      ...
-    ),
-    dolares = function(...) scales::label_number(
-      accuracy = 0.01,
-      prefix = "$",
-      big.mark = ",",
-      ...
-    ),
+    coma = function(...) scales::label_number(accuracy = 1, big.mark = ",", ...),
+    numero = function(...) scales::label_number(accuracy = 0.01, big.mark = ",", ...),
+    dinero = function(...) scales::label_number(accuracy = 1, prefix = "$", big.mark = ",", ...),
+    dolares = function(...) scales::label_number(accuracy = 0.01, prefix = "$", big.mark = ",", ...),
     miles = function(...) scales::label_number(
-      accuracy = 0.01,
-      scale = 0.001,
-      prefix = "$",
-      big.mark = ",",
-      ...
+      accuracy = 0.01, scale = 0.001, prefix = "$", big.mark = ",", ...
     ),
     porcentaje = function(...) scales::label_number(
-      accuracy = 0.01,
-      scale = 100,
-      suffix = "%",
-      big.mark = ",",
-      ...
+      accuracy = 0.01, scale = 100, suffix = "%", big.mark = ",", ...
     ),
     cientifico = function(...) scales::label_scientific(...),
     millones = function(...) scales::label_number(
-      accuracy = 0.01,
-      scale = 0.000001,
-      prefix = "$",
-      suffix = " M",
-      big.mark = ",",
-      ...
+      accuracy = 0.01, scale = 0.000001, prefix = "$", suffix = " M", big.mark = ",", ...
     ),
-    entero = function(...) scales::label_number(
-      accuracy = 1,
-      big.mark = ",",
-      ...
-    ),
+    entero = function(...) scales::label_number(accuracy = 1, big.mark = ",", ...),
     tiempo = function(...) scales::label_time(...),
     kwh = function(...) scales::label_number(
-      accuracy = 0.01,
-      suffix = " kWh",
-      big.mark = ",",
-      ...
+      accuracy = 0.01, suffix = " kWh", big.mark = ",", ...
     ),
     log = function(...) scales::label_log(...)
   )
@@ -119,8 +98,16 @@ DefinirFormato <- function(formato, ...) {
     )
   }
 
-  generadores[[formato]](...)
+  fn <- generadores[[formato]](...)
+  assign(formato, fn, envir = .formatos_racafe)
+  invisible(fn)
 }
+
+#' Alias de compatibilidad para definir formatos
+#' @inheritParams DefinirFormato
+#' @return Funcion de formato.
+#' @export
+DefinirFormatos <- DefinirFormato
 
 #' Obtener un formato registrado por nombre
 #' @param nombre Nombre del formato.
