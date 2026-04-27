@@ -202,18 +202,16 @@ test_that("BotonesRadiales inyecta variables CSS parametrizadas", {
     inputId = "estado",
     choices = c("Activo", "Inactivo"),
     color_inactivo = "#112233",
-    color_fuente_inactivo = "#FFFFFF",
-    color_activo = "#445566",
-    color_fuente_activo = "#EEEEEE",
-    color_hover = "#000000"
+    color_activo = "#445566"
   )
   html <- as.character(grp)
   expect_match(html, "racafe-radio-group")
   expect_match(html, "--racafe-radio-inactivo:rgb\\(17,34,51\\)")
   expect_match(html, "--racafe-radio-fuente-inactivo:rgb\\(255,255,255\\)")
+  expect_match(html, "--racafe-radio-hover-inactivo:rgb\\(13,27,41\\)")
   expect_match(html, "--racafe-radio-activo:rgb\\(68,85,102\\)")
-  expect_match(html, "--racafe-radio-fuente-activo:rgb\\(238,238,238\\)")
-  expect_match(html, "--racafe-radio-hover:rgb\\(0,0,0\\)")
+  expect_match(html, "--racafe-radio-fuente-activo:rgb\\(255,255,255\\)")
+  expect_match(html, "--racafe-radio-hover-activo:rgb\\(55,69,83\\)")
 })
 
 test_that("CajaValor retorna objeto shiny.tag", {
