@@ -197,19 +197,23 @@ test_that("Boton admite texto, icono o ambos", {
   expect_error(Boton("btn_vacio", label = NULL, icono = NULL))
 })
 
-test_that("BotonesRadiales inyecta CSS escopado", {
+test_that("BotonesRadiales inyecta variables CSS parametrizadas", {
   grp <- BotonesRadiales(
     inputId = "estado",
     choices = c("Activo", "Inactivo"),
-    color_fondo = "#112233",
-    color_fuente = "#FFFFFF",
+    color_inactivo = "#112233",
+    color_fuente_inactivo = "#FFFFFF",
+    color_activo = "#445566",
+    color_fuente_activo = "#EEEEEE",
     color_hover = "#000000"
   )
   html <- as.character(grp)
-  expect_match(html, "<style")
-  expect_match(html, "#estado \\\\.btn")
-  expect_match(html, "background-color: rgb\\(17,34,51\\) !important")
-  expect_match(html, "background-color: rgb\\(0,0,0\\) !important")
+  expect_match(html, "racafe-radio-group")
+  expect_match(html, "--racafe-radio-inactivo:rgb\\(17,34,51\\)")
+  expect_match(html, "--racafe-radio-fuente-inactivo:rgb\\(255,255,255\\)")
+  expect_match(html, "--racafe-radio-activo:rgb\\(68,85,102\\)")
+  expect_match(html, "--racafe-radio-fuente-activo:rgb\\(238,238,238\\)")
+  expect_match(html, "--racafe-radio-hover:rgb\\(0,0,0\\)")
 })
 
 test_that("CajaValor retorna objeto shiny.tag", {
