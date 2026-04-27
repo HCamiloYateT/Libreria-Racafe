@@ -187,67 +187,58 @@ pick_opt <- function(cho, fem = TRUE) {
   )
 }
 
-#' Botones radiales estilizados (radioGroupButtons)
+#' Grupo de botones radiales con estilo racafe
 #'
-#' @param inputId ID del input.
-#' @param label Etiqueta del grupo. `NULL` sin etiqueta.
-#' @param choices Vector de opciones.
-#' @param selected Opcion seleccionada por defecto.
-#' @param color_fondo Color de fondo base.
-#' @param color_fuente Color de texto/icono.
-#' @param color_hover Color de hover/activo. `NULL` aplica oscurecimiento automatico.
+#' @param inputId ID del input Shiny.
+#' @param label Etiqueta superior. `NULL` para omitir.
+#' @param choices Vector o lista con las opciones.
+#' @param selected Opcion preseleccionada. `NULL` toma el primer elemento.
+#' @param color_inactivo Color de fondo de botones NO seleccionados.
+#' @param color_fuente_inactivo Color de texto/icono en estado inactivo.
+#' @param color_activo Color de fondo del boton seleccionado (`.active`).
+#' @param color_fuente_activo Color de texto/icono en estado activo.
+#' @param color_hover Color de fondo al hacer hover sobre un boton inactivo.
+#'   `NULL` = oscurecimiento automatico de `color_inactivo`.
 #' @param alineacion Alineacion del grupo: `"left"`, `"center"`, `"right"`.
-#' @param ... Argumentos adicionales para `shinyWidgets::radioGroupButtons`.
+#' @param ... Argumentos adicionales pasados a `shinyWidgets::radioGroupButtons()`.
 #' @return Componente Shiny.
 #' @export
-#' @examples
-#' \dontrun{
-#'   BotonesRadiales("estado", "Estado", choices = c("Activo", "Inactivo"))
-#' }
 BotonesRadiales <- function(
-    inputId,
-    label       = NULL,
-    choices,
-    selected    = NULL,
-    color_fondo = "#6c757d",
-    color_fuente = "#FFFFFF",
-    color_hover = NULL,
-    alineacion  = c("left", "center", "right"),
-    ...) {
-
+  inputId,
+  label                 = NULL,
+  choices,
+  selected              = NULL,
+  color_inactivo        = "#6c757d",
+  color_fuente_inactivo = "#FFFFFF",
+  color_activo          = "#198754",
+  color_fuente_activo   = "#FFFFFF",
+  color_hover           = NULL,
+  alineacion            = c("left", "center", "right"),
+  ...
+) {
   .check_pkg("shinyWidgets", "BotonesRadiales")
   alineacion <- match.arg(alineacion)
 
-  .btn_validar_color(color_fondo, "color_fondo")
-  .btn_validar_color(color_fuente, "color_fuente")
-  fondo_css  <- .btn_a_css(color_fondo)
-  fuente_css <- .btn_a_css(color_fuente)
-  hover_css  <- if (is.null(color_hover)) {
-    .btn_oscurecer(color_fondo)
+  .btn_validar_color(color_inactivo, "color_inactivo")
+  .btn_validar_color(color_fuente_inactivo, "color_fuente_inactivo")
+  .btn_validar_color(color_activo, "color_activo")
+  .btn_validar_color(color_fuente_activo, "color_fuente_activo")
+
+  css_hover <- if (is.null(color_hover)) {
+    .btn_oscurecer(color_inactivo)
   } else {
     .btn_validar_color(color_hover, "color_hover")
     .btn_a_css(color_hover)
   }
 
-  css_escopado <- shiny::tags$style(shiny::HTML(sprintf(
-    "#%1$s .btn {
-      background-color: %2$s !important;
-      color:            %3$s !important;
-      border-color:     %2$s !important;
-      transition: background-color 0.15s ease, border-color 0.15s ease;
-    }
-    #%1$s .btn:hover,
-    #%1$s .btn:focus {
-      background-color: %4$s !important;
-      border-color:     %4$s !important;
-    }
-    #%1$s .btn.active,
-    #%1$s .btn.active:hover {
-      background-color: %4$s !important;
-      border-color:     %4$s !important;
-    }",
-    inputId, fondo_css, fuente_css, hover_css
-  )))
+  css_vars <- sprintf(
+    "--racafe-radio-inactivo:%s;--racafe-radio-fuente-inactivo:%s;--racafe-radio-activo:%s;--racafe-radio-fuente-activo:%s;--racafe-radio-hover:%s;",
+    .btn_a_css(color_inactivo),
+    .btn_a_css(color_fuente_inactivo),
+    .btn_a_css(color_activo),
+    .btn_a_css(color_fuente_activo),
+    css_hover
+  )
 
   clase_alineacion <- switch(
     alineacion,
@@ -256,17 +247,15 @@ BotonesRadiales <- function(
     right  = "justify-content-end"
   )
 
-  shiny::tagList(
-    css_escopado,
-    shiny::div(
-      class = paste("racafe-radio-group", clase_alineacion),
-      shinyWidgets::radioGroupButtons(
-        inputId  = inputId,
-        label    = label,
-        choices  = choices,
-        selected = selected %||% choices[[1]],
-        ...
-      )
+  shiny::div(
+    class = paste("racafe-radio-group", clase_alineacion),
+    style = css_vars,
+    shinyWidgets::radioGroupButtons(
+      inputId  = inputId,
+      label    = label,
+      choices  = choices,
+      selected = selected %||% choices[[1]],
+      ...
     )
   )
 }
