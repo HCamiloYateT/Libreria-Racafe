@@ -2,12 +2,14 @@
 
 # ---- Formatos y estilos ----
 export(DefinirFormato)
+export(DefinirFormatos)
 export(ObtenerFormato)
 export(FormatoD3)
 export(FormatoJS)
 export(FormatoHOT)
 export(FormatearNumero)
 export(FormatearTexto)
+export(FormatrearTexto)
 export(gt_minimal_style)
 export(gt_mensaje_vacio)
 export(col_kpi)

@@ -15,6 +15,10 @@
 #' @export
 DefinirFormato <- racafeCore::DefinirFormato
 
+#' @rdname DefinirFormatos
+#' @export
+DefinirFormatos <- racafeCore::DefinirFormatos
+
 #' @rdname ObtenerFormato
 #' @export
 ObtenerFormato <- racafeCore::ObtenerFormato
@@ -31,10 +35,19 @@ ListarFormatos <- racafeCore::ListarFormatos
 #' @export
 FormatoD3 <- function(formato) {
   mapa <- list(
-    numero     = ",.0f",
-    decimal    = ",.2f",
+    coma       = ",.0f",
+    numero     = ",.2f",
     dinero     = "$,.0f",
-    porcentaje = ".1%",
+    dolares    = "$,.2f",
+    miles      = "$,.2s",
+    porcentaje = ".2%",
+    cientifico = ".2e",
+    millones   = "$,.2s",
+    entero     = ",.0f",
+    tiempo     = ".2f",
+    kwh        = ",.2f",
+    log        = ".2f",
+    decimal    = ",.2f",
     variacion  = "+.1%"
   )
   mapa[[formato]] %||% ",.2f"
@@ -59,10 +72,19 @@ FormatoJS <- function(formato) {
 #' @export
 FormatoHOT <- function(formato) {
   mapa <- list(
-    numero     = "0,0",
-    decimal    = "0,0.00",
+    coma       = "0,0",
+    numero     = "0,0.00",
     dinero     = "$0,0",
-    porcentaje = "0.0%",
+    dolares    = "$0,0.00",
+    miles      = "$0,0.00",
+    porcentaje = "0.00%",
+    cientifico = "0.00E+00",
+    millones   = "$0,0.00",
+    entero     = "0,0",
+    tiempo     = "hh:mm:ss",
+    kwh        = "0,0.00",
+    log        = "0,0.00",
+    decimal    = "0,0.00",
     variacion  = "+0.0%"
   )
   mapa[[formato]] %||% "0,0.00"
@@ -144,6 +166,12 @@ FormatearTexto <- function(
 
   htmltools::HTML(sprintf('<span style="%s">%s</span>', estilo, x))
 }
+
+#' Alias de compatibilidad para `FormatearTexto`
+#' @inheritParams FormatearTexto
+#' @return Cadena HTML con el texto estilizado.
+#' @export
+FormatrearTexto <- FormatearTexto
 
 
 # ---- Estilos para tablas gt ----
