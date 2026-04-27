@@ -10,5 +10,4 @@ export(ImprimirAnillo)
 export(ImprimeSankey)
 
 importFrom(racafeCore, "%||%")
-importFrom(racafeCore, "ObtenerFormato")
 importFrom(rlang, ".data")

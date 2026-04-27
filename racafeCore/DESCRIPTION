@@ -21,7 +21,6 @@ Imports:
     stringr,
     stringi,
     lubridate,
-    scales,
     htmltools,
     janitor,
     tibble

@@ -108,22 +108,18 @@ Rscript dev.R check racafeForecast
 Rscript dev.R coverage racafeCore
 ```
 
-## Registro de formatos compartido
+## Registro de formatos en la capa de presentación
 
-`racafeCore` gestiona el registro global de formatos (`.formatos_racafe`).
-`racafeShiny` re-exporta `DefinirFormato`, `ObtenerFormato` y `ListarFormatos`
-desde `racafeCore`, de forma que el usuario puede usar estas funciones
-cargando solo `racafeShiny`:
+El registro de formatos (`DefinirFormato`, `ObtenerFormato`, `ListarFormatos`)
+se mantiene en `racafeShiny`, junto con los helpers de renderizado
+(`FormatearNumero`, `FormatoD3`, `FormatoHOT`, etc.).
 
 ```r
-library(racafeShiny)              # no hace falta library(racafeCore)
+library(racafeShiny)
 
-DefinirFormato("usd", scales::dollar_format(prefix = "USD "))
+DefinirFormato("usd", scales::label_dollar(prefix = "USD "))
 FormatearNumero(1500, "usd")
 ```
-
-Internamente, `racafeGraph` también accede al registro mediante
-`racafeCore::ObtenerFormato()` para formatear los ejes de los gráficos.
 
 ## Ciclo de vida de versiones
 

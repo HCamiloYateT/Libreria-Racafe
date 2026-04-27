@@ -199,36 +199,6 @@ test_that("RecodificarTop valida rango y tipos de entrada", {
 })
 
 
-# ---- Formatos ----
-
-test_that("Loadpkg carga paquetes ya instalados", {
-  resultado <- suppressMessages(Loadpkg("stats"))
-  expect_true(is.logical(resultado))
-  expect_true(isTRUE(unname(resultado["stats"])))
-})
-
-test_that("Loadpkg valida entrada", {
-  expect_error(Loadpkg(character(0)), "debe ser un vector character no vacio")
-  expect_error(Loadpkg(NA_character_), "debe ser un vector character no vacio")
-})
-
-test_that("ObtenerFormato falla con nombre invalido", {
-  expect_error(ObtenerFormato("formato_que_no_existe"))
-})
-
-test_that("DefinirFormato registra formato personalizado", {
-  DefinirFormato("test_fmt", scales::number_format())
-  fn <- ObtenerFormato("test_fmt")
-  expect_true(is.function(fn))
-})
-
-test_that("FormatoD3 retorna cadenas validas", {
-  expect_equal(FormatoD3("numero"), ",.0f")
-  expect_equal(FormatoD3("porcentaje"), ".1%")
-  expect_equal(FormatoD3("variacion"), "+.1%")
-})
-
-
 # ---- Imputacion de series ----
 
 test_that("aplicar_imputacion metodo promedio elimina NA", {
