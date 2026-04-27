@@ -66,12 +66,6 @@ DefinirFormato <- function(formato, fn = NULL, ...) {
   invisible(fn)
 }
 
-#' Alias de compatibilidad para definir formatos
-#' @inheritParams DefinirFormato
-#' @return Funcion de formato.
-#' @export
-DefinirFormatos <- DefinirFormato
-
 #' Obtener un formato registrado por nombre
 #' @param nombre Nombre del formato.
 #' @return Funcion de formato.
