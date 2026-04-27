@@ -35,15 +35,91 @@
 
 # ---- API publica del registro de formatos ----
 
-#' Registrar un formato personalizado reutilizable
-#' @param nombre Nombre identificador del formato.
-#' @param fn Funcion de formato (familia `scales::*_format()`).
-#' @return Invisible `nombre`.
+#' Definir formato preconfigurado
+#' @param formato Nombre del formato.
+#' @param ... Argumentos adicionales pasados al generador de `scales`.
+#' @return Funcion de formato.
 #' @export
-DefinirFormato <- function(nombre, fn) {
-  if (!is.function(fn)) stop("`fn` debe ser una funcion.", call. = FALSE)
-  assign(nombre, fn, envir = .formatos_racafe)
-  invisible(nombre)
+DefinirFormato <- function(formato, ...) {
+  if (missing(formato) || length(formato) == 0L || is.na(formato[1])) {
+    stop("Debe especificar un formato valido.", call. = FALSE)
+  }
+
+  formato <- tolower(trimws(as.character(formato[1])))
+
+  generadores <- list(
+    coma = function(...) scales::label_number(
+      accuracy = 1,
+      big.mark = ",",
+      ...
+    ),
+    numero = function(...) scales::label_number(
+      accuracy = 0.01,
+      big.mark = ",",
+      ...
+    ),
+    dinero = function(...) scales::label_number(
+      accuracy = 1,
+      prefix = "$",
+      big.mark = ",",
+      ...
+    ),
+    dolares = function(...) scales::label_number(
+      accuracy = 0.01,
+      prefix = "$",
+      big.mark = ",",
+      ...
+    ),
+    miles = function(...) scales::label_number(
+      accuracy = 0.01,
+      scale = 0.001,
+      prefix = "$",
+      big.mark = ",",
+      ...
+    ),
+    porcentaje = function(...) scales::label_number(
+      accuracy = 0.01,
+      scale = 100,
+      suffix = "%",
+      big.mark = ",",
+      ...
+    ),
+    cientifico = function(...) scales::label_scientific(...),
+    millones = function(...) scales::label_number(
+      accuracy = 0.01,
+      scale = 0.000001,
+      prefix = "$",
+      suffix = " M",
+      big.mark = ",",
+      ...
+    ),
+    entero = function(...) scales::label_number(
+      accuracy = 1,
+      big.mark = ",",
+      ...
+    ),
+    tiempo = function(...) scales::label_time(...),
+    kwh = function(...) scales::label_number(
+      accuracy = 0.01,
+      suffix = " kWh",
+      big.mark = ",",
+      ...
+    ),
+    log = function(...) scales::label_log(...)
+  )
+
+  if (!formato %in% names(generadores)) {
+    stop(
+      paste0(
+        "Formato no reconocido. Use: 'coma', 'numero', 'dinero', 'dolares', ",
+        "'miles', 'porcentaje', 'cientifico', 'millones', 'entero', ",
+        "'tiempo', 'kwh' o 'log'."
+      ),
+      call. = FALSE
+    )
+  }
+
+  generadores[[formato]](...)
 }
 
 #' Obtener un formato registrado por nombre
