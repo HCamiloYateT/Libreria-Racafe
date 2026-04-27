@@ -2,7 +2,6 @@
 
 # ---- Formatos y estilos ----
 export(DefinirFormato)
-export(DefinirFormatos)
 export(ObtenerFormato)
 export(FormatoD3)
 export(FormatoJS)
