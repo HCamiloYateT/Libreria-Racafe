@@ -255,3 +255,61 @@ test_that("InputFecha valida y ajusta fechas", {
   )
   expect_match(as.character(clamped), "2026-03-01")
 })
+
+# ---- Reglas por fila para tablas ----
+
+test_that("ReglaFila valida insumos requeridos", {
+  expect_error(ReglaFila(cuando = TRUE))
+  expect_error(ReglaFila(cuando = function(...) TRUE, estilo = list("" = "x")))
+  expect_s3_class(
+    ReglaFila(
+      cuando = function(fila, indice, data) fila$valor > 10,
+      estilo = list(color = "#C0392B"),
+      clase = "fila-alerta",
+      nombre = "mayor_10"
+    ),
+    "regla_fila"
+  )
+})
+
+test_that("AplicarReglasFila resuelve estilos y clases por fila", {
+  df <- data.frame(id = 1:3, valor = c(8, 11, 15))
+
+  reglas <- list(
+    ReglaFila(
+      cuando = function(fila, indice, data) fila$valor >= 10,
+      estilo = list(color = "#1A7A5E"),
+      clase = "cumple",
+      nombre = "cumplimiento"
+    ),
+    ReglaFila(
+      cuando = function(fila, indice, data) indice == 3,
+      estilo = list(`font-weight` = 700),
+      clase = "destacada",
+      nombre = "tercera_fila"
+    )
+  )
+
+  out <- AplicarReglasFila(df, reglas)
+
+  expect_equal(out$clases_fila[1], "")
+  expect_equal(out$clases_fila[2], "cumple")
+  expect_equal(out$clases_fila[3], "cumple destacada")
+  expect_equal(out$estilos_fila[[2]]$color, "#1A7A5E")
+  expect_equal(out$estilos_fila[[3]]$`font-weight`, 700)
+  expect_equal(out$reglas_aplicadas[[3]], c("cumplimiento", "tercera_fila"))
+})
+
+test_that("TablaFilas actua como fachada", {
+  df <- data.frame(x = 1:2)
+  regla <- ReglaFila(
+    cuando = function(fila, indice, data) indice == 1,
+    estilo = list(`background-color` = "#FFF7E6"),
+    nombre = "primera"
+  )
+
+  expect_equal(
+    TablaFilas(df, list(regla)),
+    AplicarReglasFila(df, list(regla))
+  )
+})
