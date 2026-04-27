@@ -187,57 +187,53 @@ pick_opt <- function(cho, fem = TRUE) {
   )
 }
 
+#' Elige blanco o negro según la luminancia relativa del fondo (criterio WCAG).
+#' Devuelve string CSS rgb() del color de fuente con mayor contraste.
+#' @keywords internal
+.btn_fuente_auto <- function(color) {
+  v <- grDevices::col2rgb(color) / 255
+  # Linearización sRGB -> luminancia relativa (WCAG 2.1)
+  v_lin <- ifelse(v <= 0.03928, v / 12.92, ((v + 0.055) / 1.055)^2.4)
+  L <- 0.2126 * v_lin[1L] + 0.7152 * v_lin[2L] + 0.0722 * v_lin[3L]
+  if (L > 0.179) "rgb(0,0,0)" else "rgb(255,255,255)"
+}
+
 #' Grupo de botones radiales con estilo racafe
 #'
 #' @param inputId ID del input Shiny.
 #' @param label Etiqueta superior. `NULL` para omitir.
 #' @param choices Vector o lista con las opciones.
 #' @param selected Opcion preseleccionada. `NULL` toma el primer elemento.
-#' @param color_inactivo Color de fondo de botones NO seleccionados.
-#' @param color_fuente_inactivo Color de texto/icono en estado inactivo.
-#' @param color_activo Color de fondo del boton seleccionado (`.active`).
-#' @param color_fuente_activo Color de texto/icono en estado activo.
-#' @param color_hover Color de fondo al hacer hover sobre un boton inactivo.
-#'   `NULL` = oscurecimiento automatico de `color_inactivo`.
+#' @param color_activo Color de fondo del botón seleccionado.
+#' @param color_inactivo Color de fondo de los botones no seleccionados.
 #' @param alineacion Alineacion del grupo: `"left"`, `"center"`, `"right"`.
 #' @param ... Argumentos adicionales pasados a `shinyWidgets::radioGroupButtons()`.
 #' @return Componente Shiny.
 #' @export
 BotonesRadiales <- function(
   inputId,
-  label                 = NULL,
+  label = NULL,
   choices,
-  selected              = NULL,
-  color_inactivo        = "#6c757d",
-  color_fuente_inactivo = "#FFFFFF",
-  color_activo          = "#198754",
-  color_fuente_activo   = "#FFFFFF",
-  color_hover           = NULL,
-  alineacion            = c("left", "center", "right"),
+  selected = NULL,
+  color_activo = "#198754",
+  color_inactivo = "#6c757d",
+  alineacion = c("left", "center", "right"),
   ...
 ) {
   .check_pkg("shinyWidgets", "BotonesRadiales")
   alineacion <- match.arg(alineacion)
 
-  .btn_validar_color(color_inactivo, "color_inactivo")
-  .btn_validar_color(color_fuente_inactivo, "color_fuente_inactivo")
   .btn_validar_color(color_activo, "color_activo")
-  .btn_validar_color(color_fuente_activo, "color_fuente_activo")
-
-  css_hover <- if (is.null(color_hover)) {
-    .btn_oscurecer(color_inactivo)
-  } else {
-    .btn_validar_color(color_hover, "color_hover")
-    .btn_a_css(color_hover)
-  }
+  .btn_validar_color(color_inactivo, "color_inactivo")
 
   css_vars <- sprintf(
-    "--racafe-radio-inactivo:%s;--racafe-radio-fuente-inactivo:%s;--racafe-radio-activo:%s;--racafe-radio-fuente-activo:%s;--racafe-radio-hover:%s;",
+    "--racafe-radio-inactivo:%s;--racafe-radio-fuente-inactivo:%s;--racafe-radio-hover-inactivo:%s;--racafe-radio-activo:%s;--racafe-radio-fuente-activo:%s;--racafe-radio-hover-activo:%s;",
     .btn_a_css(color_inactivo),
-    .btn_a_css(color_fuente_inactivo),
+    .btn_fuente_auto(color_inactivo),
+    .btn_oscurecer(color_inactivo),
     .btn_a_css(color_activo),
-    .btn_a_css(color_fuente_activo),
-    css_hover
+    .btn_fuente_auto(color_activo),
+    .btn_oscurecer(color_activo)
   )
 
   clase_alineacion <- switch(
