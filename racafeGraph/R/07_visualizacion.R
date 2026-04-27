@@ -159,7 +159,7 @@ hline <- function(y = 0, color = "#ff3a21") {
 #' @param datos `data.frame` con los datos.
 #' @param columna Nombre de la columna numerica a graficar.
 #' @param titulo Titulo del grafico.
-#' @param formato Formato del eje X: nombre registrado en `DefinirFormato`.
+#' @param formato Argumento reservado para compatibilidad (sin uso actual).
 #' @return Objeto plotly.
 #' @export
 #' @examples
@@ -173,9 +173,6 @@ ImprimirDensidad <- function(datos, columna, titulo, formato = "numero") {
   if (length(x) == 0) {
     stop("La columna no contiene valores validos.", call. = FALSE)
   }
-
-  fn_fmt   <- racafeCore::ObtenerFormato(formato)
-  etiquetas <- fn_fmt(x)
 
   densidad <- stats::density(x, na.rm = TRUE)
 

@@ -15,17 +15,6 @@ remotes::install_github("HCamiloYateT/Racafe/racafeCore")
 
 ## Contenido
 
-### Registro de formatos
-```r
-# Formatos disponibles por defecto: numero, decimal, dinero, porcentaje, variacion
-ListarFormatos()
-ObtenerFormato("dinero")(1250000)         # "$1.250.000"
-ObtenerFormato("porcentaje")(0.853)       # "85,3%"
-
-# Registrar formato propio
-DefinirFormato("miles_usd", scales::dollar_format(big.mark = ",", prefix = "USD "))
-```
-
 ### Transformación
 ```r
 # Top N categorias (absoluto o relativo)
