@@ -1,20 +1,53 @@
-# Utilidad independiente para colDef con HTML — no depende del dato
+# ----------------------------------------------------------------------------
+# Utilidades para construir tablas con formato por fila.
+# ----------------------------------------------------------------------------
+
+# Crea una definición de columna (`colDef`) con soporte HTML.
+# Esta utilidad es independiente de los datos: solo configura la columna.
 DefinirColumnaHtml <- function(etiqueta, alineacion = "right", def_extra = list()) {
-  do.call(colDef, modifyList(list(name = etiqueta, align = alineacion, html = TRUE), def_extra))
+  definicion_base <- list(name = etiqueta, align = alineacion, html = TRUE)
+  do.call(colDef, modifyList(definicion_base, def_extra))
 }
 
-FormatearFila <- function(df, reglas = list(), col_item = "Item") {
-  regla_defecto <- list(formato = "coma", negrita = TRUE, color = "#000000", meta = NA, prop = TRUE)
-  obtener_regla <- function(item) modifyList(regla_defecto, reglas[[item]] %||% list())
+# Devuelve la regla de formato aplicable a un `item`.
+ObtenerReglaFila <- function(item, reglas) {
+  regla_defecto <- list(
+    formato = "coma",
+    negrita = TRUE,
+    color = "#000000",
+    meta = NA,
+    prop = TRUE
+  )
 
-  # Formateo numérico con HTML por fila según reglas declaradas
+  modifyList(regla_defecto, reglas[[item]] %||% list())
+}
+
+# Formatea los valores numéricos de una tabla según la regla definida por fila.
+#
+# - `df`: data frame origen.
+# - `reglas`: lista nombrada por valor de `col_item`.
+# - `col_item`: nombre de columna que identifica la fila para buscar su regla.
+FormatearFila <- function(df, reglas = list(), col_item = "Item") {
   df %>%
-    mutate(across(where(is.numeric), ~ {
-      map2(.x = ., .y = .data[[col_item]], function(val, it) {
-        if (is.na(val)) return(NA)
-        r <- obtener_regla(it)
-        racafeShiny::FormatearNumero(x = val, formato = r$formato, negrita = r$negrita,
-                                     color = r$color, meta = r$meta, prop = r$prop)
-      })
-    }))
+    mutate(
+      across(
+        where(is.numeric),
+        ~ map2(.x = ., .y = .data[[col_item]], function(valor, item) {
+          if (is.na(valor)) {
+            return(NA)
+          }
+
+          regla <- ObtenerReglaFila(item = item, reglas = reglas)
+
+          racafeShiny::FormatearNumero(
+            x = valor,
+            formato = regla$formato,
+            negrita = regla$negrita,
+            color = regla$color,
+            meta = regla$meta,
+            prop = regla$prop
+          )
+        })
+      )
+    )
 }
