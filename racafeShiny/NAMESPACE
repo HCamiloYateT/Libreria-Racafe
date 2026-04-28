@@ -18,9 +18,6 @@ export(gt_pct_style)
 export(gt_var_style)
 export(gt_sign_style)
 export(gt_color_columns)
-export(ReglaFila)
-export(AplicarReglasFila)
-export(TablaFilas)
 
 # ---- Inputs Shiny ----
 export(InputNumerico)
