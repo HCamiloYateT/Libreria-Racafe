@@ -23,6 +23,7 @@ export(EsEnteroPositivo)
 export(EsNumero)
 export(EsNumTelefono)
 export(EsEmail)
+export(buscar_cadena)
 
 # ---- Numericas y fechas ----
 export(SiError_0)

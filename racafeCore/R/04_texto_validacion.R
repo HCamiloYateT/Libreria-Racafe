@@ -194,3 +194,33 @@ EsEmail <- function(email) {
     perl = TRUE
   )
 }
+
+
+#' Buscar una cadena dentro de archivos en una ruta
+#'
+#' Ejecuta `grep` de forma recursiva y devuelve coincidencias con numero de linea.
+#'
+#' @param cadena Cadena a buscar.
+#' @param ruta Ruta base donde se realizara la busqueda.
+#' @param patron_archivo Patron de archivos a incluir (por defecto `"*.R"`).
+#' @return Vector de caracteres con resultados de `grep`.
+#' @export
+#' @examples
+#' \dontrun{
+#' buscar_cadena("TopAbsoluto", ".", "*.R")
+#' }
+buscar_cadena <- function(cadena, ruta, patron_archivo = "*.R") {
+  resultado <- system2(
+    command = "grep",
+    args = c(
+      "-RIn",
+      paste0('--include="', patron_archivo, '"'),
+      shQuote(cadena),
+      shQuote(ruta)
+    ),
+    stdout = TRUE,
+    stderr = TRUE
+  )
+
+  return(resultado)
+}
