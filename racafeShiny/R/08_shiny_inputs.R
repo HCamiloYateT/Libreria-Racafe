@@ -377,6 +377,20 @@ InputFecha <- function(
 }
 
 
+
+#' Selector de mes (wrapper de `InputFecha`)
+#'
+#' @inheritParams InputFecha
+#' @return `shiny.tag` del widget `airDatepickerInput` configurado para meses.
+#' @export
+InputMes <- function(id, label = NULL, value = Sys.Date(),
+                     min_date = NULL, max_date = NULL,
+                     inline = FALSE, width = "100%", ...) {
+  InputFecha(id = id, label = label, value = value,
+             tipo = "mes", min_date = min_date, max_date = max_date,
+             inline = inline, width = width, ...)
+}
+
 #' Boton de accion generico con alineacion configurable
 #'
 #' @param id ID del boton.

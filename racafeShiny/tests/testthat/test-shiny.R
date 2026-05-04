@@ -261,3 +261,12 @@ test_that("InputFecha valida y ajusta fechas", {
   )
   expect_match(as.character(clamped), "2026-03-01")
 })
+
+
+test_that("InputMes configura selector mensual", {
+  mes <- InputMes("f_mes_wrapper", value = as.Date("2026-04-23"))
+  mes_html <- as.character(mes)
+
+  expect_match(mes_html, "yyyy-MM")
+  expect_match(mes_html, "monthsShort")
+})

@@ -27,6 +27,7 @@ export(BotonesRadiales)
 export(BotonEstado)
 export(Boton)
 export(InputFecha)
+export(InputMes)
 
 # ---- Outputs Shiny y modulos ----
 export(BotonDescarga)
