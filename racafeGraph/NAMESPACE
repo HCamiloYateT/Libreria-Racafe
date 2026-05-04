@@ -7,6 +7,8 @@ export(vline)
 export(hline)
 export(ImprimirDensidad)
 export(ImprimirAnillo)
+export(MapaCoropleDpto)
+export(MapaCoropleMun)
 export(ImprimeSankey)
 
 importFrom(racafeCore, "%||%")
