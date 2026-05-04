@@ -19,7 +19,7 @@ test_that("DefinirFormato registra y ObtenerFormato recupera", {
 })
 
 test_that("Formatos por defecto estan disponibles al cargar", {
-  defaults <- c("numero","decimal","dinero","porcentaje","variacion")
+  defaults <- c("numero","decimal","dinero","porcentaje","variacion","miles0")
   disponibles <- ListarFormatos()
   for (f in defaults) {
     expect_true(f %in% disponibles, info = sprintf("Falta: %s", f))
@@ -27,7 +27,7 @@ test_that("Formatos por defecto estan disponibles al cargar", {
 })
 
 test_that("FormatoD3 retorna cadena no vacia para formatos conocidos", {
-  for (f in c("numero","decimal","dinero","porcentaje","variacion")) {
+  for (f in c("numero","decimal","dinero","porcentaje","variacion","miles0")) {
     expect_true(nchar(FormatoD3(f)) > 0)
   }
 })
@@ -41,6 +41,12 @@ test_that("FormatoHOT retorna patron Handsontable correcto", {
   expect_equal(FormatoHOT("porcentaje"), "0.0%")
   expect_equal(FormatoHOT("dinero"),     "$0,0")
   expect_equal(FormatoHOT("variacion"),  "+0.0%")
+})
+
+
+test_that("miles0 formatea miles sin decimales", {
+  fn <- DefinirFormato("miles0")
+  expect_equal(fn(12345), "$12")
 })
 
 # ---- col_kpi y chr_kpi ----

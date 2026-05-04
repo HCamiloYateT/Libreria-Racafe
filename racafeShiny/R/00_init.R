@@ -12,6 +12,7 @@
   DefinirFormato("dinero")
   DefinirFormato("dolares")
   DefinirFormato("miles")
+  DefinirFormato("miles0")
   DefinirFormato("porcentaje")
   DefinirFormato("cientifico")
   DefinirFormato("millones")
