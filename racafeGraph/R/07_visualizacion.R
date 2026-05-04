@@ -398,6 +398,35 @@ ImprimeSankey <- function(data, vars, fun, var = NULL, colores) {
 #' @export
 MapaCoropleDpto <- function(datos, col_valor, n_bins, escala, sufijo,
                             layer_id = NULL, marcadores = NULL) {
+  if (!exists("geo_dpto", inherits = TRUE)) {
+    stop("No existe el objeto 'geo_dpto' en el entorno.", call. = FALSE)
+  }
+  if (!is.data.frame(geo_dpto)) {
+    stop("El objeto 'geo_dpto' debe ser un data.frame.", call. = FALSE)
+  }
+  cols_geo_req <- c("dpto_ccdgo", "dpto_cnmbr")
+  cols_geo_falt <- setdiff(cols_geo_req, names(geo_dpto))
+  if (length(cols_geo_falt) > 0) {
+    stop(
+      sprintf(
+        "Faltan columnas requeridas en 'geo_dpto': %s.",
+        paste(cols_geo_falt, collapse = ", ")
+      ),
+      call. = FALSE
+    )
+  }
+  cols_datos_req <- c("CodDep", col_valor)
+  cols_datos_falt <- setdiff(cols_datos_req, names(datos))
+  if (length(cols_datos_falt) > 0) {
+    stop(
+      sprintf(
+        "Faltan columnas requeridas en 'datos': %s.",
+        paste(cols_datos_falt, collapse = ", ")
+      ),
+      call. = FALSE
+    )
+  }
+
   datos    <- datos %>% rename(Valor = all_of(col_valor))
   geo_join <- geo_dpto %>% left_join(datos, by = c("dpto_ccdgo" = "CodDep"))
   geo_con  <- geo_join %>% filter(!is.na(Valor))
@@ -456,7 +485,59 @@ MapaCoropleDpto <- function(datos, col_valor, n_bins, escala, sufijo,
 #' @export
 MapaCoropleMun <- function(datos, cod_dpto, col_valor, n_bins, escala, sufijo,
                            marcadores = NULL) {
+  if (!exists("geo_centroides", inherits = TRUE)) {
+    stop("No existe el objeto 'geo_centroides' en el entorno.", call. = FALSE)
+  }
+  if (!exists("geo_mun", inherits = TRUE)) {
+    stop("No existe el objeto 'geo_mun' en el entorno.", call. = FALSE)
+  }
+  if (!is.data.frame(geo_centroides) || !is.data.frame(geo_mun)) {
+    stop("Los objetos 'geo_centroides' y 'geo_mun' deben ser data.frame.", call. = FALSE)
+  }
+  cols_cent_req <- c("dpto_ccdgo", "lng", "lat")
+  cols_cent_falt <- setdiff(cols_cent_req, names(geo_centroides))
+  if (length(cols_cent_falt) > 0) {
+    stop(
+      sprintf(
+        "Faltan columnas requeridas en 'geo_centroides': %s.",
+        paste(cols_cent_falt, collapse = ", ")
+      ),
+      call. = FALSE
+    )
+  }
+  cols_mun_req <- c("dpto_ccdgo", "mpio_cdpmp", "MunPro", "NomDepPro")
+  cols_mun_falt <- setdiff(cols_mun_req, names(geo_mun))
+  if (length(cols_mun_falt) > 0) {
+    stop(
+      sprintf(
+        "Faltan columnas requeridas en 'geo_mun': %s.",
+        paste(cols_mun_falt, collapse = ", ")
+      ),
+      call. = FALSE
+    )
+  }
+  cols_datos_req <- c("CodMun", col_valor)
+  cols_datos_falt <- setdiff(cols_datos_req, names(datos))
+  if (length(cols_datos_falt) > 0) {
+    stop(
+      sprintf(
+        "Faltan columnas requeridas en 'datos': %s.",
+        paste(cols_datos_falt, collapse = ", ")
+      ),
+      call. = FALSE
+    )
+  }
+
   centro <- geo_centroides %>% filter(dpto_ccdgo == cod_dpto)
+  if (nrow(centro) == 0) {
+    stop(
+      sprintf(
+        "No hay centroides en 'geo_centroides' para el departamento '%s'.",
+        cod_dpto
+      ),
+      call. = FALSE
+    )
+  }
 
   geo_filt <- geo_mun %>%
     filter(dpto_ccdgo == cod_dpto) %>%
