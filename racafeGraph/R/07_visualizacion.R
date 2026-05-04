@@ -505,7 +505,7 @@ MapaCoropleMun <- function(datos, cod_dpto, col_valor, n_bins, escala, sufijo,
       call. = FALSE
     )
   }
-  cols_mun_req <- c("dpto_ccdgo", "mpio_cdpmp", "MunPro", "NomDepPro")
+  cols_mun_req <- c("dpto_ccdgo", "mpio_cdpmp")
   cols_mun_falt <- setdiff(cols_mun_req, names(geo_mun))
   if (length(cols_mun_falt) > 0) {
     stop(
@@ -539,9 +539,27 @@ MapaCoropleMun <- function(datos, cod_dpto, col_valor, n_bins, escala, sufijo,
     )
   }
 
+  pick_first_col <- function(df, candidates) {
+    hit <- candidates[candidates %in% names(df)][1]
+    if (is.na(hit)) {
+      return(rep(NA_character_, nrow(df)))
+    }
+    as.character(df[[hit]])
+  }
+
   geo_filt <- geo_mun %>%
     filter(dpto_ccdgo == cod_dpto) %>%
-    mutate(CodMun5 = str_pad(as.character(mpio_cdpmp), 5L, pad = "0", side = "left"))
+    mutate(CodMun5 = str_pad(as.character(mpio_cdpmp), 5L, pad = "0", side = "left")) %>%
+    mutate(
+      .mun_label = dplyr::coalesce(
+        pick_first_col(cur_data_all(), c("MunPro", "NomMunPro", "nom_mpio", "nom_mun", "MUNICIPIO")),
+        CodMun5
+      ),
+      .dep_label = dplyr::coalesce(
+        pick_first_col(cur_data_all(), c("NomDepPro", "NomDptoPro", "nom_dpto", "nom_dep", "DEPARTAMENTO")),
+        as.character(dpto_ccdgo)
+      )
+    )
 
   geo_join <- geo_filt %>% left_join(datos, by = c("CodMun5" = "CodMun"))
   geo_con  <- geo_join %>%
@@ -556,7 +574,7 @@ MapaCoropleMun <- function(datos, cod_dpto, col_valor, n_bins, escala, sufijo,
   labels_html <- unname(lapply(seq_len(nrow(geo_con)), function(i) {
     htmltools::HTML(sprintf(
       "<strong>%s</strong><br/>%s<br/>%s: %s",
-      geo_con$MunPro[i], geo_con$NomDepPro[i], col_valor,
+      geo_con$.mun_label[i], geo_con$.dep_label[i], col_valor,
       format(round(vals[i]), big.mark = ".", decimal.mark = ",", scientific = FALSE)
     ))
   }))
