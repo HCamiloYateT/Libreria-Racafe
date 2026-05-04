@@ -35,6 +35,9 @@ DefinirFormato <- function(formato, fn = NULL, ...) {
     miles = function(...) scales::label_number(
       accuracy = 0.01, scale = 0.001, prefix = "$", big.mark = ",", ...
     ),
+    miles0 = function(...) scales::label_number(
+      accuracy = 1, scale = 0.001, prefix = "$", big.mark = ",", ...
+    ),
     porcentaje = function(...) scales::label_number(
       accuracy = 0.01, scale = 100, suffix = "%", big.mark = ",", ...
     ),
@@ -54,7 +57,7 @@ DefinirFormato <- function(formato, fn = NULL, ...) {
     stop(
       paste0(
         "Formato no reconocido. Use: 'coma', 'numero', 'dinero', 'dolares', ",
-        "'miles', 'porcentaje', 'cientifico', 'millones', 'entero', ",
+        "'miles', 'miles0', 'porcentaje', 'cientifico', 'millones', 'entero', ",
         "'tiempo', 'kwh' o 'log'."
       ),
       call. = FALSE
@@ -99,6 +102,7 @@ FormatoD3 <- function(formato) {
     dinero     = "$,.0f",
     dolares    = "$,.2f",
     miles      = "$,.2s",
+    miles0     = "$,.0f",
     porcentaje = ".2%",
     cientifico = ".2e",
     millones   = "$,.2s",
@@ -136,6 +140,7 @@ FormatoHOT <- function(formato) {
     dinero     = "$0,0",
     dolares    = "$0,0.00",
     miles      = "$0,0.00",
+    miles0     = "$0,0",
     porcentaje = "0.00%",
     cientifico = "0.00E+00",
     millones   = "$0,0.00",
