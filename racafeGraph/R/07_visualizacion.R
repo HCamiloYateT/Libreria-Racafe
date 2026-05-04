@@ -562,6 +562,13 @@ MapaCoropleMun <- function(datos, cod_dpto, col_valor, n_bins, escala, sufijo,
   n_bins_ef <- max(2L, min(n_bins, length(unique(vals))))
   pal       <- colorBin("GnBu", domain = vals, bins = n_bins_ef, na.color = "#A6A09B")
 
+  labels_html <- unname(lapply(seq_len(nrow(geo_con)), function(i) {
+    htmltools::HTML(sprintf(
+      "<strong>%s</strong><br/>%s<br/>%s: %s",
+      geo_con$.mun_label[i], geo_con$.dep_label[i], col_valor,
+      format(round(vals[i]), big.mark = ".", decimal.mark = ",", scientific = FALSE)
+    ))
+  }))
 
   mapa <- leaflet(options = leafletOptions(minZoom = 8, maxZoom = 9)) %>%
     addProviderTiles("Esri.WorldGrayCanvas") %>%
@@ -572,6 +579,11 @@ MapaCoropleMun <- function(datos, cod_dpto, col_valor, n_bins, escala, sufijo,
     addPolygons(
       data = geo_con, fillColor = ~pal(.Valor.), fillOpacity = 0.6,
       color = "#000000", weight = 0.6, opacity = 1,
+      label = labels_html,
+      labelOptions = labelOptions(
+        style = list("font-weight" = "normal", padding = "4px 8px"),
+        textsize = "13px", direction = "auto"
+      ),
       highlight = highlightOptions(weight = 2, color = "#000000",
                                    fillOpacity = 0.75, bringToFront = TRUE)
     ) %>%
