@@ -543,11 +543,11 @@ MapaCoropleMun <- function(datos, cod_dpto, col_valor, n_bins, escala, sufijo,
     mutate(CodMun5 = str_pad(as.character(mpio_cdpmp), 5L, pad = "0", side = "left")) %>%
     mutate(
       .mun_label = dplyr::coalesce(
-        pick_first_col(cur_data_all(), c("MunPro", "NomMunPro", "nom_mpio", "nom_mun", "MUNICIPIO")),
+        pick_first_col(pick(everything()), c("MunPro", "NomMunPro", "nom_mpio", "nom_mun", "MUNICIPIO")),
         CodMun5
       ),
       .dep_label = dplyr::coalesce(
-        pick_first_col(cur_data_all(), c("NomDepPro", "NomDptoPro", "nom_dpto", "nom_dep", "DEPARTAMENTO")),
+        pick_first_col(pick(everything()), c("NomDepPro", "NomDptoPro", "nom_dpto", "nom_dep", "DEPARTAMENTO")),
         as.character(dpto_ccdgo)
       )
     )
