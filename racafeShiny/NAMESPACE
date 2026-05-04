@@ -30,6 +30,7 @@ export(InputFecha)
 export(InputMes)
 
 # ---- Outputs Shiny y modulos ----
+export(SidebarItemWrap)
 export(BotonDescarga)
 export(CajaIco)
 export(CajaValor)
