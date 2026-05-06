@@ -31,6 +31,7 @@ export(InputMes)
 
 # ---- Outputs Shiny y modulos ----
 export(SidebarItemWrap)
+export(dropdownMenuPlus)
 export(BotonDescarga)
 export(CajaIco)
 export(CajaValor)
