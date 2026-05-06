@@ -62,33 +62,6 @@ Boton("guardar",     label = "Guardar cambios", align = "right")
 Boton("icon_only",   label = NULL, icono = "floppy-disk")
 ```
 
-## Utilidades de navbar
-
-`dropdownMenuPlus()` crea un menú desplegable para barras de navegación tipo
-AdminLTE/bs4Dash. Su propósito es centralizar la construcción de menús de
-mensajes, notificaciones o tareas, incluyendo icono, badge, encabezado,
-contenido y enlace de pie configurables.
-
-```r
-library(racafeShiny)
-library(shiny)
-
-ui <- tags$ul(
-  class = "navbar-nav",
-  dropdownMenuPlus(
-    type = "notifications",
-    badgeStatus = "warning",
-    href = "https://racafe.com",
-    footerText = "Ver todas",
-    tags$a(class = "dropdown-item", href = "#", "Nueva orden pendiente"),
-    tags$a(class = "dropdown-item", href = "#", "Inventario actualizado")
-  )
-)
-
-server <- function(input, output, session) {}
-shinyApp(ui, server)
-```
-
 ## Outputs y módulo CajaValor
 
 ```r
