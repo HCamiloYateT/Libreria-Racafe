@@ -25,32 +25,6 @@ Cada subcarpeta corresponde a un paquete instalable de forma autónoma.
 | `racafeShiny` | Componentes Shiny, formatos `gt` y módulos UI/Server. |
 | `racafeForecast` | Pronósticos de series de tiempo. |
 
-## Funcionalidad destacada de racafeShiny
-
-`racafeShiny::dropdownMenuPlus()` agrega un menú desplegable para navbars
-AdminLTE/bs4Dash. Sirve para mostrar mensajes, notificaciones o tareas con
-icono, badge, encabezado, contenido y enlace de pie configurables.
-
-```r
-library(racafeShiny)
-library(shiny)
-
-ui <- tags$ul(
-  class = "navbar-nav",
-  dropdownMenuPlus(
-    type = "notifications",
-    badgeStatus = "warning",
-    href = "https://racafe.com",
-    footerText = "Ver todas",
-    tags$a(class = "dropdown-item", href = "#", "Nueva orden pendiente"),
-    tags$a(class = "dropdown-item", href = "#", "Inventario actualizado")
-  )
-)
-
-server <- function(input, output, session) {}
-shinyApp(ui, server)
-```
-
 ## Instalación desde GitHub
 
 > En monorepos es más robusto usar `subdir` explícito (en lugar de concatenar la subcarpeta en la URL).
