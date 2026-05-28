@@ -175,6 +175,13 @@ test_that("Boton incorpora clase segun size", {
   expect_match(html, "racafe-btn-guardar--md")
 })
 
+test_that("Boton usa rojo Racafe por defecto", {
+  btn <- Boton("id_btn_rojo")
+  html <- as.character(btn)
+  expect_match(html, "--racafe-color-fondo:rgb\\(192,57,43\\)")
+  expect_match(html, "--racafe-color-hover:rgb\\(157,46,35\\)")
+})
+
 test_that("Boton aplica CSS vars y posicion del label", {
   btn <- Boton("id_btn2", label = "Guardar", icono = "floppy-disk",
                color_fondo = "#112233", color_fuente = "#f5f5f5",
