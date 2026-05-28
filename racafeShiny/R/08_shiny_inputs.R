@@ -419,7 +419,7 @@ Boton <- function(
     icono          = "floppy-disk",
     align          = "right",
     size           = "sm",
-    color_fondo    = "#198754",
+    color_fondo    = "#C0392B",
     color_fuente   = "#FFFFFF",
     color_hover    = NULL,
     label_posicion = "right",
