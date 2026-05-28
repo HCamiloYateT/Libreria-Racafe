@@ -3,6 +3,9 @@
 # ---- Registro de formatos ----
 export(Loadpkg)
 
+# ---- Utilidades Git ----
+export(PushInicial)
+
 # ---- Transformacion ----
 export(RecodificarTop)
 export(TopAbsoluto)
