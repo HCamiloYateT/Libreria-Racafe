@@ -39,6 +39,7 @@ export(FormatearFila)
 export(ObtenerReglaFila)
 export(cajaValor_ui)
 export(cajaValor_server)
+export(mostrarModal)
 
 importFrom(racafeCore, "%||%")
 importFrom(racafeGraph, "ColoresGreenBlue")
