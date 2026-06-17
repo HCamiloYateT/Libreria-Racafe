@@ -277,3 +277,22 @@ test_that("InputMes configura selector mensual", {
   expect_match(mes_html, "yyyy-MM")
   expect_match(mes_html, "monthsShort")
 })
+
+test_that("mostrarModal valida tamano y aplica clase CSS", {
+  modal <- NULL
+  session <- list(
+    sendModal = function(type, message) {
+      modal <<- list(type = type, message = message)
+    }
+  )
+
+  expect_no_warning(mostrarModal("Contenido", tamano = "aviso", session = session))
+  expect_equal(modal$type, "show")
+  expect_match(modal$message$html, "class=\"modal aviso")
+
+  expect_warning(
+    mostrarModal("Contenido", tamano = "tamano_invalido", session = session),
+    "Clase 'tamano_invalido' no reconocida"
+  )
+  expect_match(modal$message$html, "class=\"modal subventana3")
+})
