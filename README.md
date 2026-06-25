@@ -18,7 +18,7 @@ Cada subcarpeta corresponde a un paquete instalable de forma autónoma.
 
 | Paquete | Descripción |
 |---|---|
-| `racafeCore` | Utilidades base: limpieza de texto, validación, fechas, transformación y operadores utilitarios. |
+| `racafeCore` | Utilidades base: limpieza de texto, validación, fechas, transformación, carga modular de scripts R y operadores utilitarios. |
 | `racafeBD` | Conexión y operaciones con SQL Server. |
 | `racafeDrive` | Integración con Microsoft Graph, OneDrive y SharePoint. |
 | `racafeGraph` | Visualización corporativa con `plotly`. |
@@ -44,6 +44,25 @@ Si el repositorio es privado, autentica antes de instalar:
 ```r
 Sys.setenv(GITHUB_PAT = "<tu_token>")
 ```
+
+
+## Carga modular de scripts R
+
+`racafeCore` incluye `load_modules()`, una utilidad para cargar todos los
+archivos `.R` de un directorio de trabajo, omitiendo `global.R` y reintentando
+los scripts que fallen inicialmente por dependencias entre módulos.
+
+```r
+dir_modulos <- tempfile("modulos_")
+dir.create(dir_modulos)
+writeLines("valor_base <- 2", file.path(dir_modulos, "01_base.R"))
+writeLines("valor_doble <- valor_base * 2", file.path(dir_modulos, "02_calc.R"))
+load_modules(dir_modulos, progress = FALSE)
+valor_doble
+#> [1] 4
+```
+
+Consulta más detalles en [`racafeCore/README.md`](./racafeCore/README.md).
 
 ## Versionado y changelog
 
