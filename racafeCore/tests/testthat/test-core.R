@@ -219,3 +219,40 @@ test_that("aplicar_imputacion sin NA retorna original", {
   serie <- c(1, 2, 3, 4, 5)
   expect_equal(aplicar_imputacion(serie, "promedio"), serie)
 })
+
+# ---- Carga modular ----
+
+test_that("load_modules carga scripts ordenados y omite global.R", {
+  dir_modulos <- withr::local_tempdir()
+  dir.create(file.path(dir_modulos, "sub"))
+  writeLines("valor_global <- 99", file.path(dir_modulos, "global.R"))
+  writeLines("valor_base <- 2", file.path(dir_modulos, "01_base.R"))
+  writeLines("valor_doble <- valor_base * 2", file.path(dir_modulos, "sub", "02_calc.R"))
+
+  local({
+    resultado <- load_modules(dir_modulos, progress = FALSE)
+    expect_equal(resultado$ok, 2L)
+    expect_length(resultado$fallidos, 0L)
+    expect_equal(valor_doble, 4)
+    expect_false(exists("valor_global", envir = globalenv(), inherits = FALSE))
+  })
+
+  rm(list = c("valor_base", "valor_doble"), envir = globalenv())
+})
+
+test_that("load_modules reporta fallidos irresolubles", {
+  dir_modulos <- withr::local_tempdir()
+  writeLines("objeto_inexistente + 1", file.path(dir_modulos, "01_falla.R"))
+
+  resultado <- suppressMessages(load_modules(dir_modulos, progress = FALSE))
+  expect_equal(resultado$ok, 0L)
+  expect_length(resultado$fallidos, 1L)
+  expect_match(resultado$errores[[resultado$fallidos]], "objeto_inexistente")
+})
+
+test_that("load_modules valida entradas", {
+  expect_error(load_modules(character(0)), "`path` debe ser")
+  expect_error(load_modules(tempfile()), "no existe")
+  expect_error(load_modules(tempdir(), verbose = NA), "`verbose` debe ser")
+  expect_error(load_modules(tempdir(), progress = NA), "`progress` debe ser")
+})

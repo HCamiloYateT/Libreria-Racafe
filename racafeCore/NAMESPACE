@@ -2,6 +2,7 @@
 
 # ---- Registro de formatos ----
 export(Loadpkg)
+export(load_modules)
 
 # ---- Utilidades Git ----
 export(PushInicial)

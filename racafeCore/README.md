@@ -15,6 +15,27 @@ remotes::install_github("HCamiloYateT/Racafe/racafeCore")
 
 ## Contenido
 
+### Dependencias y carga modular
+```r
+# Cargar paquetes instalando faltantes
+Loadpkg(c("dplyr", "stringr"))
+
+# Cargar todos los scripts .R de un directorio, excluyendo global.R,
+# con reintentos automaticos cuando hay dependencias entre modulos.
+dir_modulos <- tempfile("modulos_")
+dir.create(dir_modulos)
+writeLines("valor_base <- 2", file.path(dir_modulos, "01_base.R"))
+writeLines("valor_doble <- valor_base * 2", file.path(dir_modulos, "02_calc.R"))
+load_modules(dir_modulos, progress = FALSE)
+valor_doble  # 4
+```
+
+`load_modules()` facilita inicializar proyectos con scripts separados por
+responsabilidad: normaliza rutas, ordena los archivos por cercania a la raiz,
+omite `global.R`, reintenta archivos con dependencias pendientes y devuelve un
+resumen invisible con modulos cargados, fallidos y mensajes de error.
+
+
 ### Transformación
 ```r
 # Top N categorias (absoluto o relativo)
