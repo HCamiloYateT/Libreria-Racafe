@@ -12,9 +12,9 @@
 #' El token se renueva automaticamente al expirar.
 #'
 #' Variables de entorno requeridas:
-#' - `GRAPH_TOKEN_URL`: endpoint de token del tenant
-#' - `GRAPH_CLIENT_ID`: client ID de la aplicacion Azure AD
-#' - `GRAPH_CLIENT_SECRET`: client secret
+#' - `MS_TENANT_ID`: tenant ID de Azure AD
+#' - `MS_CLIENT_ID`: client ID de la aplicacion Azure AD
+#' - `MS_CLIENT_SECRET`: client secret
 #'
 #' @param force Logico. Si `TRUE`, fuerza renovacion aunque no haya expirado.
 #' @return Cadena con el access token.
@@ -29,17 +29,22 @@ ObtenerTokenAcceso <- function(force = FALSE) {
     return(.token_cache$token)
   }
 
-  token_url <- Sys.getenv("GRAPH_TOKEN_URL")
-  client_id <- Sys.getenv("GRAPH_CLIENT_ID")
-  client_secret <- Sys.getenv("GRAPH_CLIENT_SECRET")
+  tenant_id <- Sys.getenv("MS_TENANT_ID")
+  client_id <- Sys.getenv("MS_CLIENT_ID")
+  client_secret <- Sys.getenv("MS_CLIENT_SECRET")
 
-  if (any(nchar(c(token_url, client_id, client_secret)) == 0)) {
+  if (any(nchar(c(tenant_id, client_id, client_secret)) == 0)) {
     .error_graph(
-      "faltan variables de entorno GRAPH_TOKEN_URL/GRAPH_CLIENT_ID/GRAPH_CLIENT_SECRET",
+      "faltan variables de entorno MS_TENANT_ID/MS_CLIENT_ID/MS_CLIENT_SECRET",
       "definir las tres variables antes de solicitar token",
       funcion = "ObtenerTokenAcceso"
     )
   }
+
+  token_url <- sprintf(
+    "https://login.microsoftonline.com/%s/oauth2/v2.0/token",
+    tenant_id
+  )
 
   resp <- httr2::request(token_url) |>
     httr2::req_body_form(
