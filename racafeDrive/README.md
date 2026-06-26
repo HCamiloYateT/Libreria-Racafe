@@ -13,9 +13,9 @@ remotes::install_github("HCamiloYateT/Racafe/racafeDrive")
 ## Variables de entorno requeridas
 
 ```
-GRAPH_TOKEN_URL=https://login.microsoftonline.com/<tenant-id>/oauth2/v2.0/token
-GRAPH_CLIENT_ID=<client-id-azure-ad>
-GRAPH_CLIENT_SECRET=<client-secret>
+MS_TENANT_ID=<tenant-id>
+MS_CLIENT_ID=<client-id-azure-ad>
+MS_CLIENT_SECRET=<client-secret>
 GRAPH_DOMAIN=racafe.com
 ```
 

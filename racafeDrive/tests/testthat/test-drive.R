@@ -8,18 +8,18 @@ library(racafeDrive)
 test_that("ObtenerTokenAcceso falla sin variables de entorno", {
   withr::with_envvar(
     list(
-      GRAPH_TOKEN_URL     = "",
-      GRAPH_CLIENT_ID     = "",
-      GRAPH_CLIENT_SECRET = ""
+      MS_TENANT_ID     = "",
+      MS_CLIENT_ID     = "",
+      MS_CLIENT_SECRET = ""
     ),
-    expect_error(ObtenerTokenAcceso(), "GRAPH_TOKEN_URL")
+    expect_error(ObtenerTokenAcceso(), "MS_TENANT_ID")
   )
 })
 
 test_that("Cache de token: segunda llamada no hace request HTTP", {
   skip_if(
-    nchar(Sys.getenv("GRAPH_TOKEN_URL")) == 0,
-    "Variables de entorno Graph no configuradas"
+    nchar(Sys.getenv("MS_TENANT_ID")) == 0,
+    "Variables de entorno Microsoft Graph no configuradas"
   )
   t1 <- ObtenerTokenAcceso()
   t2 <- ObtenerTokenAcceso()
@@ -28,8 +28,8 @@ test_that("Cache de token: segunda llamada no hace request HTTP", {
 
 test_that("ObtenerTokenAcceso con force=TRUE renueva el cache", {
   skip_if(
-    nchar(Sys.getenv("GRAPH_TOKEN_URL")) == 0,
-    "Variables de entorno Graph no configuradas"
+    nchar(Sys.getenv("MS_TENANT_ID")) == 0,
+    "Variables de entorno Microsoft Graph no configuradas"
   )
   t1 <- ObtenerTokenAcceso()
   t2 <- ObtenerTokenAcceso(force = TRUE)
@@ -39,8 +39,8 @@ test_that("ObtenerTokenAcceso con force=TRUE renueva el cache", {
 
 test_that("CabecerasGraph retorna lista con Authorization", {
   skip_if(
-    nchar(Sys.getenv("GRAPH_TOKEN_URL")) == 0,
-    "Variables de entorno Graph no configuradas"
+    nchar(Sys.getenv("MS_TENANT_ID")) == 0,
+    "Variables de entorno Microsoft Graph no configuradas"
   )
   headers <- CabecerasGraph()
   expect_true("Authorization" %in% names(headers))
