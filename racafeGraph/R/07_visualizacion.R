@@ -258,25 +258,22 @@ ImprimirDensidad <- function(datos, columna, titulo, formato = "numero") {
 #' @export
 #' @examples
 #' df <- data.frame(
-#'   categoria = c("A","A","B","C","C","C"),
-#'   valor = c(10, 20, 30, 5, 15, 25)
+#'   categoria = c("A", "A", "B", "C", "C", "C"),
+#'   valor     = c(10, 20, 30, 5, 15, 25)
 #' )
 #' ImprimirAnillo(df, var_label = "categoria", var_medida = "valor")
-ImprimirAnillo <- function(
-    data,
-    var_label,
-    var_medida = NULL,
-    funcion    = c("sum", "n"),
-    colores    = NULL) {
+ImprimirAnillo <- function(data, var_label, var_medida = NULL,
+                           funcion = c("sum", "n"), colores = NULL) {
 
   funcion <- match.arg(funcion)
 
-  # Agregacion de datos (separado del render)
+  # Agregacion de datos, separada del render ----
   datos_agg <- .agregar_anillo(data, var_label, var_medida, funcion)
 
   n_cats  <- nrow(datos_agg)
   colores <- colores %||% ColoresRacafe(n_cats)
 
+  # Construccion del anillo con leyenda vertical fuera del area de trazado ----
   plotly::plot_ly(
     data   = datos_agg,
     labels = ~etiqueta,
@@ -284,7 +281,7 @@ ImprimirAnillo <- function(
     type   = "pie",
     hole   = 0.55,
     marker = list(colors = colores, line = list(color = "white", width = 2)),
-    textinfo   = "label+percent",
+    textinfo = "label+percent",
     hovertemplate = paste0(
       "<b>%{label}</b><br>",
       "Valor: %{value:,.0f}<br>",
@@ -293,10 +290,10 @@ ImprimirAnillo <- function(
   ) |>
     plotly::layout(
       showlegend    = TRUE,
-      legend        = list(orientation = "v", x = 1.05),
+      legend        = list(orientation = "v", x = 1.05, y = 0.5, yanchor = "middle"),
       paper_bgcolor = "rgba(0,0,0,0)",
       plot_bgcolor  = "rgba(0,0,0,0)",
-      margin        = list(l = 20, r = 120, t = 20, b = 20)
+      margin        = list(l = 20, r = 140, t = 20, b = 20)
     )
 }
 

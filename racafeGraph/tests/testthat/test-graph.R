@@ -81,6 +81,17 @@ test_that("ImprimirAnillo funciona con funcion = n", {
   expect_true(inherits(p, "plotly"))
 })
 
+test_that("ImprimirAnillo usa leyenda vertical centrada fuera del trazado", {
+  df <- data.frame(cat = c("A","A","B","C","C","C"))
+  p <- ImprimirAnillo(df, var_label = "cat", funcion = "n")
+  expect_true(isTRUE(p$x$layout$showlegend))
+  expect_equal(p$x$layout$legend$orientation, "v")
+  expect_equal(p$x$layout$legend$x, 1.05)
+  expect_equal(p$x$layout$legend$y, 0.5)
+  expect_equal(p$x$layout$legend$yanchor, "middle")
+  expect_equal(p$x$layout$margin$r, 140)
+})
+
 test_that("ImprimirDensidad retorna objeto plotly", {
   set.seed(7)
   df <- data.frame(x = rgamma(80, shape = 2, rate = 0.5))
