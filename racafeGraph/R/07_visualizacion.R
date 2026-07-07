@@ -176,6 +176,8 @@ hline <- function(y = 0, color = "#ff3a21") {
 #' ventas <- data.frame(ingresos = rgamma(250, shape = 3, rate = 0.7))
 #' ImprimirDensidad(ventas, "ingresos", "Ingresos diarios", formato = "numero")
 ImprimirDensidad <- function(datos, columna, titulo, formato = "numero") {
+
+  # Limpieza de valores no finitos antes de estimar densidad ----
   x <- datos[[columna]]
   x <- x[!is.na(x) & is.finite(x)]
 
@@ -185,6 +187,7 @@ ImprimirDensidad <- function(datos, columna, titulo, formato = "numero") {
 
   densidad <- stats::density(x, na.rm = TRUE)
 
+  # Construccion del grafico: histograma + densidad en eje secundario ----
   p <- plotly::plot_ly() |>
     plotly::add_histogram(
       x          = x,
@@ -194,31 +197,46 @@ ImprimirDensidad <- function(datos, columna, titulo, formato = "numero") {
         color = ColoresRacafe(1),
         line  = list(color = "white", width = 0.5)
       ),
-      hovertemplate = paste0("<b>Rango:</b> %{x}<br>",
-                             "<b>Proporcion:</b> %{y:.1%}<extra></extra>")
+      hovertemplate = paste0(
+        "<b>Rango:</b> %{x}<br>",
+        "<b>Proporcion:</b> %{y:.1%}<extra></extra>"
+      )
     ) |>
     plotly::add_lines(
-      x    = densidad$x,
-      y    = densidad$y,
-      name = "Densidad",
-      line = list(color = ColoresRacafe(2)[2], width = 2),
+      x     = densidad$x,
+      y     = densidad$y,
+      name  = "Densidad",
+      line  = list(color = ColoresRacafe(2)[2], width = 2),
       yaxis = "y2",
       hovertemplate = "<b>Densidad:</b> %{y:.4f}<extra></extra>"
     ) |>
     plotly::layout(
-      title   = list(text = titulo, x = 0.02, font = list(size = 14)),
-      xaxis   = list(
-        title = columna,
-        type  = "log",
-        tickformat = ""
+      title = list(text = titulo, x = 0.02, font = list(size = 14)),
+      xaxis = list(
+        title      = columna,
+        type       = "log",
+        tickformat = "",
+        automargin = TRUE
       ),
-      yaxis   = list(title = "Proporcion", tickformat = ".0%"),
-      yaxis2  = list(
-        title    = "Densidad",
+      yaxis = list(
+        title      = "Proporcion",
+        tickformat = ".0%",
+        automargin = TRUE
+      ),
+      yaxis2 = list(
+        title      = "Densidad",
         overlaying = "y",
-        side     = "right"
+        side       = "right",
+        automargin = TRUE
       ),
-      legend  = list(x = 0.75, y = 0.95),
+      legend = list(
+        orientation = "h",
+        xanchor     = "center",
+        yanchor     = "top",
+        x           = 0.5,
+        y           = -0.3
+      ),
+      margin        = list(l = 50, r = 60, t = 50, b = 90),
       paper_bgcolor = "rgba(0,0,0,0)",
       plot_bgcolor  = "rgba(0,0,0,0)"
     )
