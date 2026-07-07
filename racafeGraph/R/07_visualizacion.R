@@ -58,9 +58,11 @@ ColoresGreenBlue <- function(value) {
 #'
 #' @param titulo Titulo principal del grafico. `NULL` omite titulo.
 #' @param subtitulo Subtitulo. `NULL` omite.
+#' @param leyenda_h Logico. Si `TRUE`, ubica la leyenda horizontal debajo del eje X
+#'   con margen inferior ampliado para evitar solapamiento con el titulo del eje.
 #' @return Lista con parametros de layout para plotly.
 #' @export
-tema_racafe_plotly <- function(titulo = NULL, subtitulo = NULL) {
+tema_racafe_plotly <- function(titulo = NULL, subtitulo = NULL, leyenda_h = TRUE) {
   lista <- list(
     font = list(
       family = "Roboto, Arial, sans-serif",
@@ -70,21 +72,28 @@ tema_racafe_plotly <- function(titulo = NULL, subtitulo = NULL) {
     paper_bgcolor = "rgba(0,0,0,0)",
     plot_bgcolor  = "rgba(0,0,0,0)",
     xaxis = list(
-      gridcolor   = "#E8E8E8",
-      linecolor   = "#CCCCCC",
-      zerolinecolor = "#CCCCCC"
+      gridcolor     = "#E8E8E8",
+      linecolor     = "#CCCCCC",
+      zerolinecolor = "#CCCCCC",
+      automargin    = TRUE
     ),
     yaxis = list(
-      gridcolor   = "#E8E8E8",
-      linecolor   = "#CCCCCC",
-      zerolinecolor = "#CCCCCC"
+      gridcolor     = "#E8E8E8",
+      linecolor     = "#CCCCCC",
+      zerolinecolor = "#CCCCCC",
+      automargin    = TRUE
     ),
     legend = list(
-      bgcolor      = "rgba(255,255,255,0.8)",
-      bordercolor  = "#DDDDDD",
-      borderwidth  = 1
+      orientation = "h",
+      xanchor     = "center",
+      yanchor     = "top",
+      x           = 0.5,
+      y           = -0.35,
+      bgcolor     = "rgba(255,255,255,0.8)",
+      bordercolor = "#DDDDDD",
+      borderwidth = 1
     ),
-    margin = list(l = 50, r = 30, t = 50, b = 50)
+    margin = list(l = 50, r = 30, t = 50, b = 90)
   )
 
   if (!is.null(titulo)) {
