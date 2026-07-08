@@ -1,74 +1,55 @@
 # racafeDrive
 
-Integración completa con Microsoft Graph API, OneDrive y SharePoint.
-Token con **cache en memoria** y renovación automática al expirar (3600s).
+Integración con Microsoft Graph API, OneDrive y SharePoint. Incluye autenticación con cache de token, navegación de sitios/drives/carpetas, descarga de archivos y lectura de libros Excel.
 
 ## Instalación
 
 ```r
-remotes::install_github("HCamiloYateT/Racafe/racafeCore")
-remotes::install_github("HCamiloYateT/Racafe/racafeDrive")
+remotes::install_github("HCamiloYateT/Libreria-Racafe", subdir = "racafeCore")
+remotes::install_github("HCamiloYateT/Libreria-Racafe", subdir = "racafeDrive")
 ```
 
-## Variables de entorno requeridas
+## Variables de entorno
 
-```
+```text
 MS_TENANT_ID=<tenant-id>
-MS_CLIENT_ID=<client-id-azure-ad>
+MS_CLIENT_ID=<client-id>
 MS_CLIENT_SECRET=<client-secret>
 GRAPH_DOMAIN=racafe.com
 ```
+
+## Funciones disponibles
+
+- **Autenticación y cabeceras:** `ObtenerTokenAcceso()`, `CabecerasGraph()`.
+- **SharePoint y drives:** `ObtenerIdSite()`, `ObtenerIdDriveSite()`, `ObtenerIdDrive()`.
+- **Carpetas y contenido:** `ListarCarpetas()`, `ObtenerIdCarpeta()`, `ListarContenidoCarpetaNombre()`, `ListarContenidoCarpetaId()`, `ListarContenidoCarpetaRecursivo()`, `ListarDriveRecursivo()`, `ListarTodoContenidoCarpeta()`.
+- **Archivos y Excel:** `DescargarArchivoId()`, `CargarExcelDesdeOneDrive()`, `DescargarExcelDesdeOneDrive()`, `ListarHojasExcelOneDrive()`, `LeerExcelDesdeOneDrive()`, `CargarExcelSite()`.
 
 ## Uso
 
 ```r
 library(racafeDrive)
 
-# ---- OneDrive de usuario ----
+token <- ObtenerTokenAcceso()
+headers <- CabecerasGraph()
+
 drive_id <- ObtenerIdDrive("juan.perez")
-carpetas  <- ListarCarpetas("juan.perez")
+carpetas <- ListarCarpetas("juan.perez")
+carpeta_id <- ObtenerIdCarpeta("juan.perez", "Reportes/2026")
+contenido <- ListarTodoContenidoCarpeta("juan.perez", carpeta_id)
 
-# Leer Excel directamente (sin guardar en disco)
-df <- LeerExcelDesdeOneDrive(
-  archivo_id = "ABC123def456",
-  usuario    = "juan.perez",
-  sheet      = "Datos", skip = 1
-)
+hojas <- ListarHojasExcelOneDrive(archivo_id = contenido$id[[1]], usuario = "juan.perez")
+df <- LeerExcelDesdeOneDrive(archivo_id = contenido$id[[1]], usuario = "juan.perez", sheet = hojas$name[[1]])
 
-# Descargar y guardar localmente
-DescargarExcelDesdeOneDrive(
-  usuario      = "juan.perez",
-  ruta         = "Reportes/2024",
-  archivo      = "cierre_enero.xlsx",
-  nombre_salida = "cierre_enero_local"
-)
-
-# Listar contenido recursivo de una carpeta
-todos <- ListarTodoContenidoCarpeta("juan.perez", carpeta_id = "XYZ789")
-
-# ---- SharePoint ----
-site_id  <- ObtenerIdSite("racafe.sharepoint.com", "sites/analitica")
-drive_id <- ObtenerIdDriveSite(site_id, "Documentos compartidos")
-
-# Archivos modificados en los ultimos 7 dias
-recientes <- ListarDriveRecursivo(drive_id, fecha_desde = Sys.Date() - 7)
-
-# Leer Excel directamente desde SharePoint
-df <- CargarExcelSite(
-  drive_id = drive_id,
-  item_id  = recientes$id[[1]],
-  hoja     = "Presupuesto",
-  skip     = 2
-)
+site_id <- ObtenerIdSite("racafe.sharepoint.com", "sites/analitica")
+site_drive <- ObtenerIdDriveSite(site_id, "Documentos compartidos")
+recientes <- ListarDriveRecursivo(site_drive, fecha_desde = Sys.Date() - 7)
 ```
 
-## Cache de token
-
-El token se obtiene una sola vez por proceso R y se renueva
-automáticamente 60 segundos antes de expirar. No es necesario
-llamar `ObtenerTokenAcceso()` manualmente en flujos normales.
+## Documentación
 
 ```r
-# Forzar renovacion manual (util en procesos batch de larga duracion)
-ObtenerTokenAcceso(force = TRUE)
+?ObtenerTokenAcceso
+?ListarDriveRecursivo
+?CargarExcelSite
 ```

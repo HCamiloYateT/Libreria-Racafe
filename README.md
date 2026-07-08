@@ -1,33 +1,19 @@
-# Racafe
+# Librería Racafe
 
-Monorepo centralizado con 6 paquetes de R independientes.
-Cada subcarpeta corresponde a un paquete instalable de forma autónoma.
+Monorepo de paquetes R para el ecosistema Racafe. Cada subcarpeta es un paquete instalable de forma independiente, con documentación `help()` generada en `man/` y una responsabilidad clara dentro del flujo analítico: utilidades base, bases de datos, Microsoft Graph/OneDrive, visualización, componentes Shiny y pronósticos.
 
-## Compatibilidad y dependencias críticas
+## Paquetes y funciones principales
 
-| Paquete | Versión mínima de R | Dependencias críticas | Instalación local recomendada (desde la raíz del monorepo) |
-|---|---:|---|---|
-| `racafeCore` | `>= 4.1.0` | `dplyr`, `stringi`, `lubridate`, `janitor` | `devtools::install("./racafeCore")` |
-| `racafeBD` | `>= 4.1.0` | `racafeCore`, `DBI`, `odbc` | `devtools::install("./racafeBD")` |
-| `racafeDrive` | `>= 4.1.0` | `racafeCore`, `httr2`, `readxl`, `openxlsx2` | `devtools::install("./racafeDrive")` |
-| `racafeGraph` | `>= 4.1.0` | `racafeCore`, `plotly` | `devtools::install("./racafeGraph")` |
-| `racafeShiny` | `>= 4.1.0` | `racafeCore`, `racafeGraph`, `shiny`, `gt` | `devtools::install("./racafeShiny")` |
-| `racafeForecast` | `>= 4.1.0` | `racafeCore`, `forecast`, `zoo` | `devtools::install("./racafeForecast")` |
-
-## Paquetes
-
-| Paquete | Descripción |
-|---|---|
-| `racafeCore` | Utilidades base: limpieza de texto, validación, fechas, transformación, carga modular de scripts R y operadores utilitarios. |
-| `racafeBD` | Conexión y operaciones con SQL Server. |
-| `racafeDrive` | Integración con Microsoft Graph, OneDrive y SharePoint. |
-| `racafeGraph` | Visualización corporativa con `plotly`. |
-| `racafeShiny` | Componentes Shiny, formatos `gt` y módulos UI/Server. |
-| `racafeForecast` | Pronósticos de series de tiempo. |
+| Paquete | Responsabilidad | Funciones exportadas |
+|---|---|---|
+| `racafeCore` | Núcleo compartido: dependencias, carga modular, transformación, validación, fechas y HTML básico. | `Loadpkg()`, `load_modules()`, `PushInicial()`, `RecodificarTop()`, `TopAbsoluto()`, `TopRelativo()`, `AdicionarBotones()`, `bind_rows_na()`, `left_join_all()`, `RevisarDuplicados()`, `%||%`, `LimpiarNombres()`, `LimpiarCadena()`, `UnirCadenas()`, `Unicos()`, `EsVacio()`, `EsEnteroPositivo()`, `EsNumero()`, `EsNumTelefono()`, `EsEmail()`, `buscar_cadena()`, `SiError_0()`, `Variacion()`, `Moda()`, `RedondearMultiplo()`, `PrimerDia()`, `FechaTexto()`, `EdadCumplida()`, `Saltos()`, `Espacios()`, `Obligatorio()` |
+| `racafeBD` | Acceso a datos, lectura, escritura, reemplazo y consultas SQL. | `ConectarBD()`, `EscribirDatos()`, `AgregarDatos()`, `ReemplazarDatos()`, `CargarDatos()`, `Consulta()`, `ConsultaSistema()` |
+| `racafeDrive` | Integración con Microsoft Graph, OneDrive y SharePoint. | `ObtenerTokenAcceso()`, `CabecerasGraph()`, `ObtenerIdSite()`, `ObtenerIdDriveSite()`, `ObtenerIdDrive()`, `CargarExcelDesdeOneDrive()`, `DescargarExcelDesdeOneDrive()`, `ListarCarpetas()`, `ObtenerIdCarpeta()`, `ListarContenidoCarpetaNombre()`, `ListarContenidoCarpetaId()`, `ListarContenidoCarpetaRecursivo()`, `ListarDriveRecursivo()`, `ListarTodoContenidoCarpeta()`, `DescargarArchivoId()`, `ListarHojasExcelOneDrive()`, `LeerExcelDesdeOneDrive()`, `CargarExcelSite()` |
+| `racafeGraph` | Paletas, tema Plotly y gráficos corporativos. | `ColoresRacafe()`, `ColoresGreenBlue()`, `tema_racafe_plotly()`, `vline()`, `hline()`, `ImprimirDensidad()`, `ImprimirAnillo()`, `ImprimeSankey()` |
+| `racafeShiny` | Formatos, estilos `gt`, inputs, botones, outputs y módulos Shiny. | `DefinirFormato()`, `ObtenerFormato()`, `FormatoD3()`, `FormatoJS()`, `FormatoHOT()`, `FormatearNumero()`, `FormatearTexto()`, `FormatrearTexto()`, `gt_minimal_style()`, `gt_mensaje_vacio()`, `col_kpi()`, `chr_kpi()`, `col_num()`, `gt_pct_style()`, `gt_var_style()`, `gt_sign_style()`, `gt_color_columns()`, `InputNumerico()`, `ListaDesplegable()`, `pick_opt()`, `BotonesRadiales()`, `BotonEstado()`, `Boton()`, `InputFecha()`, `InputMes()`, `SidebarItemWrap()`, `BotonDescarga()`, `CajaIco()`, `CajaValor()`, `DefinirColumnaHtml()`, `FormatearFila()`, `ObtenerReglaFila()`, `cajaValor_ui()`, `cajaValor_server()`, `mostrarModal()` |
+| `racafeForecast` | Pronósticos con varios modelos, métricas y extractores S3. | `aplicar_imputacion()`, `extraer_intervalos()`, `ejecutar_pronosticos()`, `Pronosticar()`, `PronMetricas()`, `PronSeleccionar()`, `PronSerie()`, `PronMensual()`, `PronPatronMes()` |
 
 ## Instalación desde GitHub
-
-> En monorepos es más robusto usar `subdir` explícito (en lugar de concatenar la subcarpeta en la URL).
 
 ```r
 repo <- "HCamiloYateT/Libreria-Racafe"
@@ -39,42 +25,36 @@ remotes::install_github(repo, subdir = "racafeShiny")
 remotes::install_github(repo, subdir = "racafeForecast")
 ```
 
-Si el repositorio es privado, autentica antes de instalar:
+Para repositorios privados, define previamente `GITHUB_PAT`.
+
+## Desarrollo local
 
 ```r
-Sys.setenv(GITHUB_PAT = "<tu_token>")
+setwd("/ruta/local/Libreria-Racafe")
+
+pkgs <- c("racafeCore", "racafeBD", "racafeDrive", "racafeGraph", "racafeShiny", "racafeForecast")
+for (p in pkgs) devtools::install(file.path(".", p))
+
+devtools::test("racafeCore")
 ```
 
+## Documentación en R
 
-## Carga modular de scripts R
-
-`racafeCore` incluye `load_modules()`, una utilidad para cargar todos los
-archivos `.R` de un directorio de trabajo, omitiendo `global.R` y reintentando
-los scripts que fallen inicialmente por dependencias entre módulos.
+Todos los paquetes incluyen archivos `.Rd` bajo `man/`, por lo que las funciones exportadas se pueden consultar con `help()` después de instalar o cargar el paquete:
 
 ```r
-dir_modulos <- tempfile("modulos_")
-dir.create(dir_modulos)
-writeLines("valor_base <- 2", file.path(dir_modulos, "01_base.R"))
-writeLines("valor_doble <- valor_base * 2", file.path(dir_modulos, "02_calc.R"))
-load_modules(dir_modulos, progress = FALSE)
-valor_doble
-#> [1] 4
+library(racafeCore)
+help(load_modules)
+?RecodificarTop
+
+library(racafeForecast)
+?Pronosticar
 ```
 
-Consulta más detalles en [`racafeCore/README.md`](./racafeCore/README.md).
+## Variables de entorno por módulo
 
-## Versionado y changelog
-
-- Cada paquete usa **SemVer** independiente (`MAJOR.MINOR.PATCH`) en su `DESCRIPTION`.
-- La política completa está documentada en [`VERSIONING.md`](./VERSIONING.md).
-- El historial de cambios se mantiene en `NEWS.md` dentro de cada paquete:
-  - `racafeCore/NEWS.md`
-  - `racafeBD/NEWS.md`
-  - `racafeDrive/NEWS.md`
-  - `racafeGraph/NEWS.md`
-  - `racafeShiny/NEWS.md`
-  - `racafeForecast/NEWS.md`
+- `racafeBD`: `DB_NAME`, `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_ENCODING`; para `ConsultaSistema()`, también `SYS_UID` y `SYS_PWD` cuando no se pasan credenciales explícitas.
+- `racafeDrive`: `MS_TENANT_ID`, `MS_CLIENT_ID`, `MS_CLIENT_SECRET` y opcionalmente `GRAPH_DOMAIN`.
 
 ## Grafo de dependencias
 
@@ -87,31 +67,9 @@ racafeCore
     └── racafeForecast
 ```
 
-## Desarrollo local (ruta recomendada)
+## Calidad
 
-```r
-# 1) Ubícate en la raíz del monorepo
-setwd("/ruta/local/Libreria-Racafe")
-
-# 2) Instala en orden de dependencia
-pkgs <- c(
-  "racafeCore",
-  "racafeBD",
-  "racafeDrive",
-  "racafeGraph",
-  "racafeShiny",
-  "racafeForecast"
-)
-for (p in pkgs) devtools::install(file.path(".", p))
-
-# 3) Ejecuta pruebas de un paquete específico
-devtools::test("racafeCore")
-```
-
-## Quality gates y reproducibilidad
-
-- CI bloquea cambios cuando falla `R CMD check` en cualquiera de los subpaquetes.
-- CI ejecuta gate de cobertura con `covr` (umbral inicial `75%`) y valida no regresión contra la rama base en PR.
-- CI ejecuta pruebas de integración E2E (`core -> bd/drive -> graph/shiny -> forecast`) con datasets de juguete y stubs para servicios externos.
-- Política de dependencias y actualización mensual documentada en [`docs/dependency-policy.md`](./docs/dependency-policy.md).
-- Lockfile de entorno de desarrollo en `renv.lock`.
+- Pruebas unitarias con `testthat` por paquete.
+- Pruebas de integración en `tests/integration`.
+- Política de dependencias en `docs/dependency-policy.md`.
+- Versionado SemVer independiente por paquete.
