@@ -2,6 +2,8 @@
 
 export(ColoresRacafe)
 export(ColoresGreenBlue)
+export(paleta_secuencial)
+export(paleta_categorica)
 export(tema_racafe_plotly)
 export(vline)
 export(hline)

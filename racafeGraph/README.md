@@ -19,6 +19,8 @@ library(racafeGraph)
 # ---- Paletas ----
 ColoresRacafe(5)                                  # 5 colores corporativos
 ColoresGreenBlue(seq(0, 1, length.out = 10))      # gradiente verde-azul
+paleta_categorica(8)                              # cafe, rojo, dorado y azul
+paleta_secuencial()                               # escala para heatmaps plotly
 
 # ---- Tema corporativo ----
 # Aplicar a cualquier grafico plotly con !!!

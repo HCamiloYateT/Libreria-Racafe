@@ -6,6 +6,74 @@
 
 # ---- Paletas de colores ----
 
+# Paleta extendida: combina los colores de la aplicacion con los colores
+# publicados en el sitio web de Racafe.
+.RACAFE_ROOT <- list(
+  red_primary = "#d90429", red_secondary = "#dc3545", red_dark = "#b3001b",
+  red_muted = "#c0392b", red_hover = "#b02a37",
+  gray_100 = "#f5f5f5", gray_200 = "#f0f0f0", gray_300 = "#e8e8e8",
+  gray_400 = "#d6d6d6", gray_500 = "#c8c8c8", gray_600 = "#a1a1a1",
+  gray_700 = "#999999", gray_800 = "#666666", gray_850 = "#6c757d",
+  gray_900 = "#555555", gray_950 = "#1a1a1a"
+)
+
+.RACAFE_WEB <- list(
+  cafe_corporativo = "#4B3621", dorado_suave = "#C9A66B",
+  azul_tecnico = "#0073A8", blanco = "#FFFFFF",
+  gris_calido_claro = "#F5F5F4", texto_principal = "#292524",
+  texto_secundario = "#57534D", borde_beige = "#D6D3D1"
+)
+
+
+#' Escala secuencial corporativa Racafe
+#'
+#' Genera una escala de colores compatible con `colorscale` de plotly, desde
+#' gris calido claro hasta rojo oscuro, pasando por cafe corporativo.
+#'
+#' @return Lista de pares posicion-color para una escala secuencial.
+#' @export
+#' @examples
+#' paleta_secuencial()
+paleta_secuencial <- function() {
+  list(
+    list(0, .RACAFE_WEB$gris_calido_claro),
+    list(0.5, .RACAFE_WEB$cafe_corporativo),
+    list(1, .RACAFE_ROOT$red_dark)
+  )
+}
+
+
+#' Paleta categorica extendida Racafe
+#'
+#' Prioriza cafe corporativo, rojo, dorado, grises y azul tecnico. Para mas de
+#' 12 series interpola los colores de la paleta base.
+#'
+#' @param n Numero entero positivo de colores requeridos.
+#' @return Vector de colores hexadecimales de longitud `n`.
+#' @export
+#' @examples
+#' paleta_categorica(5)
+#' paleta_categorica(15)
+paleta_categorica <- function(n) {
+  if (length(n) != 1L || !is.numeric(n) || is.na(n) || !is.finite(n) ||
+      n < 1 || n %% 1 != 0 || n > .Machine$integer.max) {
+    stop("n debe ser un entero mayor o igual a 1.", call. = FALSE)
+  }
+  n <- as.integer(n)
+
+  base <- c(
+    .RACAFE_WEB$cafe_corporativo, .RACAFE_ROOT$red_primary,
+    .RACAFE_WEB$dorado_suave, .RACAFE_ROOT$gray_700,
+    .RACAFE_WEB$azul_tecnico, .RACAFE_ROOT$red_dark,
+    .RACAFE_ROOT$gray_850, .RACAFE_ROOT$red_muted,
+    .RACAFE_WEB$borde_beige, .RACAFE_ROOT$gray_600,
+    .RACAFE_ROOT$red_secondary, .RACAFE_ROOT$gray_500
+  )
+
+  if (n <= length(base)) return(base[seq_len(n)])
+  grDevices::colorRampPalette(base)(n)
+}
+
 #' Generar paleta de colores corporativos Racafe
 #'
 #' @param n Numero de colores requeridos. Maximo 10.
