@@ -23,6 +23,31 @@ test_that("ColoresRacafe rechaza n < 1", {
   expect_error(ColoresRacafe(-1))
 })
 
+test_that("paleta_secuencial combina la paleta web y de la aplicacion", {
+  paleta <- paleta_secuencial()
+  expect_length(paleta, 3)
+  expect_equal(paleta[[1]], list(0, "#F5F5F4"))
+  expect_equal(paleta[[2]], list(0.5, "#4B3621"))
+  expect_equal(paleta[[3]], list(1, "#b3001b"))
+})
+
+test_that("paleta_categorica prioriza los 12 colores corporativos", {
+  esperados <- c(
+    "#4B3621", "#d90429", "#C9A66B", "#999999", "#0073A8", "#b3001b",
+    "#6c757d", "#c0392b", "#D6D3D1", "#a1a1a1", "#dc3545", "#c8c8c8"
+  )
+  expect_equal(paleta_categorica(12), esperados)
+  expect_equal(paleta_categorica(3), esperados[1:3])
+})
+
+test_that("paleta_categorica interpola series adicionales y valida n", {
+  expect_length(paleta_categorica(20), 20)
+  expect_true(all(grepl("^#[0-9A-Fa-f]{6}$", paleta_categorica(20))))
+  expect_error(paleta_categorica(0), "entero mayor")
+  expect_error(paleta_categorica(1.5), "entero mayor")
+  expect_error(paleta_categorica(NA_real_), "entero mayor")
+})
+
 test_that("ColoresGreenBlue mapea correctamente", {
   vals <- seq(0, 1, length.out = 5)
   cols <- ColoresGreenBlue(vals)
