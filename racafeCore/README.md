@@ -103,6 +103,11 @@ resultado$ok
 valor_doble
 ```
 
+`PushInicial()` prepara el primer commit y la publicación de un repositorio Git
+desde un proyecto local. Es una utilidad interactiva: revise `?PushInicial` y
+confirme el remoto antes de usarla, porque ejecuta comandos que modifican el
+repositorio.
+
 La función devuelve invisiblemente `ok`, `fallidos` y `errores`. Para conocer
 todos los argumentos y valores de retorno, use `?load_modules` o
 `help(package = "racafeCore")`.

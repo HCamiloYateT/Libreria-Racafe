@@ -119,6 +119,7 @@ RecodificarTop <- function(
 #' Wrapper de `RecodificarTop()` con estrategia `"absoluto"`.
 #'
 #' @inheritParams RecodificarTop
+#' @return `data.frame` con la nueva columna recodificada.
 #' @export
 TopAbsoluto <- function(
     data,
@@ -147,6 +148,7 @@ TopAbsoluto <- function(
 #' Wrapper de `RecodificarTop()` con estrategia `"relativo"`.
 #'
 #' @inheritParams RecodificarTop
+#' @return `data.frame` con la nueva columna recodificada.
 #' @export
 TopRelativo <- function(
     data,

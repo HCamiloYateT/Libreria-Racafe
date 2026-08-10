@@ -74,6 +74,8 @@ está en [`docs/dependency-policy.md`](./docs/dependency-policy.md).
 ## Documentación
 
 - Consulte el README de cada paquete para requisitos, configuración y ejemplos.
+- Verifique que toda la API exportada figure en esos README y tenga documentación
+  Roxygen con `python3 scripts/check_documentation.py`.
 - Vea [`VERSIONING.md`](./VERSIONING.md) para la política de versiones.
 - Tras instalar un paquete, use `help(package = "racafeCore")` y
   `?nombre_de_funcion` para consultar su API.

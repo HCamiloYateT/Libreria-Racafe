@@ -69,6 +69,9 @@ ListaDesplegable(
   multiple = TRUE
 )
 
+# Configurar los textos y la búsqueda de ListaDesplegable().
+opciones_picker <- pick_opt(c("Norte", "Sur", "Centro"), fem = TRUE)
+
 BotonesRadiales(
   "periodo", "Periodo",
   choices = c("Mensual", "Trimestral", "Anual")
