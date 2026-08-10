@@ -137,8 +137,8 @@ EsVacio <- function(x) {
 #' EsEnteroPositivo("-5")
 #' EsEnteroPositivo("abc")
 EsEnteroPositivo <- function(s) {
-  if (EsVacio(s)) return(FALSE)
-  grepl("^[1-9]\\d*$", trimws(s))
+  if (length(s) != 1L || isTRUE(EsVacio(s))) return(FALSE)
+  grepl("^[1-9][0-9]*$", trimws(s))
 }
 
 
