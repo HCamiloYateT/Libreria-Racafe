@@ -1,96 +1,126 @@
 # racafeShiny
 
-Capa de presentación del ecosistema Racafe. Inputs y outputs Shiny
-con estilo corporativo, tablas `gt`, módulos UI/Server y utilidades HTML.
+Componentes de presentación para aplicaciones Shiny: formatos numéricos, estilos
+de tablas `gt`, inputs, botones, sidebars, modales y un módulo de KPI. Depende de
+`racafeCore` y `racafeGraph`.
 
 ## Instalación
 
 ```r
-remotes::install_github("HCamiloYateT/Racafe/racafeCore")
-remotes::install_github("HCamiloYateT/Racafe/racafeGraph")
-remotes::install_github("HCamiloYateT/Racafe/racafeShiny")
+repo <- "HCamiloYateT/Libreria-Racafe"
+remotes::install_github(repo, subdir = "racafeCore")
+remotes::install_github(repo, subdir = "racafeGraph")
+remotes::install_github(repo, subdir = "racafeShiny")
 ```
 
-## Formatos y estilos
-
-`racafeShiny` re-exporta `DefinirFormato`, `ObtenerFormato` y `ListarFormatos`
-desde `racafeCore`, por lo que no es necesario cargar `racafeCore`
-explícitamente para registrarlos y consultarlos.
+## Formatos y texto
 
 ```r
 library(racafeShiny)
 
-# Formateo con color condicional (HTML)
 FormatearNumero(1250000, "dinero")
-FormatearNumero(0.85, "porcentaje", meta = 0.80)    # verde: cumple
-FormatearNumero(0.72, "porcentaje", meta = 0.80)    # rojo: no cumple
+FormatearNumero(0.85, "porcentaje", meta = 0.80)
 FormatearTexto("Meta alcanzada", color = "#28B78D", negrita = TRUE)
 
-# KPI helpers
-col_kpi(c(0.70, 0.92, 1.05))   # "#C0392B" "#F39C12" "#1A7A5E"
-chr_kpi(c(0.70, 0.92, 1.05))   # "✖" "⚠" "✔"
+FormatoD3("dinero")
+FormatoJS("porcentaje")
+FormatoHOT("numero")
 
-# Tablas gt
+col_kpi(c(0.70, 0.92, 1.05))
+chr_kpi(c(0.70, 0.92, 1.05))
+col_num(1:5)
+```
+
+`DefinirFormato()` y `ObtenerFormato()` administran el registro de formatos del
+paquete. `FormatrearTexto()` se mantiene como alias de compatibilidad para el
+nombre correcto `FormatearTexto()`.
+
+## Tablas `gt`
+
+```r
+ventas <- data.frame(
+  region = c("Norte", "Sur"),
+  cumplimiento = c(0.92, 1.04),
+  variacion = c(-0.03, 0.08)
+)
+
 ventas |>
   gt::gt() |>
   gt_minimal_style() |>
-  gt_pct_style(columns = cumplimiento) |>
-  gt_sign_style(columns = variacion) |>
-  gt_color_columns(columns = meta, color = "#28B78D")
+  gt_pct_style(cumplimiento) |>
+  gt_var_style(variacion) |>
+  gt_sign_style(variacion)
 
-# Tabla vacia con mensaje
 gt_mensaje_vacio("Sin resultados para los filtros aplicados")
 ```
 
-## Inputs Shiny
+`gt_color_columns()` aplica un color fijo a columnas seleccionadas. Los helpers
+devuelven objetos `gt_tbl`, por lo que se pueden encadenar con funciones de `gt`.
+
+## Inputs y botones
 
 ```r
-# En UI:
-InputNumerico("meta", "Meta mensual", value = 1e6, dec = 0,
-  label_col = 5, input_col = 7)
+# Dentro de una UI de Shiny:
+InputNumerico("meta", "Meta mensual", value = 1e6, dec = 0)
 
-ListaDesplegable("region", "Región",
-  choices  = c("Norte","Sur","Centro","Occidente"),
-  multiple = TRUE, fem = FALSE)
-
-BotonesRadiales("periodo", "Periodo",
-  choices    = c("Mensual","Trimestral","Anual"),
-  alineacion = "center")
-
-BotonEstado("activar_comp", "Activar comparativo")
-Boton("guardar",     label = "Guardar cambios", align = "right")
-Boton("icon_only",   label = NULL, icono = "floppy-disk")
-```
-
-## Outputs y módulo CajaValor
-
-```r
-# Componente estatico (no modular)
-CajaValor(1250000, "dinero", "Ventas del mes", "dollar-sign",
-  inputId = "ver_detalle")
-
-# Patron modular recomendado en apps productivas
-# --- UI ---
-cajaValor_ui("kpi_ventas", icono = "dollar-sign", texto = "Ventas")
-
-# --- Server ---
-mod <- cajaValor_server(
-  id      = "kpi_ventas",
-  valor_r = reactive(sum(datos()$ventas, na.rm = TRUE)),
-  formato = "dinero",
-  meta    = 1000000       # rojo si < 1M, verde si >= 1M
+ListaDesplegable(
+  "region", "Región",
+  choices = c("Norte", "Sur", "Centro"),
+  multiple = TRUE
 )
 
-# Escuchar clic del boton de detalle desde el modulo padre
-observeEvent(mod$click_detalle(), {
-  showModal(modalDialog(title = "Detalle ventas", ...))
-})
+BotonesRadiales(
+  "periodo", "Periodo",
+  choices = c("Mensual", "Trimestral", "Anual")
+)
 
-# Boton de descarga con misma apariencia de Boton()
-BotonDescarga("export_excel",
-  label = "Exportar a Excel",
-  icono = "file-excel",
-  size = "sm",
-  hover_color = "firebrick",
-  titulo = "Exportar a Excel")
+InputFecha("fecha", "Fecha")
+InputMes("mes", "Mes")
+BotonEstado("activar", "Activar")
+Boton("guardar", label = "Guardar", icono = "floppy-disk")
+BotonDescarga("exportar", icono = "file-excel", title = "Exportar")
 ```
+
+## Cajas de valor y módulo KPI
+
+`CajaValor()` crea un componente estático. Para valores reactivos use el par
+`cajaValor_ui()` / `cajaValor_server()`:
+
+```r
+ui <- shiny::fluidPage(
+  cajaValor_ui("kpi_ventas", icono = "dollar-sign", texto = "Ventas")
+)
+
+server <- function(input, output, session) {
+  ventas <- shiny::reactive(1250000)
+
+  modulo <- cajaValor_server(
+    id = "kpi_ventas",
+    valor_r = ventas,
+    formato = "dinero",
+    meta = 1000000
+  )
+
+  shiny::observeEvent(modulo$click_detalle(), {
+    mostrarModal(
+      "Contenido del detalle",
+      titulo = "Detalle de ventas",
+      tamano = "subventana3"
+    )
+  })
+}
+
+shiny::shinyApp(ui, server)
+```
+
+## Otras utilidades
+
+- `SidebarItemWrap()` adapta contenido para una barra lateral.
+- `CajaIco()` crea una caja con icono.
+- `DefinirColumnaHtml()`, `FormatearFila()` y `ObtenerReglaFila()` ayudan a
+  construir tablas con HTML y reglas por fila.
+- `mostrarModal()` acepta los tamaños corporativos `ventana`, `subventana1` a
+  `subventana5` y `aviso`; las clases visuales deben existir en el CSS de la app.
+
+Consulte `help(package = "racafeShiny")` y la ayuda de cada función para revisar
+todos los argumentos disponibles.

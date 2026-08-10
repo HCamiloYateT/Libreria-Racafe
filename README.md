@@ -1,117 +1,79 @@
-# Racafe
+# Librería Racafe
 
-Monorepo centralizado con 6 paquetes de R independientes.
-Cada subcarpeta corresponde a un paquete instalable de forma autónoma.
+Monorepo con seis paquetes de R instalables de forma independiente. `racafeCore`
+contiene las utilidades compartidas; los otros paquetes separan acceso a datos,
+Microsoft Graph, visualización, componentes Shiny y pronósticos.
 
-## Compatibilidad y dependencias críticas
+## Estructura
 
-| Paquete | Versión mínima de R | Dependencias críticas | Instalación local recomendada (desde la raíz del monorepo) |
-|---|---:|---|---|
-| `racafeCore` | `>= 4.1.0` | `dplyr`, `stringi`, `lubridate`, `janitor` | `devtools::install("./racafeCore")` |
-| `racafeBD` | `>= 4.1.0` | `racafeCore`, `DBI`, `odbc` | `devtools::install("./racafeBD")` |
-| `racafeDrive` | `>= 4.1.0` | `racafeCore`, `httr2`, `readxl`, `openxlsx2` | `devtools::install("./racafeDrive")` |
-| `racafeGraph` | `>= 4.1.0` | `racafeCore`, `plotly` | `devtools::install("./racafeGraph")` |
-| `racafeShiny` | `>= 4.1.0` | `racafeCore`, `racafeGraph`, `shiny`, `gt` | `devtools::install("./racafeShiny")` |
-| `racafeForecast` | `>= 4.1.0` | `racafeCore`, `forecast`, `zoo` | `devtools::install("./racafeForecast")` |
+| Paquete | Responsabilidad | Dependencias internas |
+|---|---|---|
+| [`racafeCore`](./racafeCore/) | Transformación, texto, validación, fechas, HTML y carga de módulos R. | Ninguna |
+| [`racafeBD`](./racafeBD/) | Lectura y escritura mediante DBI; conexión principal MySQL y consultas heredadas a SQL Server. | `racafeCore` |
+| [`racafeDrive`](./racafeDrive/) | Autenticación y acceso a OneDrive/SharePoint mediante Microsoft Graph. | `racafeCore` |
+| [`racafeGraph`](./racafeGraph/) | Paletas, tema y gráficos corporativos con Plotly. | `racafeCore` |
+| [`racafeShiny`](./racafeShiny/) | Inputs, outputs, módulos, tablas `gt` y estilos para aplicaciones Shiny. | `racafeCore`, `racafeGraph` |
+| [`racafeForecast`](./racafeForecast/) | Imputación, comparación de modelos y pronósticos de series de tiempo. | `racafeCore` |
 
-## Paquetes
+Todos los paquetes requieren **R >= 4.1.0**. Cada uno mantiene su propia versión
+en `DESCRIPTION` y su historial en `NEWS.md`.
 
-| Paquete | Descripción |
-|---|---|
-| `racafeCore` | Utilidades base: limpieza de texto, validación, fechas, transformación, carga modular de scripts R y operadores utilitarios. |
-| `racafeBD` | Conexión y operaciones con SQL Server. |
-| `racafeDrive` | Integración con Microsoft Graph, OneDrive y SharePoint. |
-| `racafeGraph` | Visualización corporativa con `plotly`. |
-| `racafeShiny` | Componentes Shiny, formatos `gt` y módulos UI/Server. |
-| `racafeForecast` | Pronósticos de series de tiempo. |
+## Instalación
 
-## Instalación desde GitHub
-
-> En monorepos es más robusto usar `subdir` explícito (en lugar de concatenar la subcarpeta en la URL).
+Desde GitHub, indique la subcarpeta del monorepo de forma explícita:
 
 ```r
 repo <- "HCamiloYateT/Libreria-Racafe"
+
 remotes::install_github(repo, subdir = "racafeCore")
+remotes::install_github(repo, subdir = "racafeGraph")
 remotes::install_github(repo, subdir = "racafeBD")
 remotes::install_github(repo, subdir = "racafeDrive")
-remotes::install_github(repo, subdir = "racafeGraph")
-remotes::install_github(repo, subdir = "racafeShiny")
 remotes::install_github(repo, subdir = "racafeForecast")
+remotes::install_github(repo, subdir = "racafeShiny")
 ```
 
-Si el repositorio es privado, autentica antes de instalar:
+Instale solo los paquetes que necesite, respetando el orden de sus dependencias
+internas. Para un repositorio privado, configure `GITHUB_PAT` antes de ejecutar
+la instalación.
+
+Para desarrollar desde un clon local:
 
 ```r
-Sys.setenv(GITHUB_PAT = "<tu_token>")
+install.packages(c("devtools", "remotes"))
+
+remotes::install_local("racafeCore", dependencies = TRUE)
+remotes::install_local("racafeGraph", dependencies = TRUE)
+remotes::install_local("racafeBD", dependencies = TRUE)
+remotes::install_local("racafeDrive", dependencies = TRUE)
+remotes::install_local("racafeForecast", dependencies = TRUE)
+remotes::install_local("racafeShiny", dependencies = TRUE)
 ```
 
+## Desarrollo y pruebas
 
-## Carga modular de scripts R
-
-`racafeCore` incluye `load_modules()`, una utilidad para cargar todos los
-archivos `.R` de un directorio de trabajo, omitiendo `global.R` y reintentando
-los scripts que fallen inicialmente por dependencias entre módulos.
+Ejecute las pruebas de un paquete desde la raíz:
 
 ```r
-dir_modulos <- tempfile("modulos_")
-dir.create(dir_modulos)
-writeLines("valor_base <- 2", file.path(dir_modulos, "01_base.R"))
-writeLines("valor_doble <- valor_base * 2", file.path(dir_modulos, "02_calc.R"))
-load_modules(dir_modulos, progress = FALSE)
-valor_doble
-#> [1] 4
-```
-
-Consulta más detalles en [`racafeCore/README.md`](./racafeCore/README.md).
-
-## Versionado y changelog
-
-- Cada paquete usa **SemVer** independiente (`MAJOR.MINOR.PATCH`) en su `DESCRIPTION`.
-- La política completa está documentada en [`VERSIONING.md`](./VERSIONING.md).
-- El historial de cambios se mantiene en `NEWS.md` dentro de cada paquete:
-  - `racafeCore/NEWS.md`
-  - `racafeBD/NEWS.md`
-  - `racafeDrive/NEWS.md`
-  - `racafeGraph/NEWS.md`
-  - `racafeShiny/NEWS.md`
-  - `racafeForecast/NEWS.md`
-
-## Grafo de dependencias
-
-```text
-racafeCore
-    ├── racafeBD
-    ├── racafeDrive
-    ├── racafeGraph
-    │   └── racafeShiny
-    └── racafeForecast
-```
-
-## Desarrollo local (ruta recomendada)
-
-```r
-# 1) Ubícate en la raíz del monorepo
-setwd("/ruta/local/Libreria-Racafe")
-
-# 2) Instala en orden de dependencia
-pkgs <- c(
-  "racafeCore",
-  "racafeBD",
-  "racafeDrive",
-  "racafeGraph",
-  "racafeShiny",
-  "racafeForecast"
-)
-for (p in pkgs) devtools::install(file.path(".", p))
-
-# 3) Ejecuta pruebas de un paquete específico
 devtools::test("racafeCore")
+devtools::check("racafeCore", args = "--no-manual")
 ```
 
-## Quality gates y reproducibilidad
+Las pruebas de integración usan datos de juguete y dobles para los servicios
+externos:
 
-- CI bloquea cambios cuando falla `R CMD check` en cualquiera de los subpaquetes.
-- CI ejecuta gate de cobertura con `covr` (umbral inicial `75%`) y valida no regresión contra la rama base en PR.
-- CI ejecuta pruebas de integración E2E (`core -> bd/drive -> graph/shiny -> forecast`) con datasets de juguete y stubs para servicios externos.
-- Política de dependencias y actualización mensual documentada en [`docs/dependency-policy.md`](./docs/dependency-policy.md).
-- Lockfile de entorno de desarrollo en `renv.lock`.
+```bash
+Rscript scripts/run_integration_tests.R
+```
+
+Los flujos de GitHub Actions ejecutan `R CMD check`, pruebas unitarias, pruebas
+E2E y un umbral de cobertura del 75 % para los seis paquetes. El entorno de
+desarrollo se registra en [`renv.lock`](./renv.lock); la política de dependencias
+está en [`docs/dependency-policy.md`](./docs/dependency-policy.md).
+
+## Documentación
+
+- Consulte el README de cada paquete para requisitos, configuración y ejemplos.
+- Vea [`VERSIONING.md`](./VERSIONING.md) para la política de versiones.
+- Tras instalar un paquete, use `help(package = "racafeCore")` y
+  `?nombre_de_funcion` para consultar su API.

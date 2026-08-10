@@ -1,88 +1,104 @@
 # racafeForecast
 
-Motor de pronósticos de series de tiempo. Ajusta ETS, ARIMA, NNETAR,
-TBATS y Tendencia lineal. Selecciona el mejor modelo por RMSE.
-Resultado estandarizado como objeto S3 `pronostico_racafe`.
+Motor de pronósticos para series de tiempo. Imputa valores faltantes, divide la
+serie en entrenamiento y prueba, compara ETS, ARIMA, NNETAR, TBATS y tendencia,
+y selecciona el modelo con menor RMSE. Los resultados usan la clase S3
+`pronostico_racafe`.
 
 ## Instalación
 
 ```r
-remotes::install_github("HCamiloYateT/Racafe/racafeCore")
-remotes::install_github("HCamiloYateT/Racafe/racafeForecast")
+repo <- "HCamiloYateT/Libreria-Racafe"
+remotes::install_github(repo, subdir = "racafeCore")
+remotes::install_github(repo, subdir = "racafeForecast")
 ```
 
-## Flujo completo
+## Flujo completo reproducible
 
 ```r
 library(racafeForecast)
 
-# 1. Preparar datos
-df <- Consulta("
-  SELECT fecha_mes AS fecha, SUM(valor) AS ventas, SUM(costo) AS costo
-  FROM fact_ventas
-  GROUP BY fecha_mes ORDER BY fecha_mes
-")
+set.seed(123)
+serie <- data.frame(
+  fecha = seq(as.Date("2022-01-01"), by = "month", length.out = 48),
+  ventas = 100 + 1:48 + 12 * sin(2 * pi * (1:48) / 12) + rnorm(48, 0, 3),
+  costo = 70 + 0.7 * (1:48) + rnorm(48, 0, 2)
+)
+serie$ventas[c(8, 21)] <- NA
 
-# 2. Pronosticar (orquesta todo: imputacion, split, modelos, metricas)
 pron <- Pronosticar(
-  df                = df,
-  fecha_col         = "fecha",
-  valor_cols        = c("ventas", "costo"),  # multiples columnas
-  nivel_confianza   = 0.95,
-  prop_train        = 0.80,
-  h_periods         = 12,
+  df = serie,
+  fecha_col = "fecha",
+  valor_cols = c("ventas", "costo"),
+  nivel_confianza = 0.95,
+  prop_train = 0.80,
+  h_periods = 12,
   metodo_imputacion = "interpolacion"
 )
 
-# 3. Ver metricas de todos los modelos por columna
+# Comparar y seleccionar el menor RMSE por columna.
 metricas <- PronMetricas(pron)
-metricas |> dplyr::arrange(columna, rmse)
-
-# 4. Seleccionar el mejor modelo automaticamente (menor RMSE)
 mejor <- PronSeleccionar(pron)
 
-# 5. Extraer resultados
-serie   <- PronSerie(mejor)      # fecha | pronostico | lower | upper | columna
-mensual <- PronMensual(mejor)    # resumen por mes
-patron  <- PronPatronMes(mejor)  # indice estacional por mes (1.0 = promedio)
-
-# 6. Visualizar con racafeGraph
-library(racafeGraph)
-
-plotly::plot_ly(serie |> dplyr::filter(columna == "ventas")) |>
-  plotly::add_lines(x = ~fecha, y = ~pronostico,
-    name = "Pronostico",
-    line = list(color = ColoresRacafe(1))) |>
-  plotly::add_ribbons(x = ~fecha, ymin = ~lower, ymax = ~upper,
-    name = "IC 95%",
-    fillcolor = "rgba(40,183,141,0.15)",
-    line      = list(color = "transparent")) |>
-  plotly::layout(!!!tema_racafe_plotly("Pronostico ventas — 12 meses"))
+# Extraer tablas normalizadas.
+detalle <- PronSerie(mejor)
+mensual <- PronMensual(mejor)
+patron <- PronPatronMes(mejor)
 ```
 
-## Imputación de NA
+`valor_cols = NULL` selecciona todas las columnas numéricas excepto la fecha.
+Use una serie suficientemente larga para separar entrenamiento y prueba y para
+que los modelos estacionales puedan ajustarse.
+
+## Imputación
 
 ```r
-# Metodos disponibles
-aplicar_imputacion(serie, "promedio")
-aplicar_imputacion(serie, "mediana")
-aplicar_imputacion(serie, "interpolacion")   # requiere zoo
-aplicar_imputacion(serie, "ultimo")           # last observation carried forward
-aplicar_imputacion(serie, "constante", valor_constante = 0)
-aplicar_imputacion(serie, "percentil", prob_percentil = 0.25)
+x <- c(10, NA, 13, 15, NA, 18)
+
+aplicar_imputacion(x, "promedio")
+aplicar_imputacion(x, "mediana")
+aplicar_imputacion(x, "interpolacion")
+aplicar_imputacion(x, "ultimo")
+aplicar_imputacion(x, "constante", valor_constante = 0)
+aplicar_imputacion(x, "percentil", prob_percentil = 0.25)
 ```
 
-## Objeto `pronostico_racafe`
+## Inspección y filtrado
 
 ```r
-# Inspeccion del objeto
-class(pron)         # "pronostico_racafe" "list"
-pron$columnas       # columnas pronosticadas
-pron$h_periods      # horizonte
+class(pron)
+pron$columnas
+pron$h_periods
 pron$nivel_confianza
 
-# Pipeline completo en una cadena
-Pronosticar(df, "fecha", "ventas") |>
-  PronSeleccionar() |>
-  PronSerie()
+# Trabajar con una sola variable.
+PronMetricas(pron, columna = "ventas")
+PronSeleccionar(pron, columna = "ventas") |>
+  PronSerie(columna = "ventas")
 ```
+
+## Visualización opcional
+
+`racafeForecast` no genera gráficos. La tabla de `PronSerie()` se puede pasar a
+Plotly directamente o combinar con `racafeGraph`:
+
+```r
+ventas_pron <- detalle[detalle$columna == "ventas", ]
+
+plotly::plot_ly(ventas_pron, x = ~fecha) |>
+  plotly::add_ribbons(
+    ymin = ~lower, ymax = ~upper,
+    name = "IC 95%",
+    fillcolor = "rgba(40,183,141,0.15)",
+    line = list(color = "transparent")
+  ) |>
+  plotly::add_lines(
+    y = ~pronostico,
+    name = "Pronóstico",
+    line = list(color = "#28B78D")
+  )
+```
+
+Las funciones `ejecutar_pronosticos()` y `extraer_intervalos()` exponen piezas de
+nivel inferior para flujos personalizados; `Pronosticar()` es la entrada
+recomendada para el flujo habitual.

@@ -1,58 +1,91 @@
 # racafeGraph
 
-Capa de visualización corporativa con plotly. Paletas, tema estándar,
-gráficos de anillo, Sankey y distribución. La agregación de datos
-siempre ocurre en funciones internas separadas del render.
+Capa de visualización corporativa basada en Plotly. Incluye paletas, un tema de
+layout, líneas de referencia y gráficos de densidad, anillo y Sankey.
 
 ## Instalación
 
 ```r
-remotes::install_github("HCamiloYateT/Racafe/racafeCore")
-remotes::install_github("HCamiloYateT/Racafe/racafeGraph")
+repo <- "HCamiloYateT/Libreria-Racafe"
+remotes::install_github(repo, subdir = "racafeCore")
+remotes::install_github(repo, subdir = "racafeGraph")
 ```
 
-## Uso
+## Paletas y tema
 
 ```r
 library(racafeGraph)
 
-# ---- Paletas ----
-ColoresRacafe(5)                                  # 5 colores corporativos
-ColoresGreenBlue(seq(0, 1, length.out = 10))      # gradiente verde-azul
+ColoresRacafe(5)
+ColoresGreenBlue(seq(0, 1, length.out = 10))
 
-# ---- Tema corporativo ----
-# Aplicar a cualquier grafico plotly con !!!
-p <- plotly::plot_ly(df, x = ~mes, y = ~valor, type = "bar") |>
-  plotly::layout(!!!tema_racafe_plotly("Ventas mensuales"))
-
-# ---- Lineas de referencia ----
-plotly::layout(p, shapes = list(
-  vline(as.Date("2024-06-01"), color = "#28B78D"),
-  hline(1000000, color = "#C0392B")
-))
-
-# ---- Grafico de anillo ----
-ImprimirAnillo(
-  data       = ventas,
-  var_label  = "region",
-  var_medida = "valor",
-  funcion    = "sum"
+ventas_mes <- data.frame(
+  mes = as.Date(c("2026-01-01", "2026-02-01", "2026-03-01")),
+  valor = c(85, 110, 103)
 )
 
-# ---- Distribucion con densidad ----
-ImprimirDensidad(
-  datos   = transacciones,
-  columna = "monto",
-  titulo  = "Distribucion de transacciones",
-  formato = "dinero"        # cualquier formato de racafeCore
+p <- plotly::plot_ly(
+  ventas_mes,
+  x = ~mes,
+  y = ~valor,
+  type = "bar"
 )
 
-# ---- Sankey de flujo ----
-ImprimeSankey(
-  data    = pipeline,
-  vars    = c("fuente_captacion", "etapa_comercial", "resultado"),
-  fun     = "sum",
-  var     = "valor_oportunidad",
-  colores = ColoresRacafe(6)
+# El operador de inyección !!! requiere rlang.
+p <- rlang::inject(
+  plotly::layout(p, !!!tema_racafe_plotly("Ventas mensuales"))
 )
 ```
+
+También puede aplicar la lista sin sintaxis de inyección:
+
+```r
+p <- do.call(plotly::layout, c(list(p = p), tema_racafe_plotly("Ventas")))
+```
+
+## Líneas de referencia
+
+```r
+plotly::layout(
+  p,
+  shapes = list(
+    vline(as.Date("2026-02-01"), color = "#28B78D"),
+    hline(100, color = "#C0392B")
+  )
+)
+```
+
+## Gráficos incluidos
+
+```r
+set.seed(123)
+transacciones <- data.frame(monto = rgamma(250, shape = 3, rate = 0.7))
+ImprimirDensidad(
+  transacciones,
+  columna = "monto",
+  titulo = "Distribución de transacciones"
+)
+
+ventas <- data.frame(
+  region = c("Norte", "Sur", "Centro"),
+  valor = c(40, 35, 25)
+)
+ImprimirAnillo(ventas, "region", "valor", funcion = "sum")
+
+flujo <- data.frame(
+  origen = c("Web", "Tienda"),
+  etapa = c("Contacto", "Venta"),
+  valor = c(70, 30)
+)
+ImprimeSankey(
+  flujo,
+  vars = c("origen", "etapa"),
+  fun = "sum",
+  var = "valor",
+  colores = ColoresRacafe(4)
+)
+```
+
+`ImprimirDensidad()` usa un eje X logarítmico, por lo que está orientada a
+variables numéricas positivas y sesgadas. Consulte `?ImprimirAnillo` y
+`?ImprimeSankey` para las opciones de agregación.
