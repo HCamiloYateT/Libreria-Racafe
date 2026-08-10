@@ -1,74 +1,90 @@
 # racafeDrive
 
-Integración completa con Microsoft Graph API, OneDrive y SharePoint.
-Token con **cache en memoria** y renovación automática al expirar (3600s).
+Cliente de Microsoft Graph para autenticación de aplicación, navegación de
+OneDrive y SharePoint, y descarga o lectura de libros Excel. El token se conserva
+en memoria durante el proceso R y se renueva 60 segundos antes de expirar.
 
 ## Instalación
 
 ```r
-remotes::install_github("HCamiloYateT/Racafe/racafeCore")
-remotes::install_github("HCamiloYateT/Racafe/racafeDrive")
+repo <- "HCamiloYateT/Libreria-Racafe"
+remotes::install_github(repo, subdir = "racafeCore")
+remotes::install_github(repo, subdir = "racafeDrive")
 ```
 
-## Variables de entorno requeridas
+## Configuración de Microsoft Graph
 
-```
+Defina las credenciales de una aplicación de Microsoft Entra ID:
+
+```text
 MS_TENANT_ID=<tenant-id>
-MS_CLIENT_ID=<client-id-azure-ad>
+MS_CLIENT_ID=<application-client-id>
 MS_CLIENT_SECRET=<client-secret>
-GRAPH_DOMAIN=racafe.com
+GRAPH_DOMAIN=ejemplo.com
 ```
 
-## Uso
+`GRAPH_DOMAIN` solo se usa para completar alias sin `@`; su valor predeterminado
+es `racafe.com`. La aplicación debe contar con permisos de Graph compatibles con
+los usuarios, sitios y archivos consultados (por ejemplo, permisos de lectura de
+archivos y sitios) y con el consentimiento administrativo correspondiente.
+
+## OneDrive
 
 ```r
 library(racafeDrive)
 
-# ---- OneDrive de usuario ----
 drive_id <- ObtenerIdDrive("juan.perez")
-carpetas  <- ListarCarpetas("juan.perez")
+raiz <- ListarCarpetas("juan.perez")
+carpeta_id <- ObtenerIdCarpeta("juan.perez", "Reportes")
+contenido <- ListarContenidoCarpetaId("juan.perez", carpeta_id)
+todo <- ListarContenidoCarpetaRecursivo("juan.perez", carpeta_id)
 
-# Leer Excel directamente (sin guardar en disco)
-df <- LeerExcelDesdeOneDrive(
-  archivo_id = "ABC123def456",
-  usuario    = "juan.perez",
-  sheet      = "Datos", skip = 1
+# Leer un libro directamente desde Graph.
+hojas <- ListarHojasExcelOneDrive("ABC123", "juan.perez")
+datos <- LeerExcelDesdeOneDrive(
+  archivo_id = "ABC123",
+  usuario = "juan.perez",
+  sheet = "Datos",
+  skip = 1
 )
 
-# Descargar y guardar localmente
+# Buscar por ruta y guardar una copia local.
 DescargarExcelDesdeOneDrive(
-  usuario      = "juan.perez",
-  ruta         = "Reportes/2024",
-  archivo      = "cierre_enero.xlsx",
+  usuario = "juan.perez",
+  ruta = "Reportes/2026",
+  archivo = "cierre_enero.xlsx",
   nombre_salida = "cierre_enero_local"
 )
+```
 
-# Listar contenido recursivo de una carpeta
-todos <- ListarTodoContenidoCarpeta("juan.perez", carpeta_id = "XYZ789")
+## SharePoint
 
-# ---- SharePoint ----
-site_id  <- ObtenerIdSite("racafe.sharepoint.com", "sites/analitica")
+```r
+site_id <- ObtenerIdSite("ejemplo.sharepoint.com", "sites/analitica")
 drive_id <- ObtenerIdDriveSite(site_id, "Documentos compartidos")
 
-# Archivos modificados en los ultimos 7 dias
-recientes <- ListarDriveRecursivo(drive_id, fecha_desde = Sys.Date() - 7)
+recientes <- ListarDriveRecursivo(
+  drive_id,
+  fecha_desde = Sys.Date() - 7
+)
 
-# Leer Excel directamente desde SharePoint
-df <- CargarExcelSite(
+datos <- CargarExcelSite(
   drive_id = drive_id,
-  item_id  = recientes$id[[1]],
-  hoja     = "Presupuesto",
-  skip     = 2
+  item_id = recientes$id[[1]],
+  hoja = "Presupuesto",
+  skip = 2
 )
 ```
 
-## Cache de token
+## Autenticación y diagnóstico
 
-El token se obtiene una sola vez por proceso R y se renueva
-automáticamente 60 segundos antes de expirar. No es necesario
-llamar `ObtenerTokenAcceso()` manualmente en flujos normales.
+Normalmente no hace falta solicitar el token manualmente. Para renovarlo en un
+proceso de larga duración:
 
 ```r
-# Forzar renovacion manual (util en procesos batch de larga duracion)
-ObtenerTokenAcceso(force = TRUE)
+token <- ObtenerTokenAcceso(force = TRUE)
+headers <- CabecerasGraph()
 ```
+
+Las llamadas de red no se ejecutan al cargar el paquete. Los errores de Graph
+incluyen contexto para revisar credenciales, identificadores y permisos.

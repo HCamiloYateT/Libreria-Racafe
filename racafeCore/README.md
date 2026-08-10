@@ -1,95 +1,108 @@
 # racafeCore
 
-<!-- badges: start -->
-[![R-CMD-check](https://github.com/HCamiloYateT/Racafe/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/HCamiloYateT/Racafe/actions/workflows/R-CMD-check.yaml)
-<!-- badges: end -->
-
-Núcleo del ecosistema Racafe. Sin dependencias internas — base requerida
-por todos los demás paquetes del ecosistema.
+Paquete base del monorepo Racafe. Reúne utilidades reutilizables de
+transformación de datos, texto, validación, fechas, HTML, Git y carga modular de
+scripts. No depende de ningún otro paquete Racafe.
 
 ## Instalación
 
 ```r
-remotes::install_github("HCamiloYateT/Racafe/racafeCore")
+remotes::install_github(
+  "HCamiloYateT/Libreria-Racafe",
+  subdir = "racafeCore"
+)
 ```
 
-## Contenido
+## Transformación de datos
 
-### Dependencias y carga modular
 ```r
-# Cargar paquetes instalando faltantes
-Loadpkg(c("dplyr", "stringr"))
+library(racafeCore)
 
-# Cargar todos los scripts .R de un directorio, excluyendo global.R,
-# con reintentos automaticos cuando hay dependencias entre modulos.
+ventas <- data.frame(
+  categoria = c("A", "A", "B", "B", "C", "D"),
+  valor = c(10, 20, 5, 15, 2, 1)
+)
+
+# Conservar las dos categorías con mayor suma y agrupar el resto.
+TopAbsoluto(
+  ventas, categoria, valor, "sum",
+  n = 2, nom_var = "categoria_top"
+)
+
+# Conservar categorías que alcancen una proporción mínima.
+TopRelativo(
+  ventas, categoria, valor, "sum",
+  pct_min = 0.10, nom_var = "categoria_top"
+)
+
+bind_rows_na(ventas, NULL, data.frame())
+left_join_all(base, list(dimension_1, dimension_2), by = "id")
+RevisarDuplicados(tabla_a, tabla_b, by = c("id", "fecha"))
+
+valor <- entrada %||% "valor_predeterminado"
+```
+
+`RecodificarTop()` expone ambas estrategias (`"absoluto"` y `"relativo"`) en
+una sola función. `AdicionarBotones()` agrega columnas con botones HTML a una
+tabla.
+
+## Texto y validación
+
+```r
+LimpiarNombres("  Camilo   Yate  ")
+LimpiarCadena("¡Hola, mundo 123!")
+UnirCadenas("A", NA, "B", sep = "-", na.rm = TRUE)
+Unicos(c("b", "a", "a", "c"))
+
+EsVacio(c("", NA, "texto"))
+EsEmail("usuario@racafe.com")
+EsNumTelefono("3123456789")
+EsNumero("12.5")
+EsEnteroPositivo("7")
+```
+
+`buscar_cadena()` busca texto dentro de archivos de una ruta mediante la
+utilidad `grep` del sistema.
+
+## Números, fechas y HTML
+
+```r
+Variacion(100, 120)
+Moda(c(1, 2, 2, 3))
+RedondearMultiplo(17, 5)
+SiError_0(log(-1))
+
+PrimerDia("2024-10-15")
+PrimerDia("2024-10-15", uni = "year")
+FechaTexto(as.Date("2024-10-15"))
+EdadCumplida(as.Date("1990-05-25"), Sys.Date())
+
+Saltos(2)
+Espacios(3)
+Obligatorio("Nombre")
+```
+
+## Carga de paquetes y módulos
+
+`Loadpkg()` instala los paquetes ausentes y luego intenta cargarlos. Debido a que
+modifica el entorno, es preferible declarar dependencias en `DESCRIPTION` para
+paquetes y usar `Loadpkg()` solo en scripts interactivos.
+
+`load_modules()` carga los archivos `.R` de un directorio en el entorno global,
+omite `global.R` y reintenta los módulos cuyas dependencias todavía no estaban
+disponibles:
+
+```r
 dir_modulos <- tempfile("modulos_")
 dir.create(dir_modulos)
 writeLines("valor_base <- 2", file.path(dir_modulos, "01_base.R"))
 writeLines("valor_doble <- valor_base * 2", file.path(dir_modulos, "02_calc.R"))
-load_modules(dir_modulos, progress = FALSE)
-valor_doble  # 4
+
+resultado <- load_modules(dir_modulos, progress = FALSE)
+resultado$ok
+valor_doble
 ```
 
-`load_modules()` facilita inicializar proyectos con scripts separados por
-responsabilidad: normaliza rutas, ordena los archivos por cercania a la raiz,
-omite `global.R`, reintenta archivos con dependencias pendientes y devuelve un
-resumen invisible con modulos cargados, fallidos y mensajes de error.
-
-
-### Transformación
-```r
-# Top N categorias (absoluto o relativo)
-TopAbsoluto(df, categoria, valor, "sum", n = 5, nom_var = "cat_top")
-TopRelativo(df, categoria, valor, "sum", pct_min = 0.03, nom_var = "cat_top")
-
-# Funcion unificada con estrategia como parametro
-RecodificarTop(df, categoria, valor, "sum", estrategia = "relativo",
-  pct_min = 0.05, nom_var = "cat_top")
-
-# Combinacion segura de data.frames
-bind_rows_na(df1, NULL, df2, data.frame())    # ignora vacios y NULLs
-
-# Joins encadenados
-left_join_all(base, list(dim1, dim2, dim3), by = "id")
-
-# Revisar duplicados antes de un join
-RevisarDuplicados(tabla_a, tabla_b, by = c("id", "fecha"))
-
-# Null-coalescing
-valor <- entrada %||% "valor_por_defecto"
-```
-
-### Texto y validación
-```r
-LimpiarNombres("  camilo   yate  ")     # "CAMILO YATE"
-LimpiarCadena("¡Hola, mundo 123!")      # "Hola mundo"
-UnirCadenas("A", NA, "B", sep = "-", na.rm = TRUE)  # "A-B"
-Unicos(c("b","a","a","c"))              # c("a","b","c")
-
-EsVacio(c("", NA, "texto"))             # c(TRUE, TRUE, FALSE)
-EsEmail("usuario@racafe.com")           # TRUE
-EsNumTelefono("3123456789")             # TRUE
-EsNumero("12.5")                        # TRUE
-EsEnteroPositivo("7")                   # TRUE
-```
-
-### Numéricas y fechas
-```r
-Variacion(100, 120)                     # 0.20
-Variacion(0, 50)                        # NA  (sin division por cero)
-Moda(c(1, 2, 2, 3))                     # 2
-RedondearMultiplo(17, 5)                # 15
-SiError_0(log(-1))                      # 0  (captura warning)
-
-PrimerDia("2024-10-15")                 # 2024-10-01
-PrimerDia("2024-10-15", uni = "year")   # 2024-01-01
-FechaTexto(Sys.Date())                  # "octubre de 2024"
-EdadCumplida(as.Date("1990-05-25"), Sys.Date())
-```
-
-### HTML utils
-```r
-Saltos(2)              # <br><br>
-Espacios(3)            # &nbsp;&nbsp;&nbsp;
-Obligatorio("Nombre")  # "Nombre <span style='color:#C0392B;'>*</span>"
-```
+La función devuelve invisiblemente `ok`, `fallidos` y `errores`. Para conocer
+todos los argumentos y valores de retorno, use `?load_modules` o
+`help(package = "racafeCore")`.
