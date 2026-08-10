@@ -28,6 +28,19 @@ test_that("EsVacio detecta NULL, NA y cadena vacia", {
   expect_false(EsVacio(0))
 })
 
+test_that("EsEnteroPositivo valida una unica cadena no vacia", {
+  expect_true(EsEnteroPositivo("123"))
+  expect_true(EsEnteroPositivo(" 7 "))
+  expect_false(EsEnteroPositivo("0"))
+  expect_false(EsEnteroPositivo("-5"))
+  expect_false(EsEnteroPositivo("1.5"))
+  expect_false(EsEnteroPositivo(""))
+  expect_false(EsEnteroPositivo(NA))
+  expect_false(EsEnteroPositivo(NULL))
+  expect_false(EsEnteroPositivo(character(0)))
+  expect_false(EsEnteroPositivo(c("1", "2")))
+})
+
 test_that("EsEmail valida formatos correctos e incorrectos", {
   expect_true(EsEmail("usuario@racafe.com"))
   expect_true(EsEmail("user.name+tag@example.co"))
