@@ -76,6 +76,8 @@ InputNumerico <- function(
 #' @param multiple Logico. Permitir seleccion multiple.
 #' @param fem Logico. Usar articulos en femenino en el placeholder.
 #' @param ns Funcion namespace de modulo Shiny.
+#' @param size Numero minimo de opciones visibles en el menu. Si es `NULL`, se
+#'   conserva el comportamiento anterior: `min(10, length(choices))`.
 #' @return Objeto `pickerInput` de shinyWidgets.
 #' @export
 #' @examples
@@ -89,7 +91,8 @@ ListaDesplegable <- function(
     selected = choices,
     multiple = TRUE,
     fem      = FALSE,
-    ns       = NULL) {
+    ns       = NULL,
+    size     = NULL) {
 
   .check_pkg("shinyWidgets", "Shiny inputs")
 
@@ -109,7 +112,7 @@ ListaDesplegable <- function(
       selectedTextFormat = "count > 3",
       countSelectedText = "{0} seleccionados",
       liveSearch        = length(choices) > 10,
-      size              = min(10, length(choices))
+      size              = size %||% min(10, length(choices))
     )
   )
 }
