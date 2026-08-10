@@ -120,6 +120,16 @@ test_that("Obligatorio incluye asterisco con color rojo", {
 
 # ---- Componentes Shiny (estructura HTML) ----
 
+test_that("ListaDesplegable conserva el size automatico por defecto", {
+  lista <- ListaDesplegable("lista", choices = letters[1:15])
+  expect_match(as.character(lista), '&quot;size&quot;:10')
+})
+
+test_that("ListaDesplegable permite fijar un size explicito", {
+  lista <- ListaDesplegable("lista", choices = letters[1:3], size = 10)
+  expect_match(as.character(lista), '&quot;size&quot;:10')
+})
+
 test_that("BotonDescarga rechaza colores invalidos", {
   expect_error(BotonDescarga("id", color_fondo = ""))
   expect_error(BotonDescarga("id", color_fuente = ""))
