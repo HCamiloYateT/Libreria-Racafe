@@ -296,3 +296,25 @@ test_that("mostrarModal valida tamano y aplica clase CSS", {
   )
   expect_match(modal$message$html, "class=\"modal subventana3")
 })
+
+test_that("ModalConfirmacion construye una confirmacion con ids namespaced", {
+  modal <- ModalConfirmacion(
+    ns = function(id) paste0("ventas-", id),
+    titulo = "Confirmar descarte",
+    texto = "¿Deseas descartar este lead?",
+    id_cancelar = "DES_Cancelar",
+    id_confirmar = "DES_Confirmar",
+    label_confirmar = "Descartar Lead",
+    icono_confirmar = "ban",
+    color_confirmar = "#C11007"
+  )
+  html <- as.character(modal)
+
+  expect_s3_class(modal, "shiny.tag")
+  expect_match(html, "Confirmar descarte")
+  expect_match(html, "¿Deseas descartar este lead?", fixed = TRUE)
+  expect_match(html, "ventas-DES_Cancelar", fixed = TRUE)
+  expect_match(html, "ventas-DES_Confirmar", fixed = TRUE)
+  expect_match(html, "Descartar Lead", fixed = TRUE)
+  expect_match(html, "rgb\\(193,16,7\\)")
+})
