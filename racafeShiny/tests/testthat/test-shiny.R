@@ -120,6 +120,26 @@ test_that("Obligatorio incluye asterisco con color rojo", {
 
 # ---- Componentes Shiny (estructura HTML) ----
 
+test_that("inputs autoNumeric publicos aplican sus simbolos y decimales", {
+  dinero <- as.character(InputDinero("dinero", "Dinero", 1200, dec = 0))
+  porcentaje <- as.character(InputPorcentaje("porcentaje", "Avance", 25.5))
+  numero <- as.character(InputNumero("numero", "Cantidad", 12.34))
+
+  expect_match(dinero, "input-numerico-compacto")
+  expect_match(dinero, "currencySymbol.*\\$")
+  expect_match(dinero, "decimalPlaces.*0")
+  expect_match(porcentaje, "currencySymbol.*%")
+  expect_match(porcentaje, "currencySymbolPlacement.*s")
+  expect_no_match(numero, "currencySymbol.*[%$]")
+})
+
+test_that("InputPorcentaje usa limites de 0 a 100 por defecto", {
+  porcentaje <- as.character(InputPorcentaje("porcentaje", "Avance", 25))
+
+  expect_match(porcentaje, "minimumValue.*0")
+  expect_match(porcentaje, "maximumValue.*100")
+})
+
 test_that("ListaDesplegable conserva el size automatico por defecto", {
   lista <- ListaDesplegable("lista", choices = letters[1:15])
   expect_match(as.character(lista), '&quot;size&quot;:10')

@@ -6,6 +6,102 @@
 
 # ---- Inputs numericos ----
 
+#' Constructor interno para inputs numericos con autoNumeric
+#'
+#' @param currency_symbol Simbolo que acompana al valor. `NULL` lo omite.
+#' @param currency_placement Posicion del simbolo: `"p"` como prefijo o `"s"`
+#'   como sufijo.
+#' @inheritParams InputDinero
+#' @return Fila fluida de Shiny con la etiqueta y el input.
+#' @keywords internal
+.InputNumericoBase <- function(
+    id,
+    label,
+    value,
+    dec,
+    max,
+    min,
+    currency_symbol = NULL,
+    currency_placement = "p") {
+
+  .check_pkg("shinyWidgets", "inputs numericos")
+
+  shiny::fluidRow(
+    shiny::column(6, FormatearTexto(label, tamano_pct = 0.8)),
+    shiny::column(
+      6,
+      shinyWidgets::autonumericInput(
+        inputId = id,
+        label = NULL,
+        value = value,
+        maximumValue = max,
+        minimumValue = min,
+        decimalPlaces = dec,
+        width = "100%",
+        currencySymbol = currency_symbol,
+        currencySymbolPlacement = currency_placement,
+        class = "input-numerico-compacto"
+      )
+    )
+  )
+}
+
+
+#' Input de dinero con formato automatico
+#'
+#' @param id ID del input Shiny.
+#' @param label Etiqueta visible del input.
+#' @param value Valor inicial.
+#' @param dec Numero de decimales permitidos.
+#' @param max Valor maximo permitido. `NULL` sin limite.
+#' @param min Valor minimo permitido. `NULL` sin limite.
+#' @return Fila fluida de Shiny con un input cuyo valor lleva el prefijo `$`.
+#' @export
+#' @examples
+#' \dontrun{
+#'   InputDinero("ventas", "Ventas", 1000)
+#' }
+InputDinero <- function(id, label, value, dec = 0, max = NULL, min = NULL) {
+  .InputNumericoBase(
+    id, label, value,
+    dec = dec, max = max, min = min,
+    currency_symbol = "$", currency_placement = "p"
+  )
+}
+
+
+#' Input de porcentaje con formato automatico
+#'
+#' @inheritParams InputDinero
+#' @return Fila fluida de Shiny con un input cuyo valor lleva el sufijo `%`.
+#' @export
+#' @examples
+#' \dontrun{
+#'   InputPorcentaje("avance", "Avance", 75.5)
+#' }
+InputPorcentaje <- function(
+    id, label, value, dec = 2, max = 100, min = 0) {
+  .InputNumericoBase(
+    id, label, value,
+    dec = dec, max = max, min = min,
+    currency_symbol = "%", currency_placement = "s"
+  )
+}
+
+
+#' Input numerico sin simbolo
+#'
+#' @inheritParams InputDinero
+#' @return Fila fluida de Shiny con un input numerico sin simbolo adicional.
+#' @export
+#' @examples
+#' \dontrun{
+#'   InputNumero("cantidad", "Cantidad", 10)
+#' }
+InputNumero <- function(id, label, value, dec = 2, max = NULL, min = NULL) {
+  .InputNumericoBase(id, label, value, dec = dec, max = max, min = min)
+}
+
 #' Input numerico personalizado con layout de columnas
 #'
 #' @param id ID del input Shiny.
