@@ -150,6 +150,11 @@ test_that("ListaDesplegable permite fijar un size explicito", {
   expect_match(as.character(lista), '&quot;size&quot;:10')
 })
 
+test_that("ListaDesplegable siempre habilita la busqueda", {
+  lista <- ListaDesplegable("lista", choices = letters[1:3])
+  expect_match(as.character(lista), '&quot;liveSearch&quot;:true')
+})
+
 test_that("BotonDescarga rechaza colores invalidos", {
   expect_error(BotonDescarga("id", color_fondo = ""))
   expect_error(BotonDescarga("id", color_fuente = ""))

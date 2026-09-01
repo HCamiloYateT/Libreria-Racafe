@@ -207,7 +207,7 @@ ListaDesplegable <- function(
       deselectAllText   = articulo[2],
       selectedTextFormat = "count > 3",
       countSelectedText = "{0} seleccionados",
-      liveSearch        = length(choices) > 10,
+      liveSearch        = TRUE,
       size              = size %||% min(10, length(choices))
     )
   )
