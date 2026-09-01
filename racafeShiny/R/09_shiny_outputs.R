@@ -23,6 +23,7 @@
 #' @param size String. Tamaño: `"xxs"`, `"xs"`, `"sm"`, `"md"`, `"lg"`,
 #'   `"xl"`, `"xxl"`.
 #' @param align String. Alineación: `"left"`, `"center"` o `"right"`.
+#' @param label String o `NULL`. Etiqueta visible del botón. `NULL` la omite.
 #'
 #' @return `shiny.tag` div contenedor con el `downloadButton` estilizado.
 #' @export
@@ -35,7 +36,8 @@ BotonDescarga <- function(
     ns           = NULL,
     title        = "Descargar",
     size         = "sm",
-    align        = "right") {
+    align        = "right",
+    label        = NULL) {
   align <- match.arg(align, c("left", "center", "right"))
   size  <- match.arg(size, c("xxs", "xs", "sm", "md", "lg", "xl", "xxl"))
 
@@ -47,6 +49,8 @@ BotonDescarga <- function(
     stop("'ns' debe ser NULL o una función de namespace válida.", call. = FALSE)
   if (!is.null(title) && (!is.character(title) || length(title) != 1))
     stop("'title' debe ser NULL o una cadena de caracteres de longitud uno.", call. = FALSE)
+  if (!is.null(label) && (!is.character(label) || length(label) != 1))
+    stop("'label' debe ser NULL o una cadena de caracteres de longitud uno.", call. = FALSE)
 
   css_vars <- .btn_css_vars(color_fondo, color_fuente, color_hover)
 
@@ -56,7 +60,7 @@ BotonDescarga <- function(
 
   boton <- shiny::downloadButton(
     outputId = final_id,
-    label    = NULL,
+    label    = label,
     icon     = shiny::icon(icono, class = "racafe-btn-icon"),
     class    = clase_boton,
     style    = css_vars
