@@ -5,6 +5,7 @@ Este paquete sigue **Semantic Versioning (SemVer)**: `MAJOR.MINOR.PATCH`.
 ## Desarrollo
 
 ### Added
+- `BotonDescarga()` acepta `label` para mostrar texto junto al icono del botón.
 - `InputDinero()`, `InputPorcentaje()` e `InputNumero()` ofrecen controles
   `autoNumeric` compactos con etiqueta y formatos de moneda, porcentaje o
   numero simple.

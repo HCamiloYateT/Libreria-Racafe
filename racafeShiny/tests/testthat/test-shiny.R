@@ -189,6 +189,15 @@ test_that("BotonDescarga valida size correcto", {
   expect_error(BotonDescarga("id", size = "xxxl"))
 })
 
+test_that("BotonDescarga admite una etiqueta visible", {
+  btn <- BotonDescarga("id", label = "Descargar reporte")
+  html <- as.character(btn)
+
+  expect_match(html, "Descargar reporte", fixed = TRUE)
+  expect_error(BotonDescarga("id", label = character()))
+  expect_error(BotonDescarga("id", label = c("Uno", "Dos")))
+})
+
 test_that("Boton valida alineacion correcta", {
   expect_no_error(Boton("id", align = "right"))
   expect_no_error(Boton("id", align = "center"))

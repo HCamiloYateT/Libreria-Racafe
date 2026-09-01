@@ -78,7 +78,9 @@ InputFecha("fecha", "Fecha")
 InputMes("mes", "Mes")
 BotonEstado("activar", "Activar")
 Boton("guardar", label = "Guardar", icono = "floppy-disk")
-BotonDescarga("exportar", icono = "file-excel", title = "Exportar")
+BotonDescarga(
+  "exportar", label = "Exportar", icono = "file-excel", title = "Exportar"
+)
 ```
 
 ## Cajas de valor y módulo KPI
