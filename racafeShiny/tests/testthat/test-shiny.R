@@ -155,6 +155,59 @@ test_that("ListaDesplegable siempre habilita la busqueda", {
   expect_match(as.character(lista), '&quot;liveSearch&quot;:true')
 })
 
+test_that("ListaDesplegable resume seleccion total y vacia segun genero", {
+  masculino <- as.character(ListaDesplegable("lista", choices = letters[1:3]))
+  femenino <- as.character(ListaDesplegable(
+    "lista",
+    choices = letters[1:3],
+    fem = TRUE
+  ))
+
+  expect_match(masculino, '&quot;selectedTextFormat&quot;:&quot;count &gt; 2&quot;')
+  expect_match(masculino, '&quot;countSelectedText&quot;:&quot;Todos&quot;')
+  expect_match(masculino, '&quot;noneSelectedText&quot;:&quot;Ninguno&quot;')
+  expect_match(femenino, '&quot;countSelectedText&quot;:&quot;Todas&quot;')
+  expect_match(femenino, '&quot;noneSelectedText&quot;:&quot;Ninguna&quot;')
+})
+
+test_that("ListaDesplegable ocupa todo el ancho y respeta multiple", {
+  multiple <- as.character(ListaDesplegable("lista", choices = letters[1:3]))
+  simple <- as.character(ListaDesplegable(
+    "lista",
+    choices = letters[1:3],
+    multiple = FALSE
+  ))
+
+  expect_match(multiple, 'style="width: 100%;"')
+  expect_match(multiple, '&quot;actionsBox&quot;:true')
+  expect_match(simple, '&quot;actionsBox&quot;:false')
+})
+
+test_that("pick_opt conserva los textos al actualizar pickers", {
+  femenino <- pick_opt(letters[1:12])
+  masculino <- pick_opt(letters[1:3], fem = FALSE)
+
+  expect_equal(femenino$selectedTextFormat, "count > 11")
+  expect_equal(femenino$countSelectedText, "Todas")
+  expect_equal(femenino$noneSelectedText, "Ninguna")
+  expect_equal(femenino$size, 10)
+  expect_equal(masculino$countSelectedText, "Todos")
+  expect_equal(masculino$noneSelectedText, "Ninguno")
+  expect_true(masculino$liveSearch)
+})
+
+test_that("BotonEstado permite personalizar status y posicion", {
+  boton <- as.character(BotonEstado(
+    "estado",
+    "Activo",
+    status = "danger",
+    right = FALSE
+  ))
+
+  expect_match(boton, "danger")
+  expect_match(boton, "right.*false")
+})
+
 test_that("BotonDescarga rechaza colores invalidos", {
   expect_error(BotonDescarga("id", color_fondo = ""))
   expect_error(BotonDescarga("id", color_fuente = ""))
