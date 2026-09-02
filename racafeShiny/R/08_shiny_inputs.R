@@ -192,8 +192,9 @@ ListaDesplegable <- function(
 
   .check_pkg("shinyWidgets", "Shiny inputs")
 
-  input_id  <- if (!is.null(ns)) ns(inputId) else inputId
-  articulo  <- if (fem) c("Todas", "Ninguna") else c("Todos", "Ninguno")
+  input_id <- if (!is.null(ns)) ns(inputId) else inputId
+  articulo <- if (fem) c("Todas", "Ninguna") else c("Todos", "Ninguno")
+  n_choices <- length(choices)
 
   shinyWidgets::pickerInput(
     inputId  = input_id,
@@ -201,14 +202,16 @@ ListaDesplegable <- function(
     choices  = choices,
     selected = selected,
     multiple = multiple,
+    width    = "100%",
     options  = shinyWidgets::pickerOptions(
-      actionsBox        = TRUE,
+      actionsBox        = multiple,
       selectAllText     = articulo[1],
       deselectAllText   = articulo[2],
-      selectedTextFormat = "count > 3",
-      countSelectedText = "{0} seleccionados",
+      selectedTextFormat = paste0("count > ", max(n_choices - 1L, 0L)),
+      countSelectedText = articulo[1],
+      noneSelectedText  = articulo[2],
       liveSearch        = TRUE,
-      size              = size %||% min(10, length(choices))
+      size              = size %||% min(10, n_choices)
     )
   )
 }
@@ -222,13 +225,17 @@ ListaDesplegable <- function(
 #' @export
 pick_opt <- function(cho, fem = TRUE) {
   articulo <- if (fem) c("Todas", "Ninguna") else c("Todos", "Ninguno")
+  n_choices <- length(cho)
+
   shinyWidgets::pickerOptions(
     actionsBox        = TRUE,
     selectAllText     = articulo[1],
     deselectAllText   = articulo[2],
-    selectedTextFormat = "count > 2",
-    countSelectedText = "{0} seleccionados",
-    liveSearch        = length(cho) > 8
+    selectedTextFormat = paste0("count > ", max(n_choices - 1L, 0L)),
+    countSelectedText = articulo[1],
+    noneSelectedText  = articulo[2],
+    liveSearch        = TRUE,
+    size              = min(10, n_choices)
   )
 }
 
@@ -359,18 +366,21 @@ BotonesRadiales <- function(
 #' Boton interruptor (toggle switch)
 #'
 #' @param ... Argumentos pasados a `shinyWidgets::materialSwitch`.
+#' @param status Estado visual del interruptor.
+#' @param right Logico. Mostrar la etiqueta a la derecha del interruptor.
 #' @return Componente Shiny.
 #' @export
 #' @examples
 #' \dontrun{
 #'   BotonEstado("toggle_filtro", "Activar filtro")
 #' }
-BotonEstado <- function(...) {
+BotonEstado <- function(..., status = "success", right = TRUE) {
   .check_pkg("shinyWidgets", "Shiny inputs")
+
   shinyWidgets::materialSwitch(
     ...,
-    status = "success",
-    right  = TRUE
+    status = status,
+    right  = right
   )
 }
 
