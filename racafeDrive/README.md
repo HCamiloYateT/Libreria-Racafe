@@ -39,6 +39,10 @@ carpeta_id <- ObtenerIdCarpeta("juan.perez", "Reportes")
 contenido <- ListarContenidoCarpetaId("juan.perez", carpeta_id)
 todo <- ListarContenidoCarpetaRecursivo("juan.perez", carpeta_id)
 
+# Variantes para buscar por nombre o reunir todos los niveles.
+contenido_nombre <- ListarContenidoCarpetaNombre("juan.perez", "Reportes")
+todo_contenido <- ListarTodoContenidoCarpeta("juan.perez", carpeta_id)
+
 # Leer un libro directamente desde Graph.
 hojas <- ListarHojasExcelOneDrive("ABC123", "juan.perez")
 datos <- LeerExcelDesdeOneDrive(
@@ -55,7 +59,15 @@ DescargarExcelDesdeOneDrive(
   archivo = "cierre_enero.xlsx",
   nombre_salida = "cierre_enero_local"
 )
+
+# Descargar cualquier archivo cuando ya se conoce su identificador.
+ruta_temporal <- DescargarArchivoId("ABC123", "juan.perez")
 ```
+
+`CargarExcelDesdeOneDrive()` combina la búsqueda del libro por ruta con su carga
+como un objeto `wbWorkbook`. Use `DescargarExcelDesdeOneDrive()` cuando necesite
+conservar una copia local y `LeerExcelDesdeOneDrive()` cuando ya conozca el
+identificador del archivo.
 
 ## SharePoint
 
