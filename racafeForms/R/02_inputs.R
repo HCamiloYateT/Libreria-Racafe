@@ -154,7 +154,7 @@ racafeInputDate <- function(id, label = NULL, value = Sys.Date(),
   shinyWidgets::airDatepickerInput(
     inputId = .rf_id(id, ns), label = label, value = value,
     view = views[[view]], minView = views[[view]], dateFormat = formats[[view]],
-    startView = value, minDate = min, maxDate = max, language = "es", width = width
+    startView = value, minDate = min, maxDate = max, language = "es", width = width, addon = "none"
   )
 }
 
