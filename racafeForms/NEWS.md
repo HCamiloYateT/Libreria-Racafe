@@ -1,3 +1,7 @@
+# racafeForms 0.1.3
+
+- Compacta el switch dentro de los formularios: pista de 28 px y botón de 16 px.
+
 # racafeForms 0.1.2
 
 - Reduce proporcionalmente los iconos de SweetAlert en alertas y confirmaciones.

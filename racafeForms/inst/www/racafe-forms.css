@@ -47,6 +47,13 @@
 }
 .rf-form .dropdown-menu {border-radius:9px;max-width:100%;}
 .rf-form .material-switch,.rf-form .checkbox,.rf-form .radio {font-size:var(--rf-font);}
+/* Switch compacto: pista de 28 px y botón de 16 px, con recorrido proporcional. */
+.rf-form .material-switch > label.switch {width:28px;}
+.rf-form .material-switch > label.switch::before {width:28px;height:12px;
+ border-radius:6px;margin-top:-6px;}
+.rf-form .material-switch > label.switch::after {width:16px;height:16px;
+ border-radius:50%;left:-2px;top:-2px;margin-top:-6px;}
+.rf-form .material-switch > input[type="checkbox"]:checked + label.switch::after {left:14px;}
 .rf-form .rf-row {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 var(--rf-gap);}
 .rf-form .rf-row--1 {grid-template-columns:minmax(0,1fr);}
 .rf-form .rf-row--3 {grid-template-columns:repeat(3,minmax(0,1fr));}

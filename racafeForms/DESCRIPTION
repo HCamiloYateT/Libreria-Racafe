@@ -1,7 +1,7 @@
 Package: racafeForms
 Type: Package
 Title: Formularios Corporativos Racafe para Shiny
-Version: 0.1.2
+Version: 0.1.3
 Authors@R: person("H. Camilo", "Yate T.", email = "camilo.yate@racafe.com", role = c("aut", "cre"))
 Description: Componentes de formularios, entradas, botones, alertas y estilos
     corporativos para aplicaciones Shiny. Independiente de racafeShiny para
