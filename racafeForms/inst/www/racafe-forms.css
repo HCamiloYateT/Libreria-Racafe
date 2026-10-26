@@ -91,6 +91,8 @@
 .swal2-popup {width:420px;max-width:calc(100vw - 24px)!important;
  padding:20px 22px!important;border:1px solid #e3e5e8!important;
  border-radius:12px!important;box-shadow:0 8px 28px rgba(15,23,42,.16)!important;}
+/* Escala proporcional para el círculo, el símbolo y las animaciones del icono. */
+.swal2-popup:not(.swal2-toast) .swal2-icon {font-size:10px!important;margin:0 auto 12px!important;}
 .swal2-title {font-family:inherit!important;font-size:16px!important;line-height:1.35!important;
  font-weight:600!important;color:#263238!important;padding:4px 0!important;}
 .swal2-html-container,.swal2-content {font-family:inherit!important;font-size:12px!important;
