@@ -1,6 +1,6 @@
 # Librería Racafe
 
-Monorepo con seis paquetes de R instalables de forma independiente. `racafeCore`
+Monorepo con siete paquetes de R instalables de forma independiente. `racafeCore`
 contiene las utilidades compartidas; los otros paquetes separan acceso a datos,
 Microsoft Graph, visualización, componentes Shiny y pronósticos.
 
@@ -13,6 +13,7 @@ Microsoft Graph, visualización, componentes Shiny y pronósticos.
 | [`racafeDrive`](./racafeDrive/) | Autenticación y acceso a OneDrive/SharePoint mediante Microsoft Graph. | `racafeCore` |
 | [`racafeGraph`](./racafeGraph/) | Paletas, tema y gráficos corporativos con Plotly. | `racafeCore` |
 | [`racafeShiny`](./racafeShiny/) | Inputs, outputs, módulos, tablas `gt` y estilos para aplicaciones Shiny. | `racafeCore`, `racafeGraph` |
+| [`racafeForms`](./racafeForms/) | Formularios, entradas, botones y alertas corporativas para Shiny. | Ninguna |
 | [`racafeForecast`](./racafeForecast/) | Imputación, comparación de modelos y pronósticos de series de tiempo. | `racafeCore` |
 
 Todos los paquetes requieren **R >= 4.1.0**. Cada uno mantiene su propia versión
@@ -20,35 +21,79 @@ en `DESCRIPTION` y su historial en `NEWS.md`.
 
 ## Instalación
 
-Desde GitHub, indique la subcarpeta del monorepo de forma explícita:
+Requiere **R >= 4.1.0** y acceso a CRAN para descargar dependencias. Instale
+`remotes` una sola vez si no está disponible:
+
+```r
+if (!requireNamespace("remotes", quietly = TRUE)) install.packages("remotes")
+```
+
+### Desde GitHub
+
+Indique la subcarpeta del monorepo de forma explícita. Para instalar los siete
+paquetes, ejecute en este orden:
 
 ```r
 repo <- "HCamiloYateT/Libreria-Racafe"
 
-remotes::install_github(repo, subdir = "racafeCore")
-remotes::install_github(repo, subdir = "racafeGraph")
-remotes::install_github(repo, subdir = "racafeBD")
-remotes::install_github(repo, subdir = "racafeDrive")
-remotes::install_github(repo, subdir = "racafeForecast")
-remotes::install_github(repo, subdir = "racafeShiny")
+remotes::install_github(repo, subdir = "racafeCore", dependencies = NA, upgrade = "never")
+remotes::install_github(repo, subdir = "racafeGraph", dependencies = NA, upgrade = "never")
+remotes::install_github(repo, subdir = "racafeBD", dependencies = NA, upgrade = "never")
+remotes::install_github(repo, subdir = "racafeDrive", dependencies = NA, upgrade = "never")
+remotes::install_github(repo, subdir = "racafeForecast", dependencies = NA, upgrade = "never")
+remotes::install_github(repo, subdir = "racafeShiny", dependencies = NA, upgrade = "never")
+remotes::install_github(repo, subdir = "racafeForms", dependencies = NA, upgrade = "never")
 ```
 
-Instale solo los paquetes que necesite, respetando el orden de sus dependencias
-internas. Para un repositorio privado, configure `GITHUB_PAT` antes de ejecutar
-la instalación.
+Puede instalar solo los paquetes que necesite: `racafeCore` y `racafeForms` no
+tienen dependencias internas; `racafeShiny` requiere primero `racafeCore` y
+`racafeGraph`; los demás requieren `racafeCore`. `racafeForms` no requiere
+`racafeShiny` ni sustituye automáticamente sus componentes.
 
-Para desarrollar desde un clon local:
+Si el repositorio es privado, use la autenticación de GitHub disponible en su
+entorno. En una sesión local que lo requiera, configure `GITHUB_PAT` de forma
+segura antes de instalar; no escriba el token en scripts ni lo confirme en Git.
+
+### Desde un clon local
+
+Ejecute desde la raíz de `Libreria-Racafe`, donde están las siete carpetas:
+
+```r
+remotes::install_local("racafeCore", dependencies = NA, upgrade = "never")
+remotes::install_local("racafeGraph", dependencies = NA, upgrade = "never")
+remotes::install_local("racafeBD", dependencies = NA, upgrade = "never")
+remotes::install_local("racafeDrive", dependencies = NA, upgrade = "never")
+remotes::install_local("racafeForecast", dependencies = NA, upgrade = "never")
+remotes::install_local("racafeShiny", dependencies = NA, upgrade = "never")
+remotes::install_local("racafeForms", dependencies = NA, upgrade = "never")
+```
+
+`dependencies = NA` instala las dependencias obligatorias declaradas en cada
+`DESCRIPTION`; `upgrade = "never"` evita actualizar otros paquetes ya instalados.
+Para desarrollar y ejecutar pruebas, instale también las herramientas y las
+dependencias sugeridas de los paquetes que vaya a trabajar:
 
 ```r
 install.packages(c("devtools", "remotes"))
-
-remotes::install_local("racafeCore", dependencies = TRUE)
-remotes::install_local("racafeGraph", dependencies = TRUE)
-remotes::install_local("racafeBD", dependencies = TRUE)
-remotes::install_local("racafeDrive", dependencies = TRUE)
-remotes::install_local("racafeForecast", dependencies = TRUE)
-remotes::install_local("racafeShiny", dependencies = TRUE)
+remotes::install_local("racafeForms", dependencies = TRUE, upgrade = "never")
 ```
+
+Sustituya `racafeForms` por el paquete que necesite. Para instalar y probar todos
+los paquetes desde la raíz, también puede usar `Rscript dev.R install` y
+`Rscript dev.R test` en la terminal.
+
+### Verificar la instalación
+
+Por ejemplo, para formularios Shiny:
+
+```r
+library(racafeForms)
+packageVersion("racafeForms")
+shiny::runApp(system.file("examples", "demo.R", package = "racafeForms"))
+```
+
+Consulte el README de cada paquete para requisitos adicionales del sistema y
+configuración de servicios externos, especialmente bases de datos y Microsoft Graph.
 
 ## Desarrollo y pruebas
 
@@ -66,8 +111,9 @@ externos:
 Rscript scripts/run_integration_tests.R
 ```
 
-Los flujos de GitHub Actions ejecutan `R CMD check`, pruebas unitarias, pruebas
-E2E y un umbral de cobertura del 75 % para los seis paquetes. El entorno de
+Los flujos de GitHub Actions ejecutan `R CMD check` y pruebas unitarias para los
+siete paquetes, además de pruebas E2E del monorepo. El umbral de cobertura del
+75 % conserva su alcance sobre los seis paquetes originales. El entorno de
 desarrollo se registra en [`renv.lock`](./renv.lock); la política de dependencias
 está en [`docs/dependency-policy.md`](./docs/dependency-policy.md).
 

@@ -19,6 +19,7 @@ jobs:
           - racafeGraph
           - racafeForecast
           - racafeShiny
+          - racafeForms
 
     steps:
       - uses: actions/checkout@v4
@@ -37,7 +38,7 @@ jobs:
 
       - name: Install local Racafe dependencies
         run: |
-          Rscript -e 'remotes::install_local(c("racafeCore", "racafeGraph", "racafeBD", "racafeDrive", "racafeForecast", "racafeShiny"), dependencies = TRUE, upgrade = "never", force = TRUE)'
+          Rscript -e 'remotes::install_local(c("racafeCore", "racafeGraph", "racafeBD", "racafeDrive", "racafeForecast", "racafeShiny", "racafeForms"), dependencies = TRUE, upgrade = "never", force = TRUE)'
 
       - name: Run R CMD check
         run: |

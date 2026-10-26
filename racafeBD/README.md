@@ -7,15 +7,45 @@ bases corporativas de **SQL Server** mediante ODBC.
 
 ## Instalación
 
+Requiere **R >= 4.1.0**. Instale `remotes` una sola vez si no está disponible:
+
+```r
+if (!requireNamespace("remotes", quietly = TRUE)) install.packages("remotes")
+```
+
+Instale primero las dependencias internas, en el orden del ejemplo.
+
+### Desde GitHub
+
 ```r
 repo <- "HCamiloYateT/Libreria-Racafe"
-remotes::install_github(repo, subdir = "racafeCore")
-remotes::install_github(repo, subdir = "racafeBD")
+remotes::install_github(repo, subdir = "racafeCore", dependencies = NA, upgrade = "never")
+remotes::install_github(repo, subdir = "racafeBD", dependencies = NA, upgrade = "never")
 ```
+
+### Desde un clon local
+
+Ejecute desde la raíz de `Libreria-Racafe`, donde están las carpetas de los paquetes:
+
+```r
+remotes::install_local("racafeCore", dependencies = NA, upgrade = "never")
+remotes::install_local("racafeBD", dependencies = NA, upgrade = "never")
+```
+
+`dependencies = NA` instala las dependencias obligatorias; `upgrade = "never"`
+evita actualizar otros paquetes ya instalados. Para herramientas de desarrollo,
+pruebas y acceso a repositorios privados, consulte la [guía general](../README.md#instalación).
 
 Además de las dependencias declaradas por el paquete, la conexión principal
 requiere el paquete `RMySQL` y un cliente/controlador MySQL disponible en el
 sistema. El acceso heredado requiere un controlador ODBC para SQL Server.
+
+Compruebe la instalación:
+
+```r
+library(racafeBD)
+packageVersion("racafeBD")
+```
 
 ## Configuración
 

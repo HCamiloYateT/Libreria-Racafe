@@ -11,6 +11,7 @@ if (!requireNamespace("withr",    quietly = TRUE)) install.packages("withr")
 # Orden de instalacion: respeta el grafo de dependencias
 PAQUETES <- c(
   "racafeCore",     # sin dependencias internas
+  "racafeForms",    # independiente; componentes de formularios Shiny
   "racafeBD",       # depende de racafeCore
   "racafeDrive",    # depende de racafeCore
   "racafeGraph",    # depende de racafeCore
@@ -109,7 +110,7 @@ Comandos:
   coverage <pkg>    Reporte de cobertura de tests del paquete
 
 Paquetes disponibles:
-  racafeCore | racafeBD | racafeDrive | racafeGraph | racafeShiny | racafeForecast
+  racafeCore | racafeBD | racafeDrive | racafeGraph | racafeShiny | racafeForecast | racafeForms
 
 Ejemplos:
   Rscript dev.R install
