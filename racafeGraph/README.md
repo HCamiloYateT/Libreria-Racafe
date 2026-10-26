@@ -119,3 +119,16 @@ ImprimeSankey(
 `ImprimirDensidad()` usa un eje X logarítmico, por lo que está orientada a
 variables numéricas positivas y sesgadas. Consulte `?ImprimirAnillo` y
 `?ImprimeSankey` para las opciones de agregación.
+
+## Ayuda en RStudio
+
+```r
+help(package = "racafeGraph")
+help("racafeGraph-package", package = "racafeGraph")
+```
+
+El índice permite abrir la ayuda de cada función, con su sintaxis, argumentos y
+valor de retorno. También puede usar `?racafeGraph::nombre_de_funcion`, sustituyendo
+`nombre_de_funcion` por el nombre real, o pulsar **F1** sobre una función en RStudio.
+Si actualiza desde una versión sin ayuda, reinstale el paquete y reinicie R.
+Consulte la [guía general de ayuda](../README.md#ayuda-de-las-funciones-en-rstudio).

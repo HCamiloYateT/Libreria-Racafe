@@ -1,4 +1,5 @@
 #' Dependencia CSS de racafeForms
+#' @return Objeto `htmltools::htmlDependency` que adjunta la hoja de estilos del paquete.
 #' @export
 racafeFormsDependencies <- function() {
   htmltools::htmlDependency("racafeForms", as.character(utils::packageVersion("racafeForms")),
@@ -10,6 +11,7 @@ racafeFormsDependencies <- function() {
 #' @param ... Contenido Shiny.
 #' @param size Densidad: compact, normal o comfortable.
 #' @param bordered Mostrar fondo y borde corporativo.
+#' @return Lista de etiquetas Shiny con el contenedor del formulario y su dependencia CSS.
 #' @export
 racafeForm <- function(..., size = c("compact", "normal", "comfortable"), bordered = TRUE) {
   size <- match.arg(size)
@@ -22,6 +24,7 @@ racafeForm <- function(..., size = c("compact", "normal", "comfortable"), border
 #' @param ... Campos o texto.
 #' @param title Titulo opcional del grupo.
 #' @param divider Separador inferior.
+#' @return Etiqueta HTML `section` con los campos y el título opcional.
 #' @export
 racafeFormGroup <- function(..., title = NULL, divider = TRUE) {
   shiny::tags$section(class = paste("rf-form-group", if (divider) "rf-form-group--divider"),
@@ -31,6 +34,7 @@ racafeFormGroup <- function(..., title = NULL, divider = TRUE) {
 #' Fila flexible y adaptable de campos
 #' @param ... Componentes a distribuir horizontalmente.
 #' @param columns Numero de columnas en escritorio (1 a 4).
+#' @return Etiqueta HTML `div` que distribuye los campos en columnas adaptables.
 #' @export
 racafeFormRow <- function(..., columns = 2L) {
   stopifnot(length(columns) == 1L, columns %in% 1:4)
@@ -44,6 +48,7 @@ racafeFormRow <- function(..., columns = 2L) {
 #' @param align left, center, right.
 #' @param divider Mostrar borde superior.
 #' @param sticky Fijar al pie dentro del contenedor scrollable.
+#' @return Etiqueta HTML `div` con las acciones y el texto de ayuda opcional.
 #' @export
 racafeFormFooter <- function(..., help = NULL, align = c("right", "left", "center"),
                              divider = TRUE, sticky = FALSE) {
@@ -57,6 +62,7 @@ racafeFormFooter <- function(..., help = NULL, align = c("right", "left", "cente
 #' Aviso de formulario no modal
 #' @param text Mensaje.
 #' @param type info, success, warning, error, muted.
+#' @return Etiqueta HTML `p` con el mensaje y la clase de estilo elegida.
 #' @export
 racafeFormMessage <- function(text, type = c("info", "success", "warning", "error", "muted")) {
   type <- match.arg(type)

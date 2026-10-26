@@ -19,6 +19,9 @@ racafeInputRadio(id, label, choices, selected = NULL, inline = TRUE, ns = NULL)
 
 \item{ns}{Namespace.}
 }
+\value{
+Componente de entrada Shiny para incluir en la UI; su valor está disponible en \code{input$id}.
+}
 \description{
 Opciones radiales corporativas
 }

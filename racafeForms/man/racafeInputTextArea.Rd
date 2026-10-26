@@ -38,6 +38,9 @@ racafeInputTextArea(
 
 \item{ns}{Funcion namespace de modulo.}
 }
+\value{
+Componente de entrada Shiny para incluir en la UI; su valor está disponible en \code{input$id}.
+}
 \description{
 Area de texto corporativa
 }

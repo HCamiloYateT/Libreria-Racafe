@@ -32,6 +32,9 @@ racafeConfirm(
 
 \item{ns}{Namespace opcional; pasar session$ns dentro de modulos.}
 }
+\value{
+El resultado de enviar la confirmación; la respuesta llega como lógico a \code{input$id}.
+}
 \description{
 Confirmacion SweetAlert con resultado en input$id
 }

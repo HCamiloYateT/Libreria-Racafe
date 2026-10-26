@@ -27,6 +27,9 @@ racafeUpdateSwitch(session, id, value)
 
 \item{value}{Nuevo valor del control.}
 }
+\value{
+El resultado del actualizador nativo; se usa por su efecto secundario en la sesión.
+}
 \description{
 Actualizar selector corporativo
 

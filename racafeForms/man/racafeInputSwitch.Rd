@@ -23,6 +23,9 @@ racafeInputSwitch(
 
 \item{ns}{Namespace.}
 }
+\value{
+Componente de entrada Shiny para incluir en la UI; su valor está disponible en \code{input$id}.
+}
 \description{
 Interruptor corporativo
 }

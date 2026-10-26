@@ -23,6 +23,9 @@ racafeFormFooter(
 
 \item{sticky}{Fijar al pie dentro del contenedor scrollable.}
 }
+\value{
+Etiqueta HTML \code{div} con las acciones y el texto de ayuda opcional.
+}
 \description{
 Pie de formulario con acciones compactas
 }

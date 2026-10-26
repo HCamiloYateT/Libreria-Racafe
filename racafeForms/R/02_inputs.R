@@ -8,6 +8,7 @@
 #' @param help Ayuda debajo del control.
 #' @param width Ancho CSS.
 #' @param ns Funcion namespace de modulo.
+#' @return Componente de entrada Shiny para incluir en la UI; su valor está disponible en `input$id`.
 #' @export
 racafeInputText <- function(id, label, value = "", placeholder = NULL,
                             type = c("text", "email", "tel", "password"),
@@ -28,6 +29,7 @@ racafeInputText <- function(id, label, value = "", placeholder = NULL,
 #' @inheritParams racafeInputText
 #' @param rows Numero de filas.
 #' @param maxlength Maximo de caracteres (NULL sin limite).
+#' @return Componente de entrada Shiny para incluir en la UI; su valor está disponible en `input$id`.
 #' @export
 racafeInputTextArea <- function(id, label, value = "", placeholder = NULL, rows = 4,
                                 maxlength = NULL, required = FALSE, help = NULL,
@@ -53,6 +55,7 @@ racafeInputTextArea <- function(id, label, value = "", placeholder = NULL, rows 
 #' @param dropup_auto Determinar automaticamente si abrir hacia arriba.
 #' @param width Ancho CSS.
 #' @param ns Namespace del modulo.
+#' @return Componente de entrada Shiny para incluir en la UI; su valor está disponible en `input$id`.
 #' @export
 racafeInputSelect <- function(id, label = NULL, choices, selected = NULL, multiple = FALSE,
                               search = TRUE, empty = TRUE, empty_label = "Ninguno", size = 6,
@@ -85,6 +88,7 @@ racafeInputSelect <- function(id, label = NULL, choices, selected = NULL, multip
 #' @param thousand,decimal Separadores, por defecto Colombia.
 #' @param width Ancho CSS.
 #' @param ns Namespace del modulo.
+#' @return Componente de entrada Shiny para incluir en la UI; su valor está disponible en `input$id`.
 #' @export
 racafeInputNumeric <- function(id, label, value = 0, format = "number", decimals = NULL,
                                min = NULL, max = NULL, prefix = NULL, suffix = NULL,
@@ -123,6 +127,7 @@ racafeInputNumeric <- function(id, label, value = 0, format = "number", decimals
 #' @param min,max Fechas limite.
 #' @param ns Namespace.
 #' @param width Ancho CSS.
+#' @return Componente de entrada Shiny para incluir en la UI; su valor está disponible en `input$id`.
 #' @export
 racafeInputDate <- function(id, label = NULL, value = Sys.Date(),
                             view = c("day", "month", "year"), min = NULL, max = NULL,
@@ -147,6 +152,7 @@ racafeInputDate <- function(id, label = NULL, value = Sys.Date(),
 #' Selector de rango de fechas (dos valores Date)
 #' @inheritParams racafeInputDate
 #' @param start,end Fechas seleccionadas; NULL sin valor inicial.
+#' @return Componente de entrada Shiny para incluir en la UI; su valor está disponible en `input$id`.
 #' @export
 racafeInputDateRange <- function(id, label = NULL, start = NULL, end = NULL,
                                  min = NULL, max = NULL, ns = NULL, width = "100%") {
@@ -161,6 +167,7 @@ racafeInputDateRange <- function(id, label = NULL, start = NULL, end = NULL,
 #' @param value Estado inicial.
 #' @param variant primary, success, warning, danger, neutral.
 #' @param ns Namespace.
+#' @return Componente de entrada Shiny para incluir en la UI; su valor está disponible en `input$id`.
 #' @export
 racafeInputSwitch <- function(id, label, value = FALSE,
                               variant = c("primary", "success", "warning", "danger", "neutral"),
@@ -179,6 +186,7 @@ racafeInputSwitch <- function(id, label, value = FALSE,
 #' @param selected Seleccion inicial.
 #' @param inline Disposicion horizontal.
 #' @param ns Namespace.
+#' @return Componente de entrada Shiny para incluir en la UI; su valor está disponible en `input$id`.
 #' @export
 racafeInputRadio <- function(id, label, choices, selected = NULL, inline = TRUE, ns = NULL) {
   shiny::radioButtons(.rf_id(id, ns), label, choices = choices, selected = selected,
@@ -190,6 +198,7 @@ racafeInputRadio <- function(id, label, choices, selected = NULL, inline = TRUE,
 #' @param label Etiqueta.
 #' @param value Estado inicial.
 #' @param ns Namespace.
+#' @return Componente de entrada Shiny para incluir en la UI; su valor está disponible en `input$id`.
 #' @export
 racafeInputCheckbox <- function(id, label, value = FALSE, ns = NULL) {
   shiny::checkboxInput(.rf_id(id, ns), label, value = value, width = "100%")

@@ -13,6 +13,9 @@ racafeForm(..., size = c("compact", "normal", "comfortable"), bordered = TRUE)
 
 \item{bordered}{Mostrar fondo y borde corporativo.}
 }
+\value{
+Lista de etiquetas Shiny con el contenedor del formulario y su dependencia CSS.
+}
 \description{
 Contenedor visual de formulario
 }

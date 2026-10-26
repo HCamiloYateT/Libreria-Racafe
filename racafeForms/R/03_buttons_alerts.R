@@ -8,6 +8,7 @@
 #' @param title Tooltip accesible.
 #' @param disabled Estado inicial deshabilitado.
 #' @param ... Argumentos adicionales para racafeButton.
+#' @return Etiqueta HTML de botón Shiny; las variantes conservan el ID para `input$id`.
 #' @export
 racafeButton <- function(id, label, icon = NULL,
                          variant = c("primary", "secondary", "success", "warning", "danger", "ghost"),
@@ -47,6 +48,7 @@ racafeButtonDelete <- function(id, label = "Eliminar", ns = NULL, ...) {
 #' @param variant Variante CSS.
 #' @param size Tamano.
 #' @param ns Namespace.
+#' @return Etiqueta HTML de descarga asociada a un `shiny::downloadHandler`.
 #' @export
 racafeButtonDownload <- function(id, label = "Descargar", icon = "download",
                                  variant = "secondary", size = "sm", ns = NULL) {
@@ -59,6 +61,7 @@ racafeButtonDownload <- function(id, label = "Descargar", icon = "download",
 #' @param title Titulo.
 #' @param text Mensaje de texto plano.
 #' @param type success, error, warning, info, question.
+#' @return El resultado de enviar la alerta a la sesión; se usa por su efecto secundario.
 #' @export
 racafeAlert <- function(session, title, text,
                         type = c("info", "success", "error", "warning", "question")) {
@@ -73,6 +76,7 @@ racafeAlert <- function(session, title, text,
 #' @param confirm_label Texto del boton confirmar.
 #' @param cancel_label Texto del boton cancelar.
 #' @param ns Namespace opcional; pasar session$ns dentro de modulos.
+#' @return El resultado de enviar la confirmación; la respuesta llega como lógico a `input$id`.
 #' @export
 racafeConfirm <- function(session, id, title, text, type = "warning",
                           confirm_label = "Confirmar", cancel_label = "Cancelar", ns = NULL) {

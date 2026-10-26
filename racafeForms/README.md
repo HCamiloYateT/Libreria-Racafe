@@ -103,3 +103,16 @@ shinyApp(ui, server)
 - Validar permisos, valores y operaciones de base de datos en el servidor.
 - El CSS se adjunta con `racafeForm()` o manualmente con `racafeFormsDependencies()`.
 - No se incluyen credenciales ni accesos a datos del CRM.
+
+## Ayuda en RStudio
+
+```r
+help(package = "racafeForms")
+help("racafeForms-package", package = "racafeForms")
+```
+
+El índice permite abrir la ayuda de cada función, con su sintaxis, argumentos y
+valor de retorno. También puede usar `?racafeForms::nombre_de_funcion`, sustituyendo
+`nombre_de_funcion` por el nombre real, o pulsar **F1** sobre una función en RStudio.
+Si actualiza desde una versión sin ayuda, reinstale el paquete y reinicie R.
+Consulte la [guía general de ayuda](../README.md#ayuda-de-las-funciones-en-rstudio).

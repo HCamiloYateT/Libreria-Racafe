@@ -3,6 +3,7 @@
 #' @param id ID local (NO pasar ns(id)).
 #' @param ... Parametros del update nativo.
 #' @param value Nuevo valor del control.
+#' @return El resultado del actualizador nativo; se usa por su efecto secundario en la sesión.
 #' @export
 racafeUpdateSelect <- function(session, id, ...) {
   shinyWidgets::updatePickerInput(session, inputId = id, ...)
@@ -33,6 +34,7 @@ racafeUpdateSwitch <- function(session, id, value) {
 }
 #' Activar un input usando shinyjs
 #' @param id ID local.
+#' @return El resultado de la llamada a shinyjs; se usa para modificar el estado del control.
 #' @export
 racafeEnable <- function(id) shinyjs::enable(id)
 #' @rdname racafeEnable

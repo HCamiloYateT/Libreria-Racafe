@@ -30,6 +30,9 @@ racafeInputDate(
 
 \item{width}{Ancho CSS.}
 }
+\value{
+Componente de entrada Shiny para incluir en la UI; su valor está disponible en \code{input$id}.
+}
 \description{
 Selector de dia, mes o anio
 }

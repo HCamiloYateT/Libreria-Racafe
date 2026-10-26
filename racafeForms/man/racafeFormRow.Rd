@@ -11,6 +11,9 @@ racafeFormRow(..., columns = 2L)
 
 \item{columns}{Numero de columnas en escritorio (1 a 4).}
 }
+\value{
+Etiqueta HTML \code{div} que distribuye los campos en columnas adaptables.
+}
 \description{
 Fila flexible y adaptable de campos
 }

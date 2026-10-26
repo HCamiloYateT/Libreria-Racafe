@@ -17,6 +17,9 @@ racafeToggle(id, condition)
 
 \item{condition}{Logico; TRUE activa y FALSE desactiva.}
 }
+\value{
+El resultado de la llamada a shinyjs; se usa para modificar el estado del control.
+}
 \description{
 Activar un input usando shinyjs
 }
