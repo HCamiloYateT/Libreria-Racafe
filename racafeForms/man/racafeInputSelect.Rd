@@ -16,7 +16,8 @@ racafeInputSelect(
   size = 6,
   dropup_auto = FALSE,
   width = "100\%",
-  ns = NULL
+  ns = NULL,
+  gender = c("m", "f")
 )
 }
 \arguments{
@@ -34,7 +35,7 @@ racafeInputSelect(
 
 \item{empty}{Agrega opcion Ninguno con valor vacio, solo para seleccion simple.}
 
-\item{empty_label}{Etiqueta de opcion vacia.}
+\item{empty_label}{Etiqueta sin selección; por defecto concuerda con \code{gender}.}
 
 \item{size}{Numero de elementos visibles en lista.}
 
@@ -43,10 +44,16 @@ racafeInputSelect(
 \item{width}{Ancho CSS.}
 
 \item{ns}{Namespace del modulo.}
+
+\item{gender}{Concordancia del resumen múltiple: \code{"m"} o \code{"f"}.}
 }
 \value{
 Componente de entrada Shiny para incluir en la UI; su valor está disponible en \code{input$id}.
 }
 \description{
 ListaDesplegable corporativa basada en pickerInput
+}
+\details{
+Una selección muestra su etiqueta; varias muestran el conteo y todas, Todos o Todas.
+El resumen no modifica los valores enviados a Shiny.
 }

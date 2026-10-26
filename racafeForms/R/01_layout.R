@@ -1,10 +1,10 @@
-#' Dependencia CSS de racafeForms
-#' @return Objeto `htmltools::htmlDependency` que adjunta la hoja de estilos del paquete.
+#' Dependencias visuales de racafeForms
+#' @return Objeto `htmltools::htmlDependency` con los estilos y comportamientos del paquete.
 #' @export
 racafeFormsDependencies <- function() {
   htmltools::htmlDependency("racafeForms", as.character(utils::packageVersion("racafeForms")),
                             src = c(file = "www"),
-                            stylesheet = "racafe-forms.css", package = "racafeForms")
+                            stylesheet = "racafe-forms.css", script = "racafe-forms.js", package = "racafeForms")
 }
 
 #' Contenedor visual de formulario

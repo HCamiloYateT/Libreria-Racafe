@@ -41,3 +41,7 @@ Actualizar rango de fechas corporativo
 
 Actualizar switch corporativo
 }
+\details{
+Al cambiar \code{choices} sin indicar \code{selected}, conserva los valores válidos
+de la sesión, incluida una selección vacía. \code{selected} explícito tiene prioridad.
+}

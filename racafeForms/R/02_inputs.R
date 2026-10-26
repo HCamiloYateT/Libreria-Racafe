@@ -50,7 +50,10 @@ racafeInputTextArea <- function(id, label, value = "", placeholder = NULL, rows 
 #' @param multiple Permite seleccionar varias opciones.
 #' @param search Mostrar busqueda.
 #' @param empty Agrega opcion Ninguno con valor vacio, solo para seleccion simple.
-#' @param empty_label Etiqueta de opcion vacia.
+#' @param empty_label Etiqueta sin selección; por defecto concuerda con `gender`.
+#' @param gender Concordancia del resumen múltiple: `"m"` o `"f"`.
+#' @details Una selección muestra su etiqueta; varias muestran el conteo y todas, Todos o Todas.
+#'   El resumen no modifica los valores enviados a Shiny.
 #' @param size Numero de elementos visibles en lista.
 #' @param dropup_auto Determinar automaticamente si abrir hacia arriba.
 #' @param width Ancho CSS.
@@ -59,22 +62,28 @@ racafeInputTextArea <- function(id, label, value = "", placeholder = NULL, rows 
 #' @export
 racafeInputSelect <- function(id, label = NULL, choices, selected = NULL, multiple = FALSE,
                               search = TRUE, empty = TRUE, empty_label = "Ninguno", size = 6,
-                              dropup_auto = FALSE, width = "100%", ns = NULL) {
+                              dropup_auto = FALSE, width = "100%", ns = NULL, gender = c("m", "f")) {
+  gender <- match.arg(gender)
+  if (missing(empty_label)) empty_label <- if (gender == "f") "Ninguna" else "Ninguno"
   if (!multiple && empty && !"" %in% as.character(.rf_choice_values(choices))) {
     choices <- c(stats::setNames("", empty_label), choices)
   }
   if (is.null(selected)) selected <- if (multiple) character(0) else {
     if (empty) "" else .rf_choice_values(choices)[1]
   }
-  shinyWidgets::pickerInput(
+  tag <- shinyWidgets::pickerInput(
     inputId = .rf_id(id, ns), label = label, choices = choices,
     selected = selected, multiple = multiple, width = width,
     options = shinyWidgets::pickerOptions(
       liveSearch = search, dropupAuto = dropup_auto, size = size,
       noneSelectedText = empty_label, actionsBox = multiple,
-      selectAllText = "Todos", deselectAllText = "Ninguno"
+      selectAllText = if (gender == "f") "Todas" else "Todos",
+      deselectAllText = if (gender == "f") "Ninguna" else "Ninguno",
+      selectedTextFormat = if (multiple) "count > 1" else "values"
     )
   )
+  tag <- shiny::tagAppendAttributes(tag, class = "rf-select", `data-rf-gender` = gender)
+  htmltools::attachDependencies(tag, racafeFormsDependencies(), append = TRUE)
 }
 
 #' Entrada numerica corporativa usando AutoNumeric
@@ -152,13 +161,17 @@ racafeInputDate <- function(id, label = NULL, value = Sys.Date(),
 #' Selector de rango de fechas (dos valores Date)
 #' @inheritParams racafeInputDate
 #' @param start,end Fechas seleccionadas; NULL sin valor inicial.
-#' @return Componente de entrada Shiny para incluir en la UI; su valor está disponible en `input$id`.
+#' @return Control Shiny cuyo valor en `input$id` es un vector `Date` de longitud dos.
+#' @details El separador visual es un guion. El calendario conserva el idioma español
+#'   y solo recibe estilos corporativos cuando pertenece a este control.
 #' @export
 racafeInputDateRange <- function(id, label = NULL, start = NULL, end = NULL,
                                  min = NULL, max = NULL, ns = NULL, width = "100%") {
-  shiny::dateRangeInput(.rf_id(id, ns), label, start = start, end = end,
+  tag <- shiny::dateRangeInput(.rf_id(id, ns), label, start = start, end = end,
                         min = min, max = max, language = "es", format = "dd/mm/yyyy",
-                        separator = " a ", width = width)
+                        separator = "-", width = width)
+  tag <- shiny::tagAppendAttributes(tag, class = "rf-date-range")
+  htmltools::attachDependencies(tag, racafeFormsDependencies(), append = TRUE)
 }
 
 #' Interruptor corporativo

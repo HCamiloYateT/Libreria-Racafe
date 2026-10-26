@@ -29,8 +29,12 @@ racafeInputDateRange(
 \item{width}{Ancho CSS.}
 }
 \value{
-Componente de entrada Shiny para incluir en la UI; su valor está disponible en \code{input$id}.
+Control Shiny cuyo valor en \code{input$id} es un vector \code{Date} de longitud dos.
 }
 \description{
 Selector de rango de fechas (dos valores Date)
+}
+\details{
+El separador visual es un guion. El calendario conserva el idioma español
+y solo recibe estilos corporativos cuando pertenece a este control.
 }
