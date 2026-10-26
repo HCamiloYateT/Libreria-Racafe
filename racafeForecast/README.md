@@ -7,10 +7,40 @@ y selecciona el modelo con menor RMSE. Los resultados usan la clase S3
 
 ## Instalación
 
+Requiere **R >= 4.1.0**. Instale `remotes` una sola vez si no está disponible:
+
+```r
+if (!requireNamespace("remotes", quietly = TRUE)) install.packages("remotes")
+```
+
+Instale primero las dependencias internas, en el orden del ejemplo.
+
+### Desde GitHub
+
 ```r
 repo <- "HCamiloYateT/Libreria-Racafe"
-remotes::install_github(repo, subdir = "racafeCore")
-remotes::install_github(repo, subdir = "racafeForecast")
+remotes::install_github(repo, subdir = "racafeCore", dependencies = NA, upgrade = "never")
+remotes::install_github(repo, subdir = "racafeForecast", dependencies = NA, upgrade = "never")
+```
+
+### Desde un clon local
+
+Ejecute desde la raíz de `Libreria-Racafe`, donde están las carpetas de los paquetes:
+
+```r
+remotes::install_local("racafeCore", dependencies = NA, upgrade = "never")
+remotes::install_local("racafeForecast", dependencies = NA, upgrade = "never")
+```
+
+`dependencies = NA` instala las dependencias obligatorias; `upgrade = "never"`
+evita actualizar otros paquetes ya instalados. Para herramientas de desarrollo,
+pruebas y acceso a repositorios privados, consulte la [guía general](../README.md#instalación).
+
+Compruebe la instalación:
+
+```r
+library(racafeForecast)
+packageVersion("racafeForecast")
 ```
 
 ## Flujo completo reproducible

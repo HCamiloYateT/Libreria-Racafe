@@ -19,6 +19,7 @@ jobs:
           - racafeGraph
           - racafeForecast
           - racafeShiny
+          - racafeForms
 
     steps:
       - uses: actions/checkout@v4
@@ -35,7 +36,7 @@ jobs:
 
       - name: Install local Racafe dependencies
         run: |
-          Rscript -e 'remotes::install_local(c("racafeCore", "racafeGraph", "racafeBD", "racafeDrive", "racafeForecast", "racafeShiny"), dependencies = TRUE, upgrade = "never", force = TRUE)'
+          Rscript -e 'remotes::install_local(c("racafeCore", "racafeGraph", "racafeBD", "racafeDrive", "racafeForecast", "racafeShiny", "racafeForms"), dependencies = TRUE, upgrade = "never", force = TRUE)'
 
       - name: Run devtools::test
         run: |
@@ -62,7 +63,7 @@ jobs:
 
       - name: Install local Racafe dependencies
         run: |
-          Rscript -e 'remotes::install_local(c("racafeCore", "racafeGraph", "racafeBD", "racafeDrive", "racafeForecast", "racafeShiny"), dependencies = TRUE, upgrade = "never", force = TRUE)'
+          Rscript -e 'remotes::install_local(c("racafeCore", "racafeGraph", "racafeBD", "racafeDrive", "racafeForecast", "racafeShiny", "racafeForms"), dependencies = TRUE, upgrade = "never", force = TRUE)'
 
       - name: Run E2E integration tests
         run: |
@@ -90,7 +91,7 @@ jobs:
 
       - name: Install local Racafe dependencies
         run: |
-          Rscript -e 'remotes::install_local(c("racafeCore", "racafeGraph", "racafeBD", "racafeDrive", "racafeForecast", "racafeShiny"), dependencies = TRUE, upgrade = "never", force = TRUE)'
+          Rscript -e 'remotes::install_local(c("racafeCore", "racafeGraph", "racafeBD", "racafeDrive", "racafeForecast", "racafeShiny", "racafeForms"), dependencies = TRUE, upgrade = "never", force = TRUE)'
 
       - name: Compute baseline coverage from base branch (pull_request only)
         if: github.event_name == 'pull_request'

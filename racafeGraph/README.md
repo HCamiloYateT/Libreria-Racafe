@@ -5,10 +5,40 @@ layout, líneas de referencia y gráficos de densidad, anillo y Sankey.
 
 ## Instalación
 
+Requiere **R >= 4.1.0**. Instale `remotes` una sola vez si no está disponible:
+
+```r
+if (!requireNamespace("remotes", quietly = TRUE)) install.packages("remotes")
+```
+
+Instale primero las dependencias internas, en el orden del ejemplo.
+
+### Desde GitHub
+
 ```r
 repo <- "HCamiloYateT/Libreria-Racafe"
-remotes::install_github(repo, subdir = "racafeCore")
-remotes::install_github(repo, subdir = "racafeGraph")
+remotes::install_github(repo, subdir = "racafeCore", dependencies = NA, upgrade = "never")
+remotes::install_github(repo, subdir = "racafeGraph", dependencies = NA, upgrade = "never")
+```
+
+### Desde un clon local
+
+Ejecute desde la raíz de `Libreria-Racafe`, donde están las carpetas de los paquetes:
+
+```r
+remotes::install_local("racafeCore", dependencies = NA, upgrade = "never")
+remotes::install_local("racafeGraph", dependencies = NA, upgrade = "never")
+```
+
+`dependencies = NA` instala las dependencias obligatorias; `upgrade = "never"`
+evita actualizar otros paquetes ya instalados. Para herramientas de desarrollo,
+pruebas y acceso a repositorios privados, consulte la [guía general](../README.md#instalación).
+
+Compruebe la instalación:
+
+```r
+library(racafeGraph)
+packageVersion("racafeGraph")
 ```
 
 ## Paletas y tema

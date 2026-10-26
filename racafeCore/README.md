@@ -6,11 +6,38 @@ scripts. No depende de ningún otro paquete Racafe.
 
 ## Instalación
 
+Requiere **R >= 4.1.0**. Instale `remotes` una sola vez si no está disponible:
+
 ```r
-remotes::install_github(
-  "HCamiloYateT/Libreria-Racafe",
-  subdir = "racafeCore"
-)
+if (!requireNamespace("remotes", quietly = TRUE)) install.packages("remotes")
+```
+
+No requiere instalar otros paquetes Racafe.
+
+### Desde GitHub
+
+```r
+repo <- "HCamiloYateT/Libreria-Racafe"
+remotes::install_github(repo, subdir = "racafeCore", dependencies = NA, upgrade = "never")
+```
+
+### Desde un clon local
+
+Ejecute desde la raíz de `Libreria-Racafe`, donde están las carpetas de los paquetes:
+
+```r
+remotes::install_local("racafeCore", dependencies = NA, upgrade = "never")
+```
+
+`dependencies = NA` instala las dependencias obligatorias; `upgrade = "never"`
+evita actualizar otros paquetes ya instalados. Para herramientas de desarrollo,
+pruebas y acceso a repositorios privados, consulte la [guía general](../README.md#instalación).
+
+Compruebe la instalación:
+
+```r
+library(racafeCore)
+packageVersion("racafeCore")
 ```
 
 ## Transformación de datos

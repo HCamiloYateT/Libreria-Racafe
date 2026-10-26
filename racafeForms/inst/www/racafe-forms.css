@@ -1,0 +1,104 @@
+/* racafeForms 0.1.0: estilos basados en los formularios del CRM corporativo. */
+:root {
+  --rf-red: #DA291C; --rf-red-hover: #b82016;
+  --rf-gray-900: #263238; --rf-gray-700: #475569; --rf-gray-500: #64748b;
+  --rf-gray-300: #e2e5ea; --rf-gray-100: #fbfbfb; --rf-white: #fff;
+  --rf-border-radius: 12px; --rf-input-radius: 18px;
+  --rf-control-height: 36px; --rf-font: 11px;
+}
+.rf-form {--rf-gap: 10px; font-family: inherit; color:var(--rf-gray-900); min-width:0;}
+.rf-form--bordered {background:var(--rf-gray-100); border:1px solid #e3e5e8;
+  border-radius:var(--rf-border-radius); padding:13px 14px; margin-top:8px;}
+.rf-form--normal {--rf-control-height:36px; --rf-font:12px; --rf-gap:12px;}
+.rf-form--comfortable {--rf-control-height:40px; --rf-font:13px; --rf-gap:16px;}
+.rf-form .form-group,.rf-form .shiny-input-container {margin-bottom:8px;max-width:100%;}
+.rf-form .control-label,.rf-form label:not(.btn):not(.radio-inline):not(.checkbox-inline) {
+  color:var(--rf-gray-700);font-size:var(--rf-font);font-weight:600;margin-bottom:4px;}
+.rf-form .form-control:not(textarea),.rf-form .bootstrap-select > .dropdown-toggle,
+.rf-form .selectize-input,.rf-form .input-group .form-control {
+  height:var(--rf-control-height)!important;min-height:var(--rf-control-height)!important;
+  border:1px solid var(--rf-gray-300)!important;border-radius:var(--rf-input-radius)!important;
+  box-shadow:none!important;background:var(--rf-white)!important;
+  font-size:var(--rf-font)!important;padding:6px 12px!important;
+}
+.rf-form textarea.form-control {border:1px solid var(--rf-gray-300);border-radius:12px;
+  padding:8px 12px;font-size:var(--rf-font);background:#fff;}
+.rf-form .form-control:focus,.rf-form .bootstrap-select > .dropdown-toggle:focus,
+.rf-form .selectize-input.focus,.rf-form textarea:focus {border-color:#cb8790!important;
+  box-shadow:0 0 0 2px rgba(190,45,57,.08)!important;outline:none;}
+.rf-form .bootstrap-select,.rf-form .dropdown.bootstrap-select,.rf-form .shiny-input-container {
+  width:100%!important;max-width:none!important;}
+.rf-form .bootstrap-select.form-control,.rf-form .bootstrap-select.shiny-input-container {
+  height:auto!important;min-height:0!important;padding:0!important;
+  border:0!important;background:transparent!important;box-shadow:none!important;}
+/* Misma caja visual para pickerInput y autonumericInput. */
+.rf-form .bootstrap-select > .dropdown-toggle {
+  display:flex!important;align-items:center!important;
+  height:var(--rf-control-height)!important;
+  min-height:var(--rf-control-height)!important;
+  line-height:1.25!important;
+}
+.rf-form .bootstrap-select .filter-option {font-size:var(--rf-font)!important;align-self:center;}
+.rf-form input[id][type="text"].form-control {box-sizing:border-box!important;}
+.rf-form .input-group:has(input.form-control) {width:100%;}
+.rf-form .input-group:has(input.form-control) input.form-control {
+  height:var(--rf-control-height)!important;
+  min-height:var(--rf-control-height)!important;
+}
+.rf-form .dropdown-menu {border-radius:9px;max-width:100%;}
+.rf-form .material-switch,.rf-form .checkbox,.rf-form .radio {font-size:var(--rf-font);}
+.rf-form .rf-row {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 var(--rf-gap);}
+.rf-form .rf-row--1 {grid-template-columns:minmax(0,1fr);}
+.rf-form .rf-row--3 {grid-template-columns:repeat(3,minmax(0,1fr));}
+.rf-form .rf-row--4 {grid-template-columns:repeat(4,minmax(0,1fr));}
+.rf-form .rf-col {min-width:0;}
+.rf-form-group {margin-bottom:10px;padding-bottom:9px;}
+.rf-form-group--divider {border-bottom:1px solid #e8e8e8;}
+.rf-group-title {font-size:12px;font-weight:600;margin:0 0 8px;color:var(--rf-gray-900);}
+.rf-footer {display:flex;justify-content:space-between;align-items:center;gap:12px;padding-top:7px;margin-top:5px;}
+.rf-footer--divider {border-top:1px solid #e8e8e8;}
+.rf-footer--sticky {position:sticky;bottom:0;background:var(--rf-gray-100);z-index:1;padding-bottom:6px;}
+.rf-footer-actions {display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.rf-footer--left .rf-footer-actions {margin-right:auto;}
+.rf-footer--right .rf-footer-actions {margin-left:auto;}
+.rf-footer--center .rf-footer-actions {margin-left:auto;margin-right:auto;}
+.rf-footer-help,.rf-help {font-size:10px;color:var(--rf-gray-500);line-height:1.5;}
+.rf-help {display:block;margin-top:-3px;margin-bottom:8px;}
+.rf-form .rf-btn,.rf-btn {border:1px solid transparent!important;border-radius:16px!important;
+  padding:5px 11px!important;font-size:11px!important;font-weight:600!important;
+  line-height:1.35!important;min-height:26px!important;box-shadow:none!important;
+  display:inline-flex!important;gap:6px;align-items:center;justify-content:center;}
+.rf-btn--primary {background:var(--rf-red)!important;color:#fff!important;border-color:var(--rf-red)!important;}
+.rf-btn--primary:hover {background:var(--rf-red-hover)!important;color:#fff!important;}
+.rf-btn--secondary {background:#6C757D!important;color:#fff!important;}
+.rf-btn--secondary:hover {background:#555d64!important;color:#fff!important;}
+.rf-btn--danger {background:#b82016!important;color:#fff!important;}
+.rf-btn--success {background:#198754!important;color:#fff!important;}
+.rf-btn--warning {background:#f1c40f!important;color:#263238!important;}
+.rf-btn--ghost {background:transparent!important;color:var(--rf-gray-700)!important;border-color:#d4d8df!important;}
+.rf-btn--xxs {font-size:9px!important;padding:3px 7px!important;min-height:20px!important;}
+.rf-btn--xs {font-size:10px!important;padding:4px 8px!important;min-height:23px!important;}
+.rf-btn--md {font-size:12px!important;padding:7px 14px!important;min-height:32px!important;}
+.rf-btn--lg {font-size:13px!important;padding:9px 17px!important;min-height:38px!important;}
+.rf-btn:disabled,.rf-btn.disabled {background:#f2f3f5!important;border-color:#e2e5ea!important;
+  color:#7a8492!important;opacity:1!important;cursor:not-allowed!important;}
+.rf-message {font-size:11px;line-height:1.5;margin:6px 0;}
+.rf-message--muted,.rf-message--info {color:var(--rf-gray-500);}
+.rf-message--success {color:#198754;} .rf-message--warning {color:#916000;}
+.rf-message--error {color:#b82016;}
+/* SweetAlert usa portal fuera del formulario. Estilo corporativo transversal. */
+.swal2-container {z-index:20000!important;}
+.swal2-popup {width:420px;max-width:calc(100vw - 24px)!important;
+ padding:20px 22px!important;border:1px solid #e3e5e8!important;
+ border-radius:12px!important;box-shadow:0 8px 28px rgba(15,23,42,.16)!important;}
+.swal2-title {font-family:inherit!important;font-size:16px!important;line-height:1.35!important;
+ font-weight:600!important;color:#263238!important;padding:4px 0!important;}
+.swal2-html-container,.swal2-content {font-family:inherit!important;font-size:12px!important;
+ line-height:1.6!important;color:#475569!important;text-align:left!important;overflow-wrap:break-word!important;}
+.swal2-actions {gap:8px!important;margin-top:16px!important;}
+.swal2-actions button {font-family:inherit!important;font-size:11px!important;font-weight:600!important;
+ border-radius:18px!important;box-shadow:none!important;padding:7px 15px!important;min-width:95px!important;}
+.swal2-actions .swal2-confirm {background:#DA291C!important;border:1px solid #DA291C!important;}
+.swal2-actions .swal2-cancel {background:#6C757D!important;border:1px solid #6C757D!important;}
+@media(max-width:700px){.rf-form .rf-row {grid-template-columns:minmax(0,1fr);}
+ .rf-footer {flex-direction:column;align-items:stretch;}.rf-footer-actions {justify-content:flex-end;}}
