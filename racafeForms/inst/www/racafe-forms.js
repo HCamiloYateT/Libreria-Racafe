@@ -20,16 +20,38 @@
     picker.render();
   }
 
-  function style_calendar(event) {
-    if (!event.target.closest(".rf-date-range")) return;
-    var datepicker = $(event.target).data("datepicker");
-    if (!datepicker || !datepicker.picker) return;
-    var calendar = datepicker.picker.addClass("rf-calendar")[0];
-    var form = event.target.closest(".rf-form") || event.target.closest(".rf-date-range");
+  function apply_calendar_style(calendar, input) {
+    $(calendar).addClass("rf-calendar");
+    var form = input.closest(".rf-form") || input.closest(".rf-date, .rf-date-range");
     var styles = window.getComputedStyle(form);
     ["--rf-font", "--rf-red", "--rf-gray-300", "--rf-gray-700"].forEach(function (name) {
       calendar.style.setProperty(name, styles.getPropertyValue(name));
     });
+  }
+
+  function style_calendar(event) {
+    if (!event.target.closest(".rf-date-range")) return;
+    var datepicker = $(event.target).data("datepicker");
+    if (datepicker && datepicker.picker) apply_calendar_style(datepicker.picker[0], event.target);
+  }
+
+  function configure_air_calendar(event) {
+    var input = event.target;
+    var binding = $(input).data("shiny-input-binding");
+    var instance = binding && binding.store && binding.store[input.id];
+    if (!instance || !instance.opts || typeof instance.update !== "function") return;
+    if ($.data(input, "rfCalendarInstance") === instance) return;
+    $.data(input, "rfCalendarInstance", instance);
+    var original_show = instance.opts.onShow;
+    instance.update({
+      fixedHeight: true,
+      navTitles: Object.assign({}, instance.opts.navTitles, { days: "MMMM yyyy" }),
+      onShow: function () {
+        apply_calendar_style(instance.$datepicker, input);
+        if (typeof original_show === "function") original_show.apply(instance, arguments);
+      }
+    });
+    if (instance.$datepicker) apply_calendar_style(instance.$datepicker, input);
   }
 
   // shinyjs cambia el select nativo; sincronizar su botón sin refrescar opciones ni emitir eventos reactivos.
@@ -50,4 +72,8 @@
   $(document).off(".racafeForms");
   $(document).on("loaded.bs.select.racafeForms refreshed.bs.select.racafeForms", ".rf-select select", configure_select);
   $(document).on("show.racafeForms", ".rf-date-range input", style_calendar);
+  $(document).on("shiny:bound.racafeForms", ".rf-date .sw-air-picker", configure_air_calendar);
+  $(function () {
+    $(".rf-date .sw-air-picker.shiny-bound-input").each(function () { configure_air_calendar({ target: this }); });
+  });
 }(window.jQuery));

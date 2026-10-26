@@ -36,5 +36,5 @@ Selector de rango de fechas (dos valores Date)
 }
 \details{
 El separador visual es un guion. El calendario conserva el idioma español
-y solo recibe estilos corporativos cuando pertenece a este control.
+y solo recibe estilos corporativos cuando pertenece a este control. La semana comienza en lunes.
 }

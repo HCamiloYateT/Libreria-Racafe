@@ -129,6 +129,8 @@ racafeInputNumeric <- function(id, label, value = 0, format = "number", decimals
 }
 
 #' Selector de dia, mes o anio
+#' @details El calendario comparte el estilo corporativo con el rango, comienza en lunes
+#'   y muestra seis semanas en la vista diaria. Conserva Air Datepicker y su binding Shiny.
 #' @param id ID local.
 #' @param label Etiqueta.
 #' @param value Fecha inicial.
@@ -151,11 +153,14 @@ racafeInputDate <- function(id, label = NULL, value = Sys.Date(),
   if (!is.null(max) && value > max) value <- max
   views <- c(day = "days", month = "months", year = "years")
   formats <- c(day = "dd/MM/yyyy", month = "MM/yyyy", year = "yyyy")
-  shinyWidgets::airDatepickerInput(
+  tag <- shinyWidgets::airDatepickerInput(
     inputId = .rf_id(id, ns), label = label, value = value,
     view = views[[view]], minView = views[[view]], dateFormat = formats[[view]],
-    startView = value, minDate = min, maxDate = max, language = "es", width = width, addon = "none"
+    startView = value, minDate = min, maxDate = max, language = "es", width = width,
+    addon = "none", firstDay = 1
   )
+  tag <- shiny::tagAppendAttributes(tag, class = "rf-date")
+  htmltools::attachDependencies(tag, racafeFormsDependencies(), append = TRUE)
 }
 
 #' Selector de rango de fechas (dos valores Date)
@@ -163,13 +168,13 @@ racafeInputDate <- function(id, label = NULL, value = Sys.Date(),
 #' @param start,end Fechas seleccionadas; NULL sin valor inicial.
 #' @return Control Shiny cuyo valor en `input$id` es un vector `Date` de longitud dos.
 #' @details El separador visual es un guion. El calendario conserva el idioma español
-#'   y solo recibe estilos corporativos cuando pertenece a este control.
+#'   y solo recibe estilos corporativos cuando pertenece a este control. La semana comienza en lunes.
 #' @export
 racafeInputDateRange <- function(id, label = NULL, start = NULL, end = NULL,
                                  min = NULL, max = NULL, ns = NULL, width = "100%") {
   tag <- shiny::dateRangeInput(.rf_id(id, ns), label, start = start, end = end,
                         min = min, max = max, language = "es", format = "dd/mm/yyyy",
-                        separator = "-", width = width)
+                        separator = "-", weekstart = 1, width = width)
   tag <- shiny::tagAppendAttributes(tag, class = "rf-date-range")
   htmltools::attachDependencies(tag, racafeFormsDependencies(), append = TRUE)
 }
