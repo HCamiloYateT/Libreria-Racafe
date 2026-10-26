@@ -28,6 +28,9 @@ racafeInputDateRange(
 
 \item{width}{Ancho CSS.}
 }
+\value{
+Componente de entrada Shiny para incluir en la UI; su valor está disponible en \code{input$id}.
+}
 \description{
 Selector de rango de fechas (dos valores Date)
 }

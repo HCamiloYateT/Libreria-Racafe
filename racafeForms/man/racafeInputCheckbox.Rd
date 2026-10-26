@@ -15,6 +15,9 @@ racafeInputCheckbox(id, label, value = FALSE, ns = NULL)
 
 \item{ns}{Namespace.}
 }
+\value{
+Componente de entrada Shiny para incluir en la UI; su valor está disponible en \code{input$id}.
+}
 \description{
 Casilla corporativa
 }

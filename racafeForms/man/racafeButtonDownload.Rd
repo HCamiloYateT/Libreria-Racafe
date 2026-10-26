@@ -26,6 +26,9 @@ racafeButtonDownload(
 
 \item{ns}{Namespace.}
 }
+\value{
+Etiqueta HTML de descarga asociada a un \code{shiny::downloadHandler}.
+}
 \description{
 Boton para downloadHandler (no actionButton)
 }

@@ -119,6 +119,7 @@ RecodificarTop <- function(
 #' Wrapper de `RecodificarTop()` con estrategia `"absoluto"`.
 #'
 #' @inheritParams RecodificarTop
+#' @return `data.frame` con la columna recodificada indicada por `nom_var`.
 #' @export
 TopAbsoluto <- function(
     data,
@@ -147,6 +148,7 @@ TopAbsoluto <- function(
 #' Wrapper de `RecodificarTop()` con estrategia `"relativo"`.
 #'
 #' @inheritParams RecodificarTop
+#' @return `data.frame` con la columna recodificada indicada por `nom_var`.
 #' @export
 TopRelativo <- function(
     data,
@@ -316,6 +318,7 @@ RevisarDuplicados <- function(x, y, by) {
 #'
 #' Retorna `a` si no es `NULL` ni vector de longitud 0; de lo contrario `b`.
 #'
+#' @name null_coalescing
 #' @param a Valor principal.
 #' @param b Valor por defecto.
 #' @return `a` o `b`.

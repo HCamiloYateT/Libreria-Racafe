@@ -43,6 +43,9 @@ racafeButtonDelete(id, label = "Eliminar", ns = NULL, ...)
 
 \item{...}{Argumentos adicionales para racafeButton.}
 }
+\value{
+Etiqueta HTML de botón Shiny; las variantes conservan el ID para \code{input$id}.
+}
 \description{
 Boton corporativo
 }

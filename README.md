@@ -123,3 +123,35 @@ está en [`docs/dependency-policy.md`](./docs/dependency-policy.md).
 - Vea [`VERSIONING.md`](./VERSIONING.md) para la política de versiones.
 - Tras instalar un paquete, use `help(package = "racafeCore")` y
   `?nombre_de_funcion` para consultar su API.
+
+## Ayuda de las funciones en RStudio
+
+La instalación de cada paquete incluye sus páginas de ayuda; no necesita ejecutar
+roxygen2 ni instalar herramientas de desarrollo para consultarlas. En RStudio se
+muestran en el panel **Help**. Por ejemplo:
+
+```r
+help(package = "racafeCore")
+help("LimpiarNombres", package = "racafeCore")
+?racafeCore::LimpiarNombres
+help("%||%", package = "racafeCore")
+help(package = "racafeForms")
+?racafeForms::racafeInputNumeric
+```
+
+Puede colocar el cursor sobre una función y pulsar **F1**. Si tiene una versión
+anterior instalada, reinstale el paquete desde el clon actualizado (o desde GitHub
+cuando los cambios estén integrados) y reinicie la sesión R para cargar la versión nueva:
+
+```r
+remotes::install_local("racafeCore", dependencies = NA, upgrade = "never", force = TRUE)
+```
+
+Sustituya `racafeCore` por el paquete que quiera actualizar. Para mantener la ayuda
+al modificar funciones, edite sus comentarios roxygen y regenere los archivos
+`man/*.Rd` con `devtools::document("racafeCore")` desde la raíz. Incluya esos archivos
+en Git. Compruebe los siete paquetes con:
+
+```bash
+Rscript scripts/check_documentation.R
+```

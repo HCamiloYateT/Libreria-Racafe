@@ -44,6 +44,9 @@ racafeInputSelect(
 
 \item{ns}{Namespace del modulo.}
 }
+\value{
+Componente de entrada Shiny para incluir en la UI; su valor está disponible en \code{input$id}.
+}
 \description{
 ListaDesplegable corporativa basada en pickerInput
 }

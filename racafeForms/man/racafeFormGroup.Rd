@@ -13,6 +13,9 @@ racafeFormGroup(..., title = NULL, divider = TRUE)
 
 \item{divider}{Separador inferior.}
 }
+\value{
+Etiqueta HTML \code{section} con los campos y el título opcional.
+}
 \description{
 Grupo con divisoria opcional
 }

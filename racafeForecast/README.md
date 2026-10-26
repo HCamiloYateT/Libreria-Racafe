@@ -132,3 +132,16 @@ plotly::plot_ly(ventas_pron, x = ~fecha) |>
 Las funciones `ejecutar_pronosticos()` y `extraer_intervalos()` exponen piezas de
 nivel inferior para flujos personalizados; `Pronosticar()` es la entrada
 recomendada para el flujo habitual.
+
+## Ayuda en RStudio
+
+```r
+help(package = "racafeForecast")
+help("racafeForecast-package", package = "racafeForecast")
+```
+
+El índice permite abrir la ayuda de cada función, con su sintaxis, argumentos y
+valor de retorno. También puede usar `?racafeForecast::nombre_de_funcion`, sustituyendo
+`nombre_de_funcion` por el nombre real, o pulsar **F1** sobre una función en RStudio.
+Si actualiza desde una versión sin ayuda, reinstale el paquete y reinicie R.
+Consulte la [guía general de ayuda](../README.md#ayuda-de-las-funciones-en-rstudio).

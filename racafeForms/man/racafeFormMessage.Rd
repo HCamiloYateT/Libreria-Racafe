@@ -14,6 +14,9 @@ racafeFormMessage(
 
 \item{type}{info, success, warning, error, muted.}
 }
+\value{
+Etiqueta HTML \code{p} con el mensaje y la clase de estilo elegida.
+}
 \description{
 Aviso de formulario no modal
 }

@@ -20,6 +20,9 @@ racafeAlert(
 
 \item{type}{success, error, warning, info, question.}
 }
+\value{
+El resultado de enviar la alerta a la sesión; se usa por su efecto secundario.
+}
 \description{
 Mostrar alerta SweetAlert corporativa
 }

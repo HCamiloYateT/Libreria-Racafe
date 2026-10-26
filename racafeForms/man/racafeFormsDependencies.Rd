@@ -6,6 +6,9 @@
 \usage{
 racafeFormsDependencies()
 }
+\value{
+Objeto \code{htmltools::htmlDependency} que adjunta la hoja de estilos del paquete.
+}
 \description{
 Dependencia CSS de racafeForms
 }

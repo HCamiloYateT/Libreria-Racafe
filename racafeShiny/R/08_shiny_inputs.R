@@ -245,6 +245,9 @@ pick_opt <- function(cho, fem = TRUE) {
 # ---- Utils internos de botones ----
 
 #' Valida que un valor sea un color reconocido por R
+#' @param color Cadena de color reconocida por R.
+#' @param nombre Nombre del argumento para el mensaje de error.
+#' @return El color original, invisiblemente; genera error si no es válido.
 #' @keywords internal
 .btn_validar_color <- function(color, nombre) {
   if (!is.character(color) || length(color) != 1 || !nzchar(color)) {
@@ -259,7 +262,12 @@ pick_opt <- function(cho, fem = TRUE) {
   invisible(color)
 }
 
-#' Oscurece un color R en un factor dado (0–1). Devuelve string CSS rgb().
+#' Oscurecer un color R
+#'
+#' Aplica un factor entre 0 y 1 y devuelve una cadena CSS rgb().
+#' @param color Cadena de color reconocida por R.
+#' @param factor Proporción de oscurecimiento entre 0 y 1.
+#' @return Cadena CSS con el color resultante en formato rgb().
 #' @keywords internal
 .btn_oscurecer <- function(color, factor = 0.18) {
   v <- grDevices::col2rgb(color)
@@ -268,13 +276,19 @@ pick_opt <- function(cho, fem = TRUE) {
 }
 
 #' Convierte un color R a su representación CSS rgb() normalizada
+#' @param color Cadena de color reconocida por R.
+#' @return Cadena CSS en formato rgb().
 #' @keywords internal
 .btn_a_css <- function(color) {
   v <- grDevices::col2rgb(color)
   sprintf("rgb(%d,%d,%d)", v[1L], v[2L], v[3L])
 }
 
-#' Construye el bloque de CSS custom properties para color_fondo/fuente/hover.
+#' Construir las propiedades CSS de los colores de un botón
+#' @param color_fondo Color de fondo reconocido por R.
+#' @param color_fuente Color de fuente reconocido por R.
+#' @param color_hover Color al pasar el cursor; NULL para oscurecer el fondo.
+#' @return Cadena con las propiedades CSS del botón.
 #' @keywords internal
 .btn_css_vars <- function(color_fondo, color_fuente, color_hover) {
   .btn_validar_color(color_fondo, "color_fondo")
@@ -293,8 +307,12 @@ pick_opt <- function(cho, fem = TRUE) {
   )
 }
 
-#' Elige blanco o negro según la luminancia relativa del fondo (criterio WCAG).
+#' Elegir el color de fuente según el contraste WCAG
+#'
+#' Elige blanco o negro según la luminancia relativa del fondo.
 #' Devuelve string CSS rgb() del color de fuente con mayor contraste.
+#' @param color Color de fondo reconocido por R.
+#' @return Cadena CSS: negro o blanco según el contraste con el fondo.
 #' @keywords internal
 .btn_fuente_auto <- function(color) {
   v <- grDevices::col2rgb(color) / 255

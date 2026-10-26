@@ -133,3 +133,16 @@ valor_doble
 La función devuelve invisiblemente `ok`, `fallidos` y `errores`. Para conocer
 todos los argumentos y valores de retorno, use `?load_modules` o
 `help(package = "racafeCore")`.
+
+## Ayuda en RStudio
+
+```r
+help(package = "racafeCore")
+help("racafeCore-package", package = "racafeCore")
+```
+
+El índice permite abrir la ayuda de cada función, con su sintaxis, argumentos y
+valor de retorno. También puede usar `?racafeCore::nombre_de_funcion`, sustituyendo
+`nombre_de_funcion` por el nombre real, o pulsar **F1** sobre una función en RStudio.
+Si actualiza desde una versión sin ayuda, reinstale el paquete y reinicie R.
+Consulte la [guía general de ayuda](../README.md#ayuda-de-las-funciones-en-rstudio).
