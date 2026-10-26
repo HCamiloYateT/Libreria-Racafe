@@ -3,10 +3,17 @@
 #' @param id ID local (NO pasar ns(id)).
 #' @param ... Parametros del update nativo.
 #' @param value Nuevo valor del control.
+#' @details Al cambiar `choices` sin indicar `selected`, conserva los valores válidos
+#'   de la sesión, incluida una selección vacía. `selected` explícito tiene prioridad.
 #' @return El resultado del actualizador nativo; se usa por su efecto secundario en la sesión.
 #' @export
 racafeUpdateSelect <- function(session, id, ...) {
-  shinyWidgets::updatePickerInput(session, inputId = id, ...)
+  args <- list(...)
+  if (!is.null(args$choices) && !"selected" %in% names(args)) {
+    actuales <- session$input[[id]]
+    args$selected <- intersect(as.character(actuales), as.character(.rf_choice_values(args$choices)))
+  }
+  do.call(shinyWidgets::updatePickerInput, c(list(session = session, inputId = id), args))
 }
 #' Actualizar numerico corporativo
 #' @rdname racafeUpdateSelect

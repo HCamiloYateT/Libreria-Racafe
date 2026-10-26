@@ -32,20 +32,40 @@
   height:auto!important;min-height:0!important;padding:0!important;
   border:0!important;background:transparent!important;box-shadow:none!important;}
 /* Misma caja visual para pickerInput y autonumericInput. */
-.rf-form .bootstrap-select > .dropdown-toggle {
-  display:flex!important;align-items:center!important;
+.rf-select .bootstrap-select > .dropdown-toggle {
+  display:flex!important;align-items:center!important;position:relative;
   height:var(--rf-control-height)!important;
   min-height:var(--rf-control-height)!important;
   line-height:1.25!important;
 }
-.rf-form .bootstrap-select .filter-option {font-size:var(--rf-font)!important;align-self:center;}
+.rf-select .bootstrap-select .filter-option {display:flex!important;align-items:center!important;
+ position:static!important;float:none!important;min-width:0;width:100%;height:100%;
+ padding:0!important;padding-right:18px!important;font-size:var(--rf-font)!important;}
+.rf-select .filter-option-inner {min-width:0;width:100%;padding:0!important;}
+.rf-select .filter-option-inner-inner {overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.4;}
+.rf-select .dropdown-toggle::after,.rf-select .dropdown-toggle .bs-caret {
+ position:absolute;right:12px;top:50%;transform:translateY(-50%);margin:0;}
+.rf-select .dropdown-toggle:disabled,.rf-select .disabled > .dropdown-toggle {
+ background:#f2f3f5!important;color:#7a8492!important;cursor:not-allowed;}
+.rf-select .dropdown-menu {font-size:var(--rf-font);border:1px solid var(--rf-gray-300);
+ background:#fff;box-shadow:0 4px 12px rgba(15,23,42,.1);min-width:100%!important;
+ border-radius:9px;max-width:100%;}
+.rf-select .dropdown-menu .dropdown-item,.rf-select .dropdown-menu li a {
+ font-size:var(--rf-font);padding:6px 12px;white-space:normal;overflow-wrap:anywhere;background-image:none;}
+.rf-select .dropdown-menu .dropdown-item:hover,.rf-select .dropdown-menu li a:hover {background:#f7f8fa;color:#263238;}
+.rf-select .dropdown-menu .selected > a,.rf-select .dropdown-menu .dropdown-item.active {
+ background:#fce9e7;color:var(--rf-red);}
+.rf-select .bs-actionsbox .btn {font-size:var(--rf-font);padding:4px 8px;background:#fff;
+ color:var(--rf-red);border:1px solid var(--rf-gray-300);box-shadow:none;background-image:none;}
+.rf-select .bs-actionsbox .btn:hover {background:#fce9e7;}
+.rf-select .bs-searchbox input {height:var(--rf-control-height)!important;
+ min-height:var(--rf-control-height)!important;font-size:var(--rf-font)!important;}
 .rf-form input[id][type="text"].form-control {box-sizing:border-box!important;}
 .rf-form .input-group:has(input.form-control) {width:100%;}
 .rf-form .input-group:has(input.form-control) input.form-control {
   height:var(--rf-control-height)!important;
   min-height:var(--rf-control-height)!important;
 }
-.rf-form .dropdown-menu {border-radius:9px;max-width:100%;}
 .rf-form .material-switch,.rf-form .checkbox,.rf-form .radio {font-size:var(--rf-font);}
 /* Switch compacto: pista de 28 px y botón de 16 px, con recorrido proporcional. */
 .rf-form .material-switch > label.switch {width:28px;}
@@ -111,3 +131,39 @@
 .swal2-actions .swal2-cancel {background:#6C757D!important;border:1px solid #6C757D!important;}
 @media(max-width:700px){.rf-form .rf-row {grid-template-columns:minmax(0,1fr);}
  .rf-footer {flex-direction:column;align-items:stretch;}.rf-footer-actions {justify-content:flex-end;}}
+
+/* El rango conserva sus dos inputs y el binding Date original de Shiny. */
+.rf-date-range .input-daterange {display:flex;align-items:center;width:100%;gap:6px;}
+.rf-date-range .input-daterange > input.form-control {flex:1 1 0;width:0!important;min-width:0;
+ height:var(--rf-control-height)!important;min-height:var(--rf-control-height)!important;
+ border:1px solid var(--rf-gray-300)!important;border-radius:var(--rf-input-radius)!important;
+ background:#fff!important;box-shadow:none;font-size:var(--rf-font)!important;padding:6px 8px!important;
+ text-align:center;margin:0!important;}
+.rf-date-range .input-daterange > .input-group-addon,.rf-date-range .input-daterange .input-group-text {
+ flex:0 0 auto;align-self:center;background:transparent!important;border:0!important;border-radius:0;
+ padding:0 2px!important;margin:0!important;color:var(--rf-gray-700);font-size:var(--rf-font);line-height:1;}
+/* Clase aplicada únicamente al calendario asociado a un rango racafeForms. */
+.rf-calendar.datepicker-dropdown {z-index:2100!important;background:#fff;border:1px solid var(--rf-gray-300);
+ border-radius:9px;padding:8px;box-shadow:0 4px 14px rgba(15,23,42,.12);color:var(--rf-gray-700);
+ font-family:inherit;font-size:var(--rf-font);}
+.rf-calendar table {border-collapse:separate;border-spacing:2px;width:100%;}
+.rf-calendar table tr td,.rf-calendar table tr th {width:calc(var(--rf-font) * 2.5);
+ height:calc(var(--rf-font) * 2.5);min-width:calc(var(--rf-font) * 2.5);
+ padding:3px;text-align:center;vertical-align:middle;border:0;border-radius:5px;font-size:var(--rf-font);}
+.rf-calendar .datepicker-switch,.rf-calendar .prev,.rf-calendar .next {font-weight:600;cursor:pointer;}
+.rf-calendar table tr td.day:hover,.rf-calendar .datepicker-switch:hover,
+.rf-calendar .prev:hover,.rf-calendar .next:hover {background:#f7f8fa;}
+.rf-calendar table tr td.range {background:#fce9e7;color:var(--rf-gray-700);}
+.rf-calendar table tr td.today {background:#fff;color:var(--rf-red);box-shadow:inset 0 0 0 1px var(--rf-red);}
+.rf-calendar table tr td.active,.rf-calendar table tr td.selected,
+.rf-calendar table tr td span.active {background:var(--rf-red)!important;background-image:none!important;
+ color:#fff!important;text-shadow:none!important;box-shadow:none;}
+.rf-calendar table tr td.disabled,.rf-calendar table tr td.disabled:hover,
+.rf-calendar table tr td span.disabled,.rf-calendar table tr td span.disabled:hover {
+ background:transparent!important;color:#a3aab4!important;cursor:not-allowed;box-shadow:none;}
+.rf-calendar table tr td.old,.rf-calendar table tr td.new {color:#94a3b8;}
+.rf-calendar table tr td span {height:calc(var(--rf-font) * 3);line-height:calc(var(--rf-font) * 3);border-radius:5px;}
+.rf-calendar table tr td span:hover {background:#f7f8fa;}
+
+.rf-form .input-group .dp-addon {height:var(--rf-control-height);min-height:var(--rf-control-height);
+ display:flex;align-items:center;justify-content:center;padding:0 10px;border:1px solid var(--rf-gray-300);}

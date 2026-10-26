@@ -116,3 +116,42 @@ valor de retorno. También puede usar `?racafeForms::nombre_de_funcion`, sustitu
 `nombre_de_funcion` por el nombre real, o pulsar **F1** sobre una función en RStudio.
 Si actualiza desde una versión sin ayuda, reinstale el paquete y reinicie R.
 Consulte la [guía general de ayuda](../README.md#ayuda-de-las-funciones-en-rstudio).
+
+## Selectores múltiples y rangos de fechas
+
+`racafeInputSelect()` acepta `gender = "m"` (predeterminado) o `gender = "f"`.
+Una selección muestra su etiqueta, varias muestran el conteo, todas muestran
+`Todos`/`Todas` y ninguna muestra `Ninguno`/`Ninguna`. La búsqueda no altera el
+conteo total y los valores que recibe Shiny permanecen intactos.
+
+```r
+racafeForms::racafeInputSelect("asesor", "Asesor", c(Ana = "a", Luis = "b", Marta = "c"), multiple = TRUE)
+racafeForms::racafeInputSelect("categoria", "Categoría", c(Uno = "1", Dos = "2"), multiple = TRUE, gender = "f")
+```
+
+En un módulo, pase `ns = ns` al construir los controles y use el ID local en
+`racafeUpdateSelect(session, "categoria", choices = nuevas_opciones)`. Al omitir
+`selected`, se conservan las selecciones válidas de la sesión. Para vaciar una
+selección múltiple, pase `selected = character(0)`; para seleccionar todas,
+pase explícitamente sus valores. También se admite `shinyWidgets::updatePickerInput()`.
+
+`racafeInputDateRange()` mantiene el mismo binding y devuelve un vector `Date`
+de longitud dos. El separador visual pasa a `-`; el calendario conserva el idioma
+español, los límites `min`/`max` y el formato `dd/mm/yyyy`. Sus estilos se aplican
+solo al calendario asociado al control. `racafeUpdateDateRange()` conserva la
+compatibilidad con `shiny::updateDateRangeInput()`.
+
+Las dependencias visuales se adjuntan automáticamente a selectores y rangos,
+incluso fuera de `racafeForm()`. Dentro del formulario se respetan las densidades
+`compact`, `normal` y `comfortable`. Para CRM Nacional basta usar `gender = "f"`
+en `FT_LinNeg` y `FT_Categoria`; no hace falta cambiar el ETL ni los valores filtrados.
+
+### Cambios respecto a 0.1.3
+
+- Las selecciones múltiples muestran un resumen en lugar de concatenar etiquetas.
+- `gender` se agrega al final de la firma, conservando los argumentos posicionales anteriores.
+- `empty_label` explícito sigue teniendo prioridad sobre la etiqueta predeterminada.
+- Actualizar `choices` con `racafeUpdateSelect()` sin `selected` conserva la selección
+  válida actual; las aplicaciones que quieran restablecerla deben indicar `selected`.
+- Si una aplicación reemplaza el CSS del paquete, revise sus reglas de
+  `.filter-option` y `.input-daterange` para evitar estilos contradictorios.

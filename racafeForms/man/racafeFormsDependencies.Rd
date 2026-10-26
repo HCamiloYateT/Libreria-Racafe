@@ -2,13 +2,13 @@
 % Please edit documentation in R/01_layout.R
 \name{racafeFormsDependencies}
 \alias{racafeFormsDependencies}
-\title{Dependencia CSS de racafeForms}
+\title{Dependencias visuales de racafeForms}
 \usage{
 racafeFormsDependencies()
 }
 \value{
-Objeto \code{htmltools::htmlDependency} que adjunta la hoja de estilos del paquete.
+Objeto \code{htmltools::htmlDependency} con los estilos y comportamientos del paquete.
 }
 \description{
-Dependencia CSS de racafeForms
+Dependencias visuales de racafeForms
 }
