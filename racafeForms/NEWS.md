@@ -1,3 +1,10 @@
+# racafeForms 0.2.1
+
+- Unifica la apariencia de los calendarios de fecha y rango: colores, fuente, bordes, sombra, dimensiones y navegación.
+- Ambas vistas diarias comienzan en lunes y muestran seis semanas completas.
+- Conserva Air Datepicker para fecha, Bootstrap Datepicker para rango y sus actualizadores nativos.
+- Limita los estilos a instancias racafeForms y respeta las tres densidades del formulario.
+
 # racafeForms 0.2.0
 
 - Centra el contenido de los selectores y trunca etiquetas extensas sin cambiar la altura del control.

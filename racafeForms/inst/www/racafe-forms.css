@@ -142,13 +142,17 @@
 .rf-date-range .input-daterange > .input-group-addon,.rf-date-range .input-daterange .input-group-text {
  flex:0 0 auto;align-self:center;background:transparent!important;border:0!important;border-radius:0;
  padding:0 2px!important;margin:0!important;color:var(--rf-gray-700);font-size:var(--rf-font);line-height:1;}
-/* Clase aplicada únicamente al calendario asociado a un rango racafeForms. */
-.rf-calendar.datepicker-dropdown {z-index:2100!important;background:#fff;border:1px solid var(--rf-gray-300);
- border-radius:9px;padding:8px;box-shadow:0 4px 14px rgba(15,23,42,.12);color:var(--rf-gray-700);
+/* Estilo compartido por calendarios de fecha y rango asociados a racafeForms. */
+.rf-calendar {--rf-calendar-cell:calc(var(--rf-font) * 2.5);}
+.rf-calendar.datepicker-dropdown,.rf-calendar.air-datepicker {width:calc(var(--rf-calendar-cell) * 7 + 34px);
+ box-sizing:border-box;z-index:2100!important;background:#fff;border:1px solid var(--rf-gray-300);
+ border-radius:9px;box-shadow:0 4px 14px rgba(15,23,42,.12);color:var(--rf-gray-700);
  font-family:inherit;font-size:var(--rf-font);}
-.rf-calendar table {border-collapse:separate;border-spacing:2px;width:100%;}
-.rf-calendar table tr td,.rf-calendar table tr th {width:calc(var(--rf-font) * 2.5);
- height:calc(var(--rf-font) * 2.5);min-width:calc(var(--rf-font) * 2.5);
+/* El rango conserva su tabla Bootstrap; Air Datepicker conserva su cuadrícula nativa. */
+.rf-calendar.datepicker-dropdown {padding:8px;}
+.rf-calendar table {table-layout:fixed;border-collapse:separate;border-spacing:2px;width:100%;}
+.rf-calendar.datepicker table tr td,.rf-calendar.datepicker table tr th {width:var(--rf-calendar-cell);
+ height:var(--rf-calendar-cell);min-width:var(--rf-calendar-cell);
  padding:3px;text-align:center;vertical-align:middle;border:0;border-radius:5px;font-size:var(--rf-font);}
 .rf-calendar .datepicker-switch,.rf-calendar .prev,.rf-calendar .next {font-weight:600;cursor:pointer;}
 .rf-calendar table tr td.day:hover,.rf-calendar .datepicker-switch:hover,
@@ -167,3 +171,44 @@
 
 .rf-form .input-group .dp-addon {height:var(--rf-control-height);min-height:var(--rf-control-height);
  display:flex;align-items:center;justify-content:center;padding:0 10px;border:1px solid var(--rf-gray-300);}
+
+/* Variables nativas de Air Datepicker: colores y dimensiones compartidos, sin afectar controles externos. */
+.rf-calendar.air-datepicker {--adp-font-family:inherit;--adp-font-size:var(--rf-font);
+ --adp-background-color:#fff;--adp-border-color:var(--rf-gray-300);--adp-border-radius:9px;
+ --adp-color:var(--rf-gray-700);--adp-color-secondary:var(--rf-gray-700);--adp-accent-color:var(--rf-red);
+ --adp-color-current-date:var(--rf-red);--adp-cell-background-color-selected:var(--rf-red);
+ --adp-cell-background-color-selected-hover:var(--rf-red);--adp-cell-background-color-in-range:#fce9e7;
+ --adp-cell-background-color-hover:#f7f8fa;--adp-color-disabled:#a3aab4;
+ --adp-day-name-color:var(--rf-gray-700);--adp-day-cell-height:var(--rf-calendar-cell);
+ --adp-nav-height:var(--rf-calendar-cell);--adp-cell-border-radius:5px;
+ padding:10px;}
+.rf-calendar.air-datepicker .air-datepicker-nav {padding:0;border-bottom:0;margin-bottom:2px;}
+.rf-calendar.air-datepicker .air-datepicker-nav--title {font-weight:600;padding:0 4px;color:var(--rf-gray-700);}
+.rf-calendar.air-datepicker .air-datepicker-nav--action {width:var(--rf-calendar-cell);}
+.rf-calendar.air-datepicker .air-datepicker-nav--action svg {width:14px;height:14px;}
+.rf-calendar.air-datepicker .air-datepicker-nav--action path {stroke:var(--rf-gray-700);stroke-width:2px;}
+.rf-calendar.air-datepicker .air-datepicker--content {padding:0;}
+.rf-calendar.air-datepicker .air-datepicker-body--day-names {margin:0 0 2px;gap:2px;}
+.rf-calendar.air-datepicker .air-datepicker-body--day-name {height:var(--rf-calendar-cell);
+ font-size:var(--rf-font);font-weight:600;}
+.rf-calendar.air-datepicker .air-datepicker-body--cells {gap:2px;}
+.rf-calendar.air-datepicker .air-datepicker-cell {font-size:var(--rf-font);border-radius:5px;}
+.rf-calendar.air-datepicker .air-datepicker-cell.-current- {box-shadow:inset 0 0 0 1px var(--rf-red);}
+.rf-calendar.air-datepicker .air-datepicker-cell.-selected- {color:#fff;box-shadow:none;}
+.rf-calendar.air-datepicker .air-datepicker-cell.-disabled- {color:#a3aab4;box-shadow:none;}
+.rf-calendar.air-datepicker .air-datepicker-cell.-other-month-:not(.-selected-):not(.-disabled-) {color:#94a3b8;}
+
+/* Las dos navegaciones usan el mismo símbolo sin cambiar sus botones nativos. */
+.rf-calendar.datepicker .prev,.rf-calendar.datepicker .next {font-size:0;}
+.rf-calendar .prev::after,.rf-calendar .next::after,
+.rf-calendar .air-datepicker-nav--action::after {font-size:16px;line-height:1;font-weight:600;}
+.rf-calendar .prev::after,.rf-calendar .air-datepicker-nav--action[data-action="prev"]::after {content:"‹";}
+.rf-calendar .next::after,.rf-calendar .air-datepicker-nav--action[data-action="next"]::after {content:"›";}
+.rf-calendar .air-datepicker-nav--action svg {display:none;}
+.rf-calendar.air-datepicker .air-datepicker-body--cells.-months-,
+.rf-calendar.air-datepicker .air-datepicker-body--cells.-years- {grid-template-columns:repeat(4,minmax(0,1fr));
+ grid-auto-rows:calc(var(--rf-font) * 3);}
+/* Las filas auxiliares ocultas de Bootstrap no deben añadir espacio a la cuadrícula. */
+.rf-calendar table tr:has(> th.datepicker-title[style*="display: none"]),
+.rf-calendar table tfoot tr:has(> th[style*="display: none"]) {display:none;}
+.rf-calendar.datepicker table tr th.datepicker-switch {width:auto;white-space:nowrap;}

@@ -36,3 +36,7 @@ Componente de entrada Shiny para incluir en la UI; su valor está disponible en 
 \description{
 Selector de dia, mes o anio
 }
+\details{
+El calendario comparte el estilo corporativo con el rango, comienza en lunes
+y muestra seis semanas en la vista diaria. Conserva Air Datepicker y su binding Shiny.
+}

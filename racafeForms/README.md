@@ -155,3 +155,16 @@ en `FT_LinNeg` y `FT_Categoria`; no hace falta cambiar el ETL ni los valores fil
   válida actual; las aplicaciones que quieran restablecerla deben indicar `selected`.
 - Si una aplicación reemplaza el CSS del paquete, revise sus reglas de
   `.filter-option` y `.input-daterange` para evitar estilos contradictorios.
+
+## Calendarios con apariencia unificada
+
+Los calendarios de `racafeInputDate()` y `racafeInputDateRange()` comparten colores,
+fuente, borde, sombra, navegación y dimensiones. La vista diaria empieza en lunes
+con seis semanas completas. Las medidas se adaptan a `compact`, `normal` y
+`comfortable`, y los calendarios conservan el español y las restricciones de fechas.
+
+Se mantienen sus componentes internos: Air Datepicker en fecha y Bootstrap
+Datepicker en rango. Esto conserva `racafeUpdateDate()`, `racafeUpdateDateRange()`,
+los IDs y los valores que recibe Shiny. La estructura HTML interna es diferente;
+la distribución y el estilo visibles son equivalentes. Los controles externos al
+paquete no reciben estos estilos. El campo de fecha sigue sin botón adicional.

@@ -73,3 +73,18 @@ test_that("los recursos se adjuntan incluso sin un contenedor racafeForm", {
     expect_identical(dep[[1]]$script, "racafe-forms.js")
   }
 })
+
+test_that("fecha y rango comparten el inicio de semana y recursos propios", {
+  fecha <- racafeInputDate("fecha", value = "2026-10-15", min = "2026-01-01", max = "2026-12-31",
+                           ns = shiny::NS("filtro"))
+  html <- as.character(fecha)
+  for (text in c('id="filtro-fecha"', 'rf-date', '"firstDay":1', '"minDate":"2026-01-01"',
+                 '"maxDate":"2026-12-31"', '"dateFormat":"dd/MM/yyyy"', '"language":"ES"')) {
+    expect_match(html, text, fixed = TRUE)
+  }
+  expect_false(grepl('dp-addon', html, fixed = TRUE))
+  deps <- htmltools::htmlDependencies(fecha)
+  expect_true(any(vapply(deps, function(x) is.list(x) && identical(x$name, "racafeForms"), logical(1))))
+  rango <- as.character(racafeInputDateRange("rango"))
+  expect_match(rango, 'data-date-week-start="1"', fixed = TRUE)
+})
