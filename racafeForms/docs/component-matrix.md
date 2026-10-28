@@ -1,3 +1,26 @@
+# Revisión visual 0.4.0
+
+Se revisaron los 20 componentes solicitados sobre racafeForms 0.3.0, antes de ampliar la API.
+También se consultó racafeModulos, commit 00fb6e51b8c529a11be19a11f20c54ada63db3b0,
+en particular TablaReactable2UI/TablaReactable2 y sus renderizadores de celdas. Solo lectura;
+no se copió su código ni se añadió dependencia de racafeForms a ese repositorio.
+
+| Componentes revisados | Decisión en 0.4.0 |
+|---|---|
+| racafePanel, racafeCard | Añadir header opcional; Card añade padding. CSS alinea por contenido sin estirar alturas. |
+| racafeMetric, racafeMetricGrid | Reutilizar label/value/detail/icon y cuadrículas 1–4; añadir padding al indicador. |
+| racafeInfoGrid, racafeInfoItem | Reutilizar sin duplicar; las cuadrículas reciben la alineación por contenido. |
+| racafeForm, racafeFormRow | Conservar contenedores y densidades; mapear tokens de campos a Compartido. |
+| racafeFormFooter, racafeActionBar | Conservar grupos públicos; mejorar límites y wrap en CSS compartido. |
+| racafeModal, racafeModalFooter | Reutilizar las siete clases de tamaño; sin añadir anchos ni handlers. |
+| racafeButton, racafeButtonDownload | Conservar bindings; verificar icon=NULL y único icono en descarga real. |
+| racafeInputText, racafeInputSelect, racafeInputDateRange | Uniformar altura/radio/borde/fuente/padding con CSS acotado a rf-field. |
+| racafeCopyText, racafeCopyImage | Reutilizar mensajes/JS de Compartido, probados con portapapeles real. |
+| racafeSharedAssets | Conservar cargador y deduplicación; documentar Compartido 1.1.0 para ampliaciones. |
+| Sin badge semántico genérico | Única función pública nueva: racafeStatusBadge, sin estados de negocio. |
+
+El inventario histórico de 0.3.0 se conserva a continuación.
+
 # Inventario y decisiones previas a la implementación
 
 Revisión: racafeForms 0.2.1 y Compartido main. Se revisaron R, CSS, JavaScript, ayuda, ejemplos y pruebas.

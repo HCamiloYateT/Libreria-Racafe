@@ -32,14 +32,15 @@ Cargar una copia local versionada de los recursos corporativos
 }
 \details{
 Publica solo Styles, Scripts e img mediante addResourcePath, nunca la raíz,
-.git ni utils. Los recursos nuevos requieren Compartido >= 1.0.0. Fije también el
+.git ni utils. Los componentes originales requieren Compartido >= 1.0.0; los
+badges y densidades ampliadas de 0.4.0 requieren Compartido >= 1.1.0. Fije también el
 commit de la copia desplegada para una actualización controlada. No descarga recursos.
 Use una única versión por página. Las fuentes usan las familias CSS corporativas
 y sus alternativas locales; no se descargan fuentes externas.
 }
 \examples{
 \dontrun{
-assets <- racafeSharedAssets("vendor/Compartido", version = "1.0.0")
+assets <- racafeSharedAssets("vendor/Compartido", version = "1.1.0")
 shiny::fluidPage(assets, shiny::tags$img(src = paste0(attr(assets, "image_url"), "/logo.png")))
 }
 }

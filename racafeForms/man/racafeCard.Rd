@@ -12,7 +12,9 @@ racafeCard(
   variant = c("default", "muted", "highlighted"),
   clickable = FALSE,
   id = NULL,
-  ns = NULL
+  ns = NULL,
+  padding = c("normal", "compact", "comfortable"),
+  header = NULL
 )
 }
 \arguments{
@@ -31,6 +33,10 @@ racafeCard(
 \item{id}{ID local, obligatorio solo si clickable es TRUE.}
 
 \item{ns}{Función namespace del módulo.}
+
+\item{padding}{Espaciado: compact, normal o comfortable.}
+
+\item{header}{Contenido adicional del encabezado, después del título; NULL lo omite.}
 }
 \value{
 Etiqueta de tarjeta; con clickable, \code{input$id} recibe un contador de activaciones.
@@ -39,5 +45,7 @@ Etiqueta de tarjeta; con clickable, \code{input$id} recibe un contador de activa
 Tarjeta informativa con interacción explícitamente optativa
 }
 \details{
+La altura se adapta al contenido; no se estira para igualar tarjetas vecinas.
+\code{padding} controla la densidad sin CSS de aplicación. Requiere Compartido >= 1.1.0.
 En tarjetas interactivas no anide botones o enlaces; use footer externo para acciones adicionales.
 }

@@ -1,7 +1,8 @@
 # Recursos e interfaces ----
 # Configure RACAFE_SHARED_PATH o options(racafeForms.shared_path = "vendor/Compartido").
 # RACAFE_DEMO_BS4DASH=1 permite probar la misma interfaz con bs4Dash, si está instalado.
-assets <- racafeForms::racafeSharedAssets(version = "1.0.0")
+if (!requireNamespace("reactable", quietly = TRUE)) stop("Instale reactable para ejecutar esta demo.")
+assets <- racafeForms::racafeSharedAssets(version = "1.1.0")
 logo <- paste0(attr(assets, "image_url"), "/logo.png")
 
 .components_ui <- function(id) {
@@ -26,7 +27,8 @@ logo <- paste0(attr(assets, "image_url"), "/logo.png")
       racafeForms::racafeFormFooter(
         left = racafeForms::racafeButton("reset", "Restablecer", ns = ns),
         right = shiny::tagList(racafeForms::racafeButton("clear", "Limpiar", ns = ns),
-                              racafeForms::racafeButtonDownload("archivo", "Descargar", ns = ns)))),
+                              racafeForms::racafeButtonDownload("archivo", "Descargar", ns = ns),
+                              racafeForms::racafeButtonDownload("sin_icono", "Sin icono", icon = NULL, ns = ns)))),
     racafeForms::racafeActionBar(
       left = racafeForms::racafeCopyButton("copiar", "Copiar texto", text = "Texto de ejemplo", ns = ns),
       center = racafeForms::racafeButton("copiar_servidor", "Copiar desde R", ns = ns),
@@ -34,12 +36,33 @@ logo <- paste0(attr(assets, "image_url"), "/logo.png")
     racafeForms::racafeActionBar(
       left = racafeForms::racafeButton("imagen_servidor", "Copiar PNG desde R", ns = ns),
       right = racafeForms::racafeButton("dinamico", "Añadir campo dinámico", ns = ns)),
+    reactable::reactableOutput(ns("tabla")),
     shiny::uiOutput(ns("nuevo")), shiny::textOutput(ns("valores")), shiny::textOutput(ns("copia")),
     shiny::textOutput(ns("reset_result")))
 }
 
 .components_server <- function(id) {
   shiny::moduleServer(id, function(input, output, session) {
+    datos <- shiny::reactive({
+      tabla <- data.frame(codigo = c("a", "b", "c"), nombre = c("Primero", "Segundo", "Tercero"),
+                          estado = c("Disponible", "Pendiente", "Revisar"),
+                          variante = c("success", "warning", "danger"),
+                          fecha = as.Date(c("2026-10-02", "2026-10-08", "2026-10-14")))
+      if (length(input$catalogo)) tabla <- tabla[tabla$codigo %in% input$catalogo, , drop = FALSE]
+      if (length(input$rango) == 2L && !anyNA(input$rango)) {
+        tabla <- tabla[tabla$fecha >= input$rango[[1]] & tabla$fecha <= input$rango[[2]], , drop = FALSE]
+      }
+      tabla
+    })
+    output$tabla <- reactable::renderReactable({
+      tabla <- datos()
+      reactable::reactable(tabla, columns = list(codigo = reactable::colDef(show = FALSE),
+        variante = reactable::colDef(show = FALSE), estado = reactable::colDef(cell = function(value, index) {
+          racafeForms::racafeStatusBadge(value, variant = tabla$variante[[index]])
+        })), compact = TRUE, pagination = FALSE)
+    })
+    output$sin_icono <- shiny::downloadHandler(filename = function() "sin-icono.txt",
+      content = function(file) writeLines("Descarga sin icono", file))
     output$archivo <- shiny::downloadHandler(filename = function() "ejemplo.txt",
       content = function(file) writeLines("Descarga nativa", file))
     shiny::observeEvent(input$reset, racafeForms::racafeResetForm(session, "form"))
@@ -89,8 +112,27 @@ content <- shiny::tagList(
     racafeForms::racafeButton(paste0("size_", size), size, size = size)
   })),
   racafeForms::racafeMetricGrid(columns = 3, lapply(c("compact", "normal", "comfortable"), function(size) {
-    racafeForms::racafeForm(racafeForms::racafeInputText(paste0("density_", size), size), size = size)
+    racafeForms::racafeForm(racafeForms::racafeFormRow(
+      racafeForms::racafeInputText(paste0("density_", size), "Texto"),
+      racafeForms::racafeInputSelect(paste0("density_select_", size), "Lista", c("Uno", "Dos")),
+      racafeForms::racafeInputDateRange(paste0("density_range_", size), "Rango"), columns = 3), size = size)
   })),
+  racafeForms::racafePanel("Campos independientes",
+    racafeForms::racafeFormRow(
+      racafeForms::racafeInputText("standalone_text", "Texto"),
+      racafeForms::racafeInputSelect("standalone_select", "Lista", c("Uno", "Dos")),
+      racafeForms::racafeInputDateRange("standalone_range", "Rango"), columns = 3)),
+  racafeForms::racafePanel("Badges semánticos",
+    lapply(c("success", "warning", "danger", "info", "neutral"), function(variant) {
+      racafeForms::racafeStatusBadge(variant, variant = variant)
+    })),
+  racafeForms::racafeMetricGrid(columns = 3, lapply(c("compact", "normal", "comfortable"), function(padding) {
+    racafeForms::racafeMetric(42, paste("Densidad", padding), detail = "Nota opcional", padding = padding)
+  })),
+  racafeForms::racafeMetricGrid(columns = 2,
+    racafeForms::racafeCard("Tarjeta breve", "Contenido corto", padding = "compact",
+      header = racafeForms::racafeStatusBadge("Disponible", "success"), footer = "Pie opcional"),
+    racafeForms::racafeCard("Tarjeta extensa", lapply(seq_len(6), function(i) shiny::p(paste("Detalle", i))))),
   racafeForms::racafeCard("Tarjeta interactiva", "Activación explícita con clic, Enter o espacio.",
                          clickable = TRUE, id = "tarjeta"), shiny::textOutput("tarjeta_result"),
   lapply(c("info", "success", "warning", "error", "loading", "empty"), function(type) {
@@ -127,7 +169,8 @@ server <- function(input, output, session) {
                                                    input$modal_footer, input$modal_close))
   output$tarjeta_result <- shiny::renderText(paste("clics:", input$tarjeta))
   shiny::observeEvent(input$modal, {
-    shiny::showModal(racafeForms::racafeModal("Contenido genérico del modal", size = input$modal_size,
+    shiny::showModal(racafeForms::racafeModal("Contenido genérico del modal",
+      racafeForms::racafeStatusBadge("Informativo", "info"), size = input$modal_size,
       title = if (input$modal_header) "Detalle" else NULL,
       footer = if (input$modal_footer) racafeForms::racafeModalFooter() else NULL,
       easy_close = input$modal_close), session = session)
