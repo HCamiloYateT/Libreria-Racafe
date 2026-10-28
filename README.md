@@ -1,8 +1,8 @@
 # Librería Racafe
 
-Monorepo con siete paquetes de R instalables de forma independiente. `racafeCore`
+Monorepo con ocho paquetes de R instalables de forma independiente. `racafeCore`
 contiene las utilidades compartidas; los otros paquetes separan acceso a datos,
-Microsoft Graph, visualización, componentes Shiny y pronósticos.
+Microsoft Graph, visualización, componentes Shiny, correo corporativo y pronósticos.
 
 ## Estructura
 
@@ -14,6 +14,7 @@ Microsoft Graph, visualización, componentes Shiny y pronósticos.
 | [`racafeGraph`](./racafeGraph/) | Paletas, tema y gráficos corporativos con Plotly. | `racafeCore` |
 | [`racafeShiny`](./racafeShiny/) | Inputs, outputs, módulos, tablas `gt` y estilos para aplicaciones Shiny. | `racafeCore`, `racafeGraph` |
 | [`racafeForms`](./racafeForms/) | Formularios, entradas, botones y alertas corporativas para Shiny. | Ninguna |
+| [`racafeMail`](./racafeMail/) | Configuración R, renderizado local y envío explícito de cuatro plantillas mediante blastula. | Ninguna |
 | [`racafeForecast`](./racafeForecast/) | Imputación, comparación de modelos y pronósticos de series de tiempo. | `racafeCore` |
 
 Todos los paquetes requieren **R >= 4.1.0**. Cada uno mantiene su propia versión
@@ -30,7 +31,7 @@ if (!requireNamespace("remotes", quietly = TRUE)) install.packages("remotes")
 
 ### Desde GitHub
 
-Indique la subcarpeta del monorepo de forma explícita. Para instalar los siete
+Indique la subcarpeta del monorepo de forma explícita. Para instalar los ocho
 paquetes, ejecute en este orden:
 
 ```r
@@ -43,9 +44,10 @@ remotes::install_github(repo, subdir = "racafeDrive", dependencies = NA, upgrade
 remotes::install_github(repo, subdir = "racafeForecast", dependencies = NA, upgrade = "never")
 remotes::install_github(repo, subdir = "racafeShiny", dependencies = NA, upgrade = "never")
 remotes::install_github(repo, subdir = "racafeForms", dependencies = NA, upgrade = "never")
+remotes::install_github(repo, subdir = "racafeMail", dependencies = NA, upgrade = "never")
 ```
 
-Puede instalar solo los paquetes que necesite: `racafeCore` y `racafeForms` no
+Puede instalar solo los paquetes que necesite: `racafeCore`, `racafeForms` y `racafeMail` no
 tienen dependencias internas; `racafeShiny` requiere primero `racafeCore` y
 `racafeGraph`; los demás requieren `racafeCore`. `racafeForms` no requiere
 `racafeShiny` ni sustituye automáticamente sus componentes.
@@ -56,7 +58,7 @@ segura antes de instalar; no escriba el token en scripts ni lo confirme en Git.
 
 ### Desde un clon local
 
-Ejecute desde la raíz de `Libreria-Racafe`, donde están las siete carpetas:
+Ejecute desde la raíz de `Libreria-Racafe`, donde están las ocho carpetas:
 
 ```r
 remotes::install_local("racafeCore", dependencies = NA, upgrade = "never")
@@ -66,6 +68,7 @@ remotes::install_local("racafeDrive", dependencies = NA, upgrade = "never")
 remotes::install_local("racafeForecast", dependencies = NA, upgrade = "never")
 remotes::install_local("racafeShiny", dependencies = NA, upgrade = "never")
 remotes::install_local("racafeForms", dependencies = NA, upgrade = "never")
+remotes::install_local("racafeMail", dependencies = NA, upgrade = "never")
 ```
 
 `dependencies = NA` instala las dependencias obligatorias declaradas en cada
@@ -112,7 +115,7 @@ Rscript scripts/run_integration_tests.R
 ```
 
 Los flujos de GitHub Actions ejecutan `R CMD check` y pruebas unitarias para los
-siete paquetes, además de pruebas E2E del monorepo. El umbral de cobertura del
+ocho paquetes, además de pruebas E2E del monorepo. El umbral de cobertura del
 75 % conserva su alcance sobre los seis paquetes originales. El entorno de
 desarrollo se registra en [`renv.lock`](./renv.lock); la política de dependencias
 está en [`docs/dependency-policy.md`](./docs/dependency-policy.md).
@@ -150,8 +153,18 @@ remotes::install_local("racafeCore", dependencies = NA, upgrade = "never", force
 Sustituya `racafeCore` por el paquete que quiera actualizar. Para mantener la ayuda
 al modificar funciones, edite sus comentarios roxygen y regenere los archivos
 `man/*.Rd` con `devtools::document("racafeCore")` desde la raíz. Incluya esos archivos
-en Git. Compruebe los siete paquetes con:
+en Git. Compruebe los ocho paquetes con:
 
 ```bash
 Rscript scripts/check_documentation.R
 ```
+
+## Correo corporativo con racafeMail
+
+`racafeMail` requiere una copia local versionada de `Compartido/email` y `blastula >= 0.3.6`.
+Configure `RACAFE_MAIL_HOME` o pase `ruta` a `racafeMailConfig()`. La configuración permanece
+en R; logotipo, firma y colores se definen en `email/config.R`. Render y preview no hacen
+SMTP. El envío es explícito y las credenciales se mantienen fuera de Git.
+Consulte [instalación y API](racafeMail/README.md) y [migración propuesta](racafeMail/docs/migration.md).
+Las ramas iniciales son `codex/racafe-mail` y `codex/racafe-mail-templates`; hasta integrarlas,
+use esas referencias o sus SHAs aprobados.

@@ -20,6 +20,7 @@ Cada módulo de negocio/versionado mantiene su propio ciclo de vida:
 - `racafeShiny`
 - `racafeForecast`
 - `racafeForms`
+- `racafeMail`
 
 Un release en un paquete **no obliga** a incrementar la versión de todos los demás, salvo cuando exista dependencia directa afectada por un cambio incompatible.
 
