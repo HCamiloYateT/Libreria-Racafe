@@ -221,3 +221,52 @@
 .rf-calendar table tr:has(> th.datepicker-title[style*="display: none"]),
 .rf-calendar table tfoot tr:has(> th[style*="display: none"]) {display:none;}
 .rf-calendar.datepicker table tr th.datepicker-switch {width:auto;white-space:nowrap;}
+
+/* Archivo nativo: estructura Shiny intacta, estilos acotados al componente. */
+.rf-file {min-width:0;max-width:100%;}
+.rf-file--compact {--rf-control-height:32px;}
+.rf-file--normal {--rf-control-height:36px;}
+.rf-file .control-label {font-size:var(--rf-font);font-weight:600;color:var(--rf-gray-700);}
+.rf-file .input-group {display:flex;flex-wrap:nowrap;width:100%;}
+.rf-file .input-group-btn,.rf-file .input-group-prepend {flex:0 0 auto;margin:0;width:auto;}
+.rf-file .btn-file {display:inline-flex;align-items:center;gap:6px;box-sizing:border-box;
+ height:var(--rf-control-height);min-height:var(--rf-control-height);padding:6px 12px;
+ color:var(--rf-gray-900);background:var(--rf-gray-100);border:1px solid var(--rf-gray-300);
+ border-radius:var(--rf-input-radius) 0 0 var(--rf-input-radius);font-size:var(--rf-font);line-height:1.25;
+ box-shadow:none;cursor:pointer;}
+.rf-file .btn-file:focus-within {outline:2px solid var(--rf-red);outline-offset:1px;}
+.rf-file.rf-field input.form-control {box-sizing:border-box;min-width:0;flex:1 1 0;width:0;
+ height:var(--rf-control-height);min-height:var(--rf-control-height);padding:6px 12px;
+ font-size:var(--rf-font);line-height:1.25;background:var(--rf-white);color:var(--rf-gray-900);
+ border:1px solid var(--rf-gray-300);border-radius:0 var(--rf-input-radius) var(--rf-input-radius) 0;box-shadow:none;}
+.rf-form .rf-file.rf-field input.form-control {border-radius:0 var(--rf-input-radius) var(--rf-input-radius) 0!important;}
+.rf-file:has(input[type="file"]:disabled) .btn-file {opacity:.6;cursor:not-allowed;}
+.rf-file-list {list-style:none;padding:0;margin:6px 0 0;max-height:120px;overflow-y:auto;}
+.rf-file-list li,.rf-file-error {font-size:var(--rf-font);overflow-wrap:anywhere;line-height:1.4;}
+.rf-file-list li {color:var(--color-gray-850,#6C757D);}
+.rf-file-error {display:block;color:var(--rf-red);margin-top:4px;}
+.rf-file--error .btn-file {border-color:var(--rf-red);}
+.rf-file .progress {height:8px;margin:6px 0;}
+.rf-file .progress-bar {line-height:8px;font-size:0;}
+.rf-file .progress-bar-danger {background:var(--rf-red);}
+
+/* El panel propio permanece DENTRO del panel nativo para conservar timers y removeNotification. */
+.rf-notifications {position:fixed;top:var(--rf-notify-top,72px);right:12px;
+ width:360px;max-width:calc(100vw - 24px);display:flex;flex-direction:column;gap:8px;pointer-events:none;}
+.rf-notifications > .rf-notification {--rf-notify-accent:var(--color-gray-850,#6C757D);
+ box-sizing:border-box;width:100%;max-width:100%;margin:0;padding:12px 34px 12px 12px;
+ background:var(--rf-white);color:var(--rf-gray-900);border:1px solid var(--rf-gray-300);
+ border-left:3px solid var(--rf-notify-accent);border-radius:var(--rf-border-radius);
+ box-shadow:0 3px 12px rgba(15,23,42,.12);opacity:1;pointer-events:auto;position:relative;}
+.rf-notifications[hidden],.rf-notification[hidden] {display:none;}
+.rf-notification[data-rf-type="success"] {--rf-notify-accent:var(--color-success,#198754);}
+.rf-notification[data-rf-type="warning"] {--rf-notify-accent:var(--color-warning,#fd7e14);}
+.rf-notification[data-rf-type="error"] {--rf-notify-accent:var(--rf-red);}
+.rf-notify {display:grid;grid-template-columns:18px minmax(0,1fr);gap:8px;
+ font-family:var(--rf-body-font,inherit);font-size:var(--rf-font);line-height:1.4;}
+.rf-notify > i {color:var(--rf-notify-accent);font-size:16px;margin-top:2px;}
+.rf-notify-title {display:block;font-size:max(12px,var(--rf-font));font-weight:600;overflow-wrap:anywhere;}
+.rf-notify-text {margin:4px 0 0;font-size:var(--rf-font);color:var(--color-gray-850,#6C757D);overflow-wrap:anywhere;}
+.rf-notification .shiny-notification-close {position:absolute;top:8px;right:10px;font-size:20px;
+ line-height:1;float:none;color:var(--color-gray-850,#6C757D);cursor:pointer;}
+.rf-notification .shiny-notification-close:focus-visible {outline:2px solid var(--rf-notify-accent);outline-offset:2px;}

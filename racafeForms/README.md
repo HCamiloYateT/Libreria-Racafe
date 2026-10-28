@@ -431,3 +431,66 @@ Instale `reactable` para esta demo. Incluye filtros y tabla con badges, dos mód
 namespace, descarga nativa con/sin icono, siete tamaños de modal, copia de texto e imágenes
 y estados de formulario. No requiere CSS, HTML ni handlers JS propios para esos controles.
 No se han modificado las aplicaciones. Vea [validación y compatibilidad 0.4.0](docs/visual-components-0.4.0.md).
+
+## Archivos y notificaciones (0.5.0)
+
+```r
+# UI; dentro de un módulo, use ns = ns.
+racafeInputFile("documentos", accept = c(".xlsx", ".csv", ".pdf"),
+                multiple = TRUE, max_size = 1024^2, help = "Máximo 1 MB por archivo")
+
+# Servidor; ejecute este bloque desde un observeEvent.
+resultado <- racafeValidateInputFile(input$documentos,
+  accept = c(".xlsx", ".csv", ".pdf"), max_size = 1024^2)
+if (resultado$valid) {
+  aviso <- racafeNotify(session, "Archivos recibidos", type = "success", duration = NULL)
+  racafeNotify(session, "Listo", "Validación terminada", id = aviso, duration = 5)
+  # racafeRemoveNotify(aviso) retira ese mismo aviso.
+}
+```
+
+`racafeInputFile()` conserva `shiny::fileInput()`: `input$documentos` contiene
+`name`, `size`, `type` y `datapath`, también dentro de módulos. Sus opciones incluyen
+`label`, `accept`, `multiple`, `max_size`, `help`, `placeholder`, `size` (`compact`
+o `normal`), `disabled` y `ns`. Los nombres y tamaños aparecen debajo del campo.
+
+`max_size` se expresa en **bytes por archivo** y no modifica el límite de petición
+`options(shiny.maxRequestSize = ...)`. La validación visual no detiene el protocolo
+nativo de carga. Antes de procesar archivos, valide en el servidor: el helper devuelve
+`list(valid, errors)` y comprueba estructura, extensión/MIME declarado, tamaño real,
+archivo vacío y lectura. No identifica el contenido por su firma ni sustituye al lector
+específico del formato o a los permisos de la aplicación. `accept` orienta la selección;
+`disabled` es un estado de interfaz. No construya rutas desde el nombre enviado.
+
+No se añade una función que asigne archivos locales desde R: el navegador lo impide.
+Para reiniciar, reconstruya el control con `renderUI()` y limpie el estado asociado del
+servidor; reconstruir la interfaz por sí solo no garantiza borrar valores almacenados.
+
+`racafeNotify(session, title, text = NULL, type = "info", duration = 5, id = NULL,
+close_button = TRUE)` admite `info`, `success`, `warning` y `error`. La duración está
+en **segundos**; `NULL` mantiene el aviso hasta retirarlo. Devuelve el ID real: reutilice
+ese ID (o el mismo ID local con la misma sesión) para actualizar, y páselo a
+`racafeRemoveNotify(id, session)` para eliminar. El namespace se aplica una sola vez.
+Los títulos y mensajes se muestran como texto escapado, incluso si reciben `HTML()`.
+
+Se muestran hasta tres avisos propios, arriba a la derecha bajo la barra de navegación.
+Los anteriores quedan ocultos hasta que haya espacio; sus temporizadores continúan.
+Se ocultan mientras hay un modal o un menú lateral móvil abierto para no cubrirlos.
+Las notificaciones nativas ajenas conservan su aspecto y comportamiento.
+`racafeAlert()` y `racafeConfirm()` conservan SweetAlert; para ejecutar una operación
+confirmada compruebe siempre `isTRUE(input$confirmacion)`.
+
+Los recursos CSS/JS vienen en el paquete y reutilizan las variables corporativas
+existentes con valores de respaldo. No requieren Compartido, nuevas dependencias ni CDN;
+`racafeSharedAssets()` sigue funcionando cuando se utiliza Compartido.
+
+### Demo y pruebas
+
+```r
+shiny::runApp(system.file("examples", "files-notifications.R", package = "racafeForms"))
+```
+
+La demo usa bs4Dash por defecto. `Sys.setenv(RACAFE_FILES_BS4DASH = "0")` activa Shiny
+simple; `RACAFE_SHARED_PATH` permite probar un clon local de Compartido. Incluye dos
+módulos, cargas XLSX/PDF/múltiples, validación, estados, avisos y confirmaciones.
+La [validación de 0.5.0](docs/files-notifications-0.5.0.md) documenta ejecución y alcance.
