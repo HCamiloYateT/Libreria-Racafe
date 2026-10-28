@@ -340,7 +340,7 @@ y la [migración representativa](docs/migration/README.md). El ejemplo represent
 pasa de 39 a 13 líneas de UI no vacías y sin comentarios (66,7 % menos); no es una
 medición de los módulos reales de Firma Digital, que no se han recibido ni modificado.
 
-## Tipos email y tel: binding reactivo (0.4.1)
+## Tipos email y tel: binding reactivo (0.4.2)
 
 `racafeInputText(type = "email")` y `type = "tel"` generan sus tipos HTML literales.
 Se elimina primero el atributo `type` anterior con `removeAttrs("type")` y después

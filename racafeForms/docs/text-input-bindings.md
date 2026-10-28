@@ -1,4 +1,4 @@
-# Corrección de bindings de texto — racafeForms 0.4.1
+# Corrección de bindings de texto — racafeForms 0.4.2
 
 La asignación de type mediante addAttrs sin eliminar el atributo anterior puede concatenar
 valores. Ahora se elimina type antes de asignar email/tel, conservando el tipo HTML literal
@@ -39,7 +39,7 @@ No se usaron credenciales reales. No se afirma comprobación física del teclado
 Rscript -e 'testthat::test_local("racafeForms", stop_on_failure=TRUE)'
 Rscript scripts/check_documentation.R
 R CMD build racafeForms
-_R_CHECK_FORCE_SUGGESTS_=false R CMD check --no-manual racafeForms_0.4.1.tar.gz
+_R_CHECK_FORCE_SUGGESTS_=false R CMD check --no-manual racafeForms_0.4.2.tar.gz
 Rscript -e 'shiny::runApp("racafeForms/inst/examples/text-input-bindings.R", port=3890)'
 # Repetir con TEXT_BINDINGS_BS4DASH=1 y otro puerto para bs4Dash.
 ```
@@ -55,5 +55,6 @@ El ejemplo tiene moduleUI/moduleServer, dos instancias y racafeForm. Muestra los
 reactivos, incluida la contraseña ficticia, únicamente para demostrar el binding; no
 copie esa salida ni utilice datos sensibles en un entorno consumidor.
 
-Base de revisión actualizada: origin/main en b61080cbfc17fc85ed86c41f1c0ae66aa7643153,
-con racafeForms 0.4.0. Se conserva la API de esa versión y la corrección se publica como 0.4.1.
+Base actual: origin/main en 4d1f92dccdf584af6c37a80dd3726f89fa12ca96.
+El PR #95 integró la alternativa type HTML text de 0.4.1; la corrección literal email/tel
+posterior no quedó incluida. Se publica por separado en codex/fix-email-tel-types como 0.4.2.
