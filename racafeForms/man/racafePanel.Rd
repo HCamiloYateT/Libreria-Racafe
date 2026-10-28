@@ -11,7 +11,8 @@ racafePanel(
   padding = c("normal", "compact", "comfortable"),
   min_height = NULL,
   bordered = TRUE,
-  footer = NULL
+  footer = NULL,
+  header = NULL
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ racafePanel(
 \item{bordered}{Mostrar borde.}
 
 \item{footer}{Contenido inferior opcional.}
+
+\item{header}{Contenido adicional del encabezado, después del título; NULL lo omite.}
 }
 \value{
 Etiqueta HTML con dependencia base; requiere racafeSharedAssets en la UI.

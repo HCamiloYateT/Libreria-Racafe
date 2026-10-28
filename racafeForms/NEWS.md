@@ -1,3 +1,12 @@
+# racafeForms 0.4.0
+
+- Añade racafeStatusBadge con variantes semánticas, texto escapado y tamaños xs/sm/md.
+- Amplía tarjetas e indicadores con densidades y paneles/tarjetas con encabezado opcional.
+- Usa Compartido 1.1.0 para altura por contenido, campos uniformes y estilos accesibles de badges.
+- Documenta y verifica downloadHandler con icon = NULL o un único icono explícito.
+- Amplía la demo con filtros, reactable y badges, conservando módulos, modales y portapapeles existentes.
+- Conserva orden y nombres de los argumentos públicos de 0.3.0; solo añade opciones al final.
+
 # racafeForms 0.3.0
 
 - Los selectores múltiples usan checks rojos sobre filas neutras; la selección simple conserva su acento.

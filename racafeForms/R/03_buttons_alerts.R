@@ -44,7 +44,7 @@ racafeButtonDelete <- function(id, label = "Eliminar", ns = NULL, ...) {
 #' Boton para downloadHandler (no actionButton)
 #' @param id ID local asociado al downloadHandler.
 #' @param label Texto.
-#' @param icon Icono.
+#' @param icon Nombre o etiqueta de icono; NULL omite el icono sin añadir uno predeterminado.
 #' @param variant Variante CSS.
 #' @param size Tamano.
 #' @param ns Namespace.
