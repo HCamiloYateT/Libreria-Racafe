@@ -1,6 +1,7 @@
 # racafeForms 0.4.1
 
-- Corrige email y tel de racafeInputText conservando el binding nativo con type HTML text.
+- Elimina el atributo type antes de asignar email/tel, conservando tipos HTML literales sin concatenarlos.
+- Reutiliza el binding nativo con un adaptador acotado cuando Shiny no reconoce esos tipos.
 - Añade inputmode y autocomplete adecuados sin sobrescribir autocomplete explícito.
 - Verifica valores reactivos, namespaces, actualizaciones y estados de campo en Shiny y bs4Dash.
 

@@ -30,7 +30,7 @@ racafeInputText(
 
 \item{placeholder}{Texto de ayuda dentro del campo.}
 
-\item{type}{text, email, tel o password. email y tel mantienen type HTML text para el binding nativo.}
+\item{type}{text, email, tel o password; se conserva el tipo HTML solicitado.}
 
 \item{required}{Indica obligatoriedad para accesibilidad (la validacion es del servidor).}
 
@@ -59,8 +59,9 @@ Entrada de texto corporativa
 }
 \details{
 email y tel usan inputmode para sugerir el teclado virtual y autocomplete
-para identificar el contenido. No se cambia el tipo HTML ni se registra un binding
-JavaScript alternativo. Todos los tipos, incluido password, conservan actualizaciones
-con shiny::updateTextInput(). required no valida el formato:
+para identificar el contenido. El atributo type previo se elimina antes de asignar
+email/tel. Si el binding nativo no reconoce uno de esos tipos, la dependencia base
+reutiliza sus métodos mediante un adaptador limitado a los campos de racafeForms.
+Todos los tipos conservan actualizaciones con shiny::updateTextInput(). required no valida el formato:
 compruebe correo/teléfono y permisos en el servidor; error muestra el mensaje de validación.
 }

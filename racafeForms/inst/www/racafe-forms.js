@@ -1,5 +1,20 @@
 (function ($) {
   "use strict";
+  // Reutilizar el binding de texto solo donde Shiny no reconoce email/tel de racafeForms.
+  function register_text_fallback() {
+    if (!window.Shiny || !Shiny.inputBindings) return;
+    var bindings = Shiny.inputBindings.getBindings();
+    if (bindings.some(function (entry) { return entry.binding.name === "racafeForms.textInput"; })) return;
+    var native = bindings.find(function (entry) { return entry.binding.name === "shiny.textInput"; });
+    if (!native) return;
+    var fallback = Object.create(native.binding);
+    fallback.find = function (scope) {
+      return $(scope).find('.rf-field input.shiny-input-text[type="email"], ' +
+        '.rf-field input.shiny-input-text[type="tel"]').not(native.binding.find(scope));
+    };
+    Shiny.inputBindings.register(fallback, "racafeForms.textInput", -1);
+  }
+  register_text_fallback();
   // Bootstrap Select admite funciones de conteo, pero pickerInput serializa sus opciones como atributos HTML.
   function configure_select(event) {
     var select = event.target;

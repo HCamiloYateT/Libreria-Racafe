@@ -1,26 +1,27 @@
 # Corrección de bindings de texto — racafeForms 0.4.1
 
-La implementación anterior construía un textInput y después cambiaba su tipo HTML a
-email o tel. Esto depende de los selectores que soporte el binding de cada versión de
-Shiny; por ejemplo, Shiny 1.10.0 incluye email en su binding de texto, pero no tel.
-No se asume que todas las versiones fallen igual. Para una ruta compatible y estable,
-ambas opciones conservan type="text" y añaden inputmode/autocomplete apropiados.
-Password sigue usando passwordInput. No se modifica ni reemplaza ningún binding JS.
+La asignación de type mediante addAttrs sin eliminar el atributo anterior puede concatenar
+valores. Ahora se elimina type antes de asignar email/tel, conservando el tipo HTML literal
+y la clase shiny-input-text. inputmode y autocomplete mantienen la mejora de teclado.
 
-Se conservan la firma pública, el namespace una sola vez, required, readonly, disabled,
-help, error, los catálogos de sugerencias y el autocomplete explícito. Los cuatro tipos
-se actualizan mediante shiny::updateTextInput(session, id_local, value = ...).
-El correo ya no usa validación HTML typeMismatch: la validación de formato de correo
-/teléfono corresponde al servidor. Los atributos required y aria-* siguen presentes.
-El modo de teclado es una sugerencia; su presentación depende del navegador/dispositivo.
+Corregir el atributo no garantiza el registro reactivo: Shiny 1.10.0 reconoce email, pero
+no tel. La dependencia base incluye un adaptador de prioridad inferior que hereda getValue,
+subscribe, receiveMessage y los demás métodos del binding de texto. Solo busca campos
+email/tel propios no reconocidos por el selector nativo, sin modificarlo ni afectar otros
+paquetes. La inscripción es idempotente. Password sigue usando passwordInput.
+
+Se conservan firma pública, namespace, required, readonly, disabled, help, error, catálogo
+y autocomplete explícito. Los cuatro tipos se actualizan con updateTextInput. Email tiene
+la validación nativa de formato del navegador; el servidor debe validar correo, teléfono
+y permisos. No se requieren recursos de Compartido para estos bindings básicos.
 
 ## Pruebas ejecutadas
 
-- 433 comprobaciones testthat correctas, sin fallos, advertencias ni omisiones.
-- 48 de ellas prueban los cuatro tipos, atributos, namespace, catálogo, autocomplete y moduleServer.
-- 41 comprobaciones Chromium en Shiny y otras 41 en bs4Dash: valores iniciales registrados,
-  escritura y salida reactiva real del servidor, aislamiento de dos módulos, binding nativo
-  compartido por text/email/tel, password enmascarado, actualización de ida y vuelta desde R,
+- 437 comprobaciones testthat correctas, sin fallos, advertencias ni omisiones.
+- 52 de ellas prueban los cuatro tipos, atributos, namespace, catálogo, autocomplete y moduleServer.
+- 42 comprobaciones Chromium en Shiny y otras 42 en bs4Dash: valores iniciales registrados,
+  escritura y salida reactiva real del servidor, aislamiento de dos módulos, métodos nativos
+  compartidos por text/email/tel, password enmascarado, actualización de ida y vuelta desde R,
   required con valor vacío, readonly/disabled, ayuda y error asociados al ID local.
 - Sin errores JS/servidor ni peticiones externas en ambas pruebas.
 - R CMD build/install correctos; R CMD check --no-manual: Status OK, usando

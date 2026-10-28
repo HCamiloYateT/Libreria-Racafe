@@ -342,18 +342,20 @@ medición de los módulos reales de Firma Digital, que no se han recibido ni mod
 
 ## Tipos email y tel: binding reactivo (0.4.1)
 
-`racafeInputText(type = "email")` y `type = "tel"` conservan un input HTML de texto,
-compatible con el binding nativo de Shiny. `inputmode = "email"` / `"tel"` sugiere el
-teclado virtual y `autocomplete` usa ese mismo token por defecto. Un valor explícito
-como `autocomplete = "off"` tiene precedencia. `text` y `password` conservan sus tipos.
-No se registra JavaScript ni un binding nuevo; `shiny::updateTextInput()` sirve para
-los cuatro tipos, también dentro de `moduleServer()` con IDs locales.
+`racafeInputText(type = "email")` y `type = "tel"` generan sus tipos HTML literales.
+Se elimina primero el atributo `type` anterior con `removeAttrs("type")` y después
+se asigna el nuevo, evitando concatenar `text email` o `text tel`. Conservan
+`inputmode` y `autocomplete` adecuados; un autocomplete explícito tiene precedencia.
 
-La API `type` sigue aceptando los mismos valores. El tipo HTML efectivo de email/tel
-pasa a text: no hay validación nativa de formato de correo (`typeMismatch`). Valide
-correo y teléfono en el servidor; `required`, `readonly`, `disabled`, `help` y `error`
-conservan su función. Si un selector CSS propio dependía de `input[type=email]` o
-`input[type=tel]`, use el ID del campo o `inputmode`. No se modifican aplicaciones consumidoras.
+Cuando Shiny reconoce el tipo, usa su binding nativo. Cuando no lo reconoce (como tel
+en Shiny 1.10.0), la dependencia base registra un adaptador que hereda los métodos de
+texto y busca solo campos email/tel propios no cubiertos por el selector nativo.
+No modifica ese selector ni captura campos de otros paquetes. Funciona sin Compartido.
+Los cuatro tipos se actualizan con `shiny::updateTextInput()` usando el ID local del módulo.
+
+Email conserva la validación HTML de formato del navegador; tel no impone un formato
+telefónico. Valide siempre formato y permisos en el servidor. `required`, `readonly`,
+`disabled`, `help` y `error` mantienen su comportamiento. No se modifican consumidores.
 
 Prueba ejecutable con dos módulos, cuatro tipos y estados de campo (solo datos ficticios):
 

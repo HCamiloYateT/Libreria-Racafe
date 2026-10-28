@@ -4,12 +4,14 @@ test_that("los cuatro tipos mantienen el elemento que reconoce el binding nativo
                            required = TRUE, readonly = TRUE, disabled = TRUE, help = "Ayuda", error = "Error")
     input <- htmltools::tagQuery(tag)$find("input")$selectedTags()[[1]]
     expect_identical(input$attribs$id, "mod-campo")
-    expect_identical(input$attribs$type, if (type == "password") "password" else "text")
+    expect_identical(input$attribs$type, type)
     expect_identical(input$attribs$value, "Inicial")
     for (attribute in c("required", "readonly", "disabled")) expect_identical(input$attribs[[attribute]], attribute)
     expect_identical(input$attribs[["aria-invalid"]], "true")
     expect_identical(input$attribs[["aria-describedby"]], "mod-campo_help mod-campo_error")
     if (type %in% c("email", "tel")) {
+      expect_match(input$attribs$class, "shiny-input-text", fixed = TRUE)
+      expect_equal(sum(names(input$attribs) == "type"), 1L)
       expect_identical(input$attribs$inputmode, type)
       expect_identical(input$attribs$autocomplete, type)
     }

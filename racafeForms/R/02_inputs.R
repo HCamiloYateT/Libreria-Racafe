@@ -3,7 +3,7 @@
 #' @param label Etiqueta.
 #' @param value Valor inicial.
 #' @param placeholder Texto de ayuda dentro del campo.
-#' @param type text, email, tel o password. email y tel mantienen type HTML text para el binding nativo.
+#' @param type text, email, tel o password; se conserva el tipo HTML solicitado.
 #' @param required Indica obligatoriedad para accesibilidad (la validacion es del servidor).
 #' @param help Ayuda debajo del control.
 #' @param width Ancho CSS.
@@ -16,9 +16,10 @@
 #' @param choices Catálogo opcional de sugerencias de texto; no limita la validación del servidor.
 #' @return Componente de entrada Shiny para incluir en la UI; su valor está disponible en `input$id`.
 #' @details email y tel usan inputmode para sugerir el teclado virtual y autocomplete
-#'   para identificar el contenido. No se cambia el tipo HTML ni se registra un binding
-#'   JavaScript alternativo. Todos los tipos, incluido password, conservan actualizaciones
-#'   con shiny::updateTextInput(). required no valida el formato:
+#'   para identificar el contenido. El atributo type previo se elimina antes de asignar
+#'   email/tel. Si el binding nativo no reconoce uno de esos tipos, la dependencia base
+#'   reutiliza sus métodos mediante un adaptador limitado a los campos de racafeForms.
+#'   Todos los tipos conservan actualizaciones con shiny::updateTextInput(). required no valida el formato:
 #'   compruebe correo/teléfono y permisos en el servidor; error muestra el mensaje de validación.
 #' @export
 racafeInputText <- function(id, label, value = "", placeholder = NULL,
@@ -32,7 +33,8 @@ racafeInputText <- function(id, label, value = "", placeholder = NULL,
     shiny::textInput(.rf_id(id, ns), label, value = value, placeholder = placeholder, width = width)
   }
   if (type %in% c("email", "tel")) {
-    tag <- htmltools::tagQuery(tag)$find("input")$addAttrs(inputmode = type)$allTags()
+    tag <- htmltools::tagQuery(tag)$find("input")$
+      removeAttrs("type")$addAttrs(type = type, inputmode = type)$addClass("shiny-input-text")$allTags()
     if (is.null(autocomplete)) autocomplete <- type
   }
   if (!is.null(autocomplete)) {
