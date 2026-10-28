@@ -1,5 +1,7 @@
 # racafeForms 0.3.0
 
+- Los selectores múltiples usan checks rojos sobre filas neutras; la selección simple conserva su acento.
+- Se documenta la política opcional de filtro vacío como «Todos (sin filtro)», sin modificar los valores Shiny.
 - Añade cargador local versionado de Compartido, con publicación acotada a Styles, Scripts e img.
 - Añade paneles, tarjetas, métricas, cuadrículas informativas y barras de acciones reutilizables.
 - Añade modales que reutilizan los siete tamaños CSS existentes de Compartido.

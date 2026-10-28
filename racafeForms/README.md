@@ -135,6 +135,38 @@ En un módulo, pase `ns = ns` al construir los controles y use el ID local en
 selección múltiple, pase `selected = character(0)`; para seleccionar todas,
 pase explícitamente sus valores. También se admite `shinyWidgets::updatePickerInput()`.
 
+### Selección visual y filtros sin selección
+
+La selección única conserva el acento rojo. En selección múltiple las filas mantienen
+el fondo neutro y un check rojo identifica cada opción seleccionada, sin cambiar los valores enviados a Shiny.
+
+Para un filtro opcional, puede interpretar una selección vacía como **sin filtro**:
+se incluyen todos los registros y también los que aparezcan al actualizar los datos.
+Use una etiqueta explícita y aplique esa regla en el servidor:
+
+```r
+# UI (también dentro de un módulo con ns = ns).
+racafeForms::racafeInputSelect("asesor", "Asesor", choices = asesores, multiple = TRUE,
+                              empty_label = "Todos (sin filtro)", help = "Sin selección se incluyen todos.")
+
+# Servidor: datos() devuelve el conjunto disponible antes de aplicar este filtro.
+datos_filtrados <- shiny::reactive({
+  seleccion <- input$asesor
+  tabla <- datos()
+  if (length(seleccion) == 0L) return(tabla)
+  tabla[tabla$asesor %in% seleccion, , drop = FALSE]
+})
+```
+
+Esta política es opcional: `input$asesor` continúa siendo `NULL` o `character(0)`
+al vaciarlo. Cambiar solo `empty_label` no cambia el filtrado. Evite `req(input$asesor)`
+en este caso, pues impediría mostrar todos. En un filtro obligatorio o donde vacío
+signifique «ningún registro», conserve la interpretación habitual.
+El botón «Ninguno» desmarca todo y, con esta política, quita el filtro; seleccionar
+«Todos» marca únicamente las opciones disponibles en ese momento. Si los datos
+contienen asesores `NA` o ausentes del catálogo, «sin filtro» también los incluye;
+seleccionar todas las opciones del catálogo puede excluirlos.
+
 `racafeInputDateRange()` mantiene el mismo binding y devuelve un vector `Date`
 de longitud dos. El separador visual pasa a `-`; el calendario conserva el idioma
 español, los límites `min`/`max` y el formato `dd/mm/yyyy`. Sus estilos se aplican
