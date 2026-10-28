@@ -1,0 +1,6 @@
+{
+  "name": "racafeforms-browser-tests",
+  "private": true,
+  "scripts": { "test": "node test-corporate-components.cjs" },
+  "devDependencies": { "playwright": "1.62.1" }
+}

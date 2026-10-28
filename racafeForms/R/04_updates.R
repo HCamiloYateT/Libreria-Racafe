@@ -51,3 +51,20 @@ racafeDisable <- function(id) shinyjs::disable(id)
 #' @param condition Logico; TRUE activa y FALSE desactiva.
 #' @export
 racafeToggle <- function(id, condition) shinyjs::toggleState(id, condition = condition)
+
+# Restablecimiento acotado a un formulario ----
+
+#' Restablecer o limpiar los campos de un formulario
+#' @param session Sesión Shiny del módulo.
+#' @param id ID local asignado a racafeForm.
+#' @param clear TRUE limpia valores editables; FALSE restaura su valor inicial en la UI.
+#' @return Invisiblemente NULL. El navegador informa success, count, failures y request_id en `input$<id>_reset_result`.
+#' @details Requiere racafeSharedAssets. Conserva los bindings de texto, selectores, fechas y numéricos.
+#'   No modifica botones, archivos ni campos readonly. Cada instancia dinámica tiene su propia instantánea.
+#'   No ejecuta lógica de negocio ni envía los valores de la instantánea en el resultado.
+#' @export
+racafeResetForm <- function(session, id, clear = FALSE) {
+  .rf_flag(clear, "clear")
+  session$sendCustomMessage("rf-form-reset", list(id = session$ns(.rf_id(id)), clear = clear))
+  invisible(NULL)
+}

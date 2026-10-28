@@ -13,7 +13,12 @@ racafeInputText(
   required = FALSE,
   help = NULL,
   width = "100\%",
-  ns = NULL
+  ns = NULL,
+  readonly = FALSE,
+  disabled = FALSE,
+  error = NULL,
+  autocomplete = NULL,
+  choices = NULL
 )
 }
 \arguments{
@@ -34,6 +39,16 @@ racafeInputText(
 \item{width}{Ancho CSS.}
 
 \item{ns}{Funcion namespace de modulo.}
+
+\item{readonly}{Impedir edición por teclado.}
+
+\item{disabled}{Deshabilitar el control.}
+
+\item{error}{Mensaje de validación del campo, o NULL.}
+
+\item{autocomplete}{Token de autocompletado HTML; NULL conserva el predeterminado.}
+
+\item{choices}{Catálogo opcional de sugerencias de texto; no limita la validación del servidor.}
 }
 \value{
 Componente de entrada Shiny para incluir en la UI; su valor está disponible en \code{input$id}.

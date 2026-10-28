@@ -4,7 +4,14 @@
 \alias{racafeForm}
 \title{Contenedor visual de formulario}
 \usage{
-racafeForm(..., size = c("compact", "normal", "comfortable"), bordered = TRUE)
+racafeForm(
+  ...,
+  size = c("compact", "normal", "comfortable"),
+  bordered = TRUE,
+  id = NULL,
+  ns = NULL,
+  unstyled = FALSE
+)
 }
 \arguments{
 \item{...}{Contenido Shiny.}
@@ -12,6 +19,12 @@ racafeForm(..., size = c("compact", "normal", "comfortable"), bordered = TRUE)
 \item{size}{Densidad: compact, normal o comfortable.}
 
 \item{bordered}{Mostrar fondo y borde corporativo.}
+
+\item{id}{ID local opcional, necesario para racafeResetForm.}
+
+\item{ns}{Función namespace del módulo.}
+
+\item{unstyled}{Omitir el contenedor visual con borde y fondo, conservando estilos de los campos.}
 }
 \value{
 Lista de etiquetas Shiny con el contenedor del formulario y su dependencia CSS.

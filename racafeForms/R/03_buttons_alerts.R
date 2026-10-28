@@ -17,13 +17,13 @@ racafeButton <- function(id, label, icon = NULL,
   variant <- match.arg(variant)
   size <- match.arg(size)
   if (is.null(label) && is.null(icon)) stop("label e icon no pueden ser ambos NULL")
-  content <- shiny::tagList(if (!is.null(icon)) shiny::icon(icon),
+  content <- shiny::tagList(if (!is.null(icon)) .rf_icon(icon),
                             if (!is.null(label)) shiny::tags$span(label))
   btn <- shiny::actionButton(.rf_id(id, ns), label = content,
                              class = .rf_button_class(variant, size))
   if (!is.null(title)) btn <- shiny::tagAppendAttributes(btn, title = title)
   if (isTRUE(disabled)) btn <- shiny::tagAppendAttributes(btn, disabled = "disabled")
-  btn
+  .rf_attach(btn)
 }
 
 #' @rdname racafeButton
@@ -52,22 +52,27 @@ racafeButtonDelete <- function(id, label = "Eliminar", ns = NULL, ...) {
 #' @export
 racafeButtonDownload <- function(id, label = "Descargar", icon = "download",
                                  variant = "secondary", size = "sm", ns = NULL) {
-  shiny::downloadButton(.rf_id(id, ns), label = shiny::tagList(shiny::icon(icon), label),
-                        class = .rf_button_class(variant, size))
+  .rf_attach(shiny::downloadButton(.rf_id(id, ns), label = label, icon = .rf_icon(icon),
+                                  class = .rf_button_class(variant, size)))
 }
 
 #' Mostrar alerta SweetAlert corporativa
 #' @param session Sesion Shiny.
 #' @param title Titulo.
 #' @param text Mensaje de texto plano.
-#' @param type success, error, warning, info, question.
+#' @param type success, error, warning, info, question, loading o empty.
+#' @param details Detalles técnicos opcionales y explícitos, escapados como texto.
 #' @return El resultado de enviar la alerta a la sesión; se usa por su efecto secundario.
 #' @export
 racafeAlert <- function(session, title, text,
-                        type = c("info", "success", "error", "warning", "question")) {
+                        type = c("info", "success", "error", "warning", "question", "loading", "empty"),
+                        details = NULL) {
+  if (identical(type, "e")) type <- "error"
   type <- match.arg(type)
+  styled <- !is.null(details) || type %in% c("loading", "empty")
+  if (styled) text <- racafeFormMessage(text, if (type == "question") "info" else type, details)
   shinyWidgets::sendSweetAlert(session = session, title = title, text = text,
-                               type = type, width = "420px", html = FALSE)
+    type = if (type %in% c("loading", "empty")) NULL else type, width = "420px", html = styled)
 }
 
 #' Confirmacion SweetAlert con resultado en input$id

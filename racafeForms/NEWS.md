@@ -1,3 +1,16 @@
+# racafeForms 0.3.0
+
+- Añade cargador local versionado de Compartido, con publicación acotada a Styles, Scripts e img.
+- Añade paneles, tarjetas, métricas, cuadrículas informativas y barras de acciones reutilizables.
+- Añade modales que reutilizan los siete tamaños CSS existentes de Compartido.
+- Añade copia de texto y PNG con resultado real del navegador, sin registrar contenido sensible.
+- Añade campos readonly con copia optativa y reset de formularios por bindings nativos.
+- Amplía argumentos opcionales de campos para ayuda, errores, requerido, deshabilitado y readonly cuando corresponde.
+- Añade catálogo de sugerencias de texto, estados loading/empty y detalles técnicos explícitos y escapados.
+- Conserva la API anterior y corrige el icono duplicado del botón de descarga, manteniendo downloadHandler nativo.
+- Los estilos y scripts nuevos residen solo en Compartido; los recursos base anteriores se conservan.
+- Incluye demo Shiny/bs4Dash, pruebas de navegador, matriz de compatibilidad y migración representativa.
+
 # racafeForms 0.2.1
 
 - Unifica la apariencia de los calendarios de fecha y rango: colores, fuente, bordes, sombra, dimensiones y navegación.
