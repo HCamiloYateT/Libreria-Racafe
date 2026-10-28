@@ -1,4 +1,4 @@
-# Corrección de bindings de texto — racafeForms 0.3.1
+# Corrección de bindings de texto — racafeForms 0.4.1
 
 La implementación anterior construía un textInput y después cambiaba su tipo HTML a
 email o tel. Esto depende de los selectores que soporte el binding de cada versión de
@@ -16,7 +16,7 @@ El modo de teclado es una sugerencia; su presentación depende del navegador/dis
 
 ## Pruebas ejecutadas
 
-- 285 comprobaciones testthat correctas, sin fallos, advertencias ni omisiones.
+- 433 comprobaciones testthat correctas, sin fallos, advertencias ni omisiones.
 - 48 de ellas prueban los cuatro tipos, atributos, namespace, catálogo, autocomplete y moduleServer.
 - 41 comprobaciones Chromium en Shiny y otras 41 en bs4Dash: valores iniciales registrados,
   escritura y salida reactiva real del servidor, aislamiento de dos módulos, binding nativo
@@ -38,7 +38,7 @@ No se usaron credenciales reales. No se afirma comprobación física del teclado
 Rscript -e 'testthat::test_local("racafeForms", stop_on_failure=TRUE)'
 Rscript scripts/check_documentation.R
 R CMD build racafeForms
-_R_CHECK_FORCE_SUGGESTS_=false R CMD check --no-manual racafeForms_0.3.1.tar.gz
+_R_CHECK_FORCE_SUGGESTS_=false R CMD check --no-manual racafeForms_0.4.1.tar.gz
 Rscript -e 'shiny::runApp("racafeForms/inst/examples/text-input-bindings.R", port=3890)'
 # Repetir con TEXT_BINDINGS_BS4DASH=1 y otro puerto para bs4Dash.
 ```
@@ -54,6 +54,5 @@ El ejemplo tiene moduleUI/moduleServer, dos instancias y racafeForm. Muestra los
 reactivos, incluida la contraseña ficticia, únicamente para demostrar el binding; no
 copie esa salida ni utilice datos sensibles en un entorno consumidor.
 
-Base local de revisión: origin/main en 483180da53995ae5555d182e65f983a3edcdcac1.
-La actualización remota del checkout no pudo ejecutarse por falta de autenticación GitHub;
-se debe contrastar el PR con main remoto cuando se restablezca ese acceso.
+Base de revisión actualizada: origin/main en b61080cbfc17fc85ed86c41f1c0ae66aa7643153,
+con racafeForms 0.4.0. Se conserva la API de esa versión y la corrección se publica como 0.4.1.

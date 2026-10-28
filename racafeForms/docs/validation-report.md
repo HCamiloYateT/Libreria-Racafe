@@ -1,3 +1,7 @@
+Validación actual: [racafeForms 0.4.0 y Compartido 1.1.0](visual-components-0.4.0.md).
+
+El informe siguiente corresponde a la implementación anterior 0.3.0.
+
 # Validación y compatibilidad de componentes corporativos
 
 ## Alcance implementado

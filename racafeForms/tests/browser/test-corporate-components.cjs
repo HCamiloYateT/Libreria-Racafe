@@ -58,6 +58,71 @@ const { chromium } = require("playwright");
     await page.goto(url);
     await wait_text("uno-valores", "nombre: Inicial");
     await wait_text("dos-valores", "catalogo: a");
+    await page.locator("#uno-tabla .rf-status-badge").first().waitFor();
+    check(await page.locator("#uno-tabla .rf-status-badge").first().innerText() === "Disponible",
+      "Badge serializado dentro de reactable con namespace");
+    check(await page.locator("#dos-tabla .rf-status-badge").count() === 1, "Tabla aislada en el segundo módulo");
+    for (const size of ["compact", "normal", "comfortable", "standalone"]) {
+      const text = size === "standalone" ? "standalone_text" : "density_" + size;
+      const select = size === "standalone" ? "standalone_select" : "density_select_" + size;
+      const range = size === "standalone" ? "standalone_range" : "density_range_" + size;
+      const styles = await page.evaluate(({ text, select, range }) => {
+        const picker = document.getElementById(select).closest(".bootstrap-select").querySelector("button");
+        return [document.getElementById(text), picker, document.querySelector("#" + range + " input")].map(el => {
+          const s = getComputedStyle(el);
+          return [s.height, s.borderRadius, s.borderColor, s.fontSize, s.fontFamily, s.padding];
+        });
+      }, { text, select, range });
+      check(JSON.stringify(styles[0]) === JSON.stringify(styles[1]) &&
+        JSON.stringify(styles[0]) === JSON.stringify(styles[2]), "Campos uniformes: " + size + " " + JSON.stringify(styles));
+    }
+    const heights = await page.locator(".rf-card").evaluateAll(cards => ["Tarjeta breve", "Tarjeta extensa"].map(title => {
+      const card = cards.find(el => el.querySelector(".rf-card-title")?.textContent === title);
+      return card.getBoundingClientRect().height;
+    }));
+    check(heights[0] < heights[1], "Las tarjetas vecinas conservan su altura por contenido");
+    const padding = await page.locator(".rf-metric").evaluateAll(cards => ["compact", "normal", "comfortable"].map(size => {
+      const card = cards.find(el => el.textContent.includes("Densidad " + size));
+      return parseFloat(getComputedStyle(card).paddingTop);
+    }));
+    check(padding[0] < padding[1] && padding[1] < padding[2], "Densidades de indicador ordenadas");
+    const ratios = await page.locator(".rf-status-badge").evaluateAll(badges => {
+      function luminance(color) {
+        const rgb = color.match(/[\d.]+/g).slice(0, 3).map(Number).map(x => {
+          x /= 255; return x <= 0.04045 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4);
+        });
+        return rgb[0] * 0.2126 + rgb[1] * 0.7152 + rgb[2] * 0.0722;
+      }
+      return badges.map(el => {
+        const style = getComputedStyle(el), a = luminance(style.color), b = luminance(style.backgroundColor);
+        return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+      });
+    });
+    check(ratios.every(ratio => ratio >= 4.5), "Contraste de badges >= 4.5:1 " + ratios.join(","));
+    const themed = await page.evaluate(() => {
+      document.documentElement.style.setProperty("--color-red-primary", "#7a1234");
+      const el = document.querySelector(".rf-status-badge--danger");
+      const background = getComputedStyle(el).backgroundColor;
+      const rfRed = getComputedStyle(el).getPropertyValue("--rf-red").trim();
+      document.documentElement.style.removeProperty("--color-red-primary");
+      return { background, rfRed };
+    });
+    check(themed.background === "rgb(122, 18, 52)" && themed.rfRed === "#7a1234",
+      "Color corporativo compartido como única fuente para badges y controles");
+    for (const columns of [2, 3, 4]) {
+      check(await page.locator(".rf-metric-grid.rf-grid--" + columns).first()
+        .evaluate(el => getComputedStyle(el).gridTemplateColumns.split(" ").length) === columns,
+      "Cuadrícula de escritorio: " + columns);
+    }
+    const unique_assets = await page.evaluate(() => {
+      const urls = [...document.querySelectorAll("script[src],link[rel='stylesheet'][href]")]
+        .map(el => el.src || el.href);
+      return new Set(urls).size === urls.length;
+    });
+    check(unique_assets, "Sin scripts ni hojas CSS con URL duplicada, incluidas las dos tablas reactable");
+    check(await page.locator('script[src$="/racafe-forms.js"]').count() === 1, "Script base único");
+    check(await page.locator("#uno-archivo i").count() === 1, "Un icono por descarga");
+    check(await page.locator("#uno-sin_icono i").count() === 0, "Descarga icon=NULL sin iconos");
     check(await page.locator(".shiny-output-error").count() === 0, "Sin errores de servidor ocultos por el CSS legado");
     check(await page.locator('link[href*="shared"][href$="style.css"]').count() === 1, "CSS compartido único");
     for (const file of ["clipboard.js", "forms.js"]) {
@@ -115,6 +180,8 @@ const { chromium } = require("playwright");
       await set_select("modal_size", size); await wait_text("modal_selected", size);
       await page.locator("#modal").click();
       const modal = page.locator(".rf-modal:visible"); await modal.waitFor(); await modal_ready(); await modal_ready();
+      if (size === "ventana") check(await modal.locator(".rf-status-badge--info").count() === 1,
+        "Badge en modal creado dinámicamente");
       const box = await modal.locator(".modal-dialog").boundingBox();
       check(Math.abs(box.width - width) < 1, "Ancho de modal " + size + ": " + box.width);
       await modal.press("Escape");
@@ -147,8 +214,15 @@ const { chromium } = require("playwright");
     const download = await download_wait;
     check(download.suggestedFilename() === "ejemplo.txt", "Descarga nativa con namespace");
     check((await fs.readFile(await download.path(), "utf8")).includes("Descarga nativa"), "Contenido de descarga");
+    const no_icon_wait = page.waitForEvent("download"); await page.locator("#uno-sin_icono").click();
+    const no_icon = await no_icon_wait;
+    check(no_icon.suggestedFilename() === "sin-icono.txt" &&
+      (await fs.readFile(await no_icon.path(), "utf8")).includes("Descarga sin icono"), "Descarga sin icono funcional");
+
     await page.setViewportSize({ width: 390, height: 844 });
     await page.waitForTimeout(100);
+    check(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
+      "Página y acciones sin desbordamiento horizontal en móvil");
     check(await page.locator(".rf-metric-grid.rf-grid--4").first()
       .evaluate(el => getComputedStyle(el).gridTemplateColumns.split(" ").length) === 1, "Cuadrícula móvil");
     await page.locator("#modal_header").check(); await page.locator("#modal_footer").check();

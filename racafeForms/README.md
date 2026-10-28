@@ -201,14 +201,14 @@ los IDs y los valores que recibe Shiny. La estructura HTML interna es diferente;
 la distribución y el estilo visibles son equivalentes. Los controles externos al
 paquete no reciben estos estilos. El campo de fecha sigue sin botón adicional.
 
-## Componentes corporativos con Compartido (0.3.0)
+## Componentes corporativos con Compartido (0.4.0)
 
 Los componentes nuevos usan los estilos y scripts del repositorio **Compartido**,
 no una copia dentro del paquete. Mantenga una copia local controlada, por ejemplo
 `vendor/Compartido`, fijada a un commit revisado. La carga no realiza peticiones a GitHub:
 
 ```r
-assets <- racafeForms::racafeSharedAssets("vendor/Compartido", version = "1.0.0")
+assets <- racafeForms::racafeSharedAssets("vendor/Compartido", version = "1.1.0")
 ui <- shiny::fluidPage(
   assets,
   racafeForms::racafePanel("Resumen",
@@ -223,7 +223,7 @@ ui <- shiny::fluidPage(
 ```
 
 También puede configurar `RACAFE_SHARED_PATH` o `options(racafeForms.shared_path = ...)`
-y llamar `racafeSharedAssets(version = "1.0.0")`. Solo se publican Styles, Scripts e img;
+y llamar `racafeSharedAssets(version = "1.1.0")`. Solo se publican Styles, Scripts e img;
 no se expone la raíz ni `.git`. El cargador rechaza versiones declaradas distintas de
 la solicitada y prefijos que ya apuntan a otra copia. Los recursos repetidos con la
 misma configuración se deduplican mediante las dependencias HTML de Shiny.
@@ -340,7 +340,7 @@ y la [migración representativa](docs/migration/README.md). El ejemplo represent
 pasa de 39 a 13 líneas de UI no vacías y sin comentarios (66,7 % menos); no es una
 medición de los módulos reales de Firma Digital, que no se han recibido ni modificado.
 
-## Tipos email y tel: binding reactivo (0.3.1)
+## Tipos email y tel: binding reactivo (0.4.1)
 
 `racafeInputText(type = "email")` y `type = "tel"` conservan un input HTML de texto,
 compatible con el binding nativo de Shiny. `inputmode = "email"` / `"tel"` sugiere el
@@ -365,3 +365,67 @@ shiny::runApp(system.file("examples", "text-input-bindings.R", package = "racafe
 La demo muestra la contraseña ficticia para verificar el valor del servidor; no utilice
 credenciales reales ni copie esa salida a una aplicación. La prueba automatizada está en
 `tests/browser/test-text-input-bindings.cjs`. Vea el [informe de la corrección](docs/text-input-bindings.md).
+
+## Componentes visuales 0.4.0
+
+Use `racafeSharedAssets(version = "1.1.0")` una vez en la UI. La identidad visual,
+las densidades y los badges viven en Compartido; las funciones R construyen la interfaz.
+Los estilos base incluidos en el paquete se conservan para compatibilidad de controles
+anteriores. No copie estilos, paletas ni scripts a cada módulo.
+
+`racafePanel()` y `racafeCard()` admiten encabezado adicional (`header`), cuerpo y `footer`.
+Las tarjetas e indicadores añaden `padding = "compact"`, `"normal"` o `"comfortable"`;
+el valor normal conserva el espaciado anterior. Las tarjetas no se estiran para alcanzar
+la altura de su vecina. `racafeMetric(value, label, detail)` usa label como título y detail
+como nota; el icono sigue siendo opcional. `racafeMetricGrid(columns = 2/3/4)` se adapta
+al móvil sin CSS en la aplicación.
+
+```r
+assets <- racafeForms::racafeSharedAssets("vendor/Compartido", version = "1.1.0")
+shiny::fluidPage(assets,
+  racafeForms::racafeMetricGrid(columns = 3,
+    racafeForms::racafeMetric(42, "Total", "Actualizado hoy", padding = "compact"),
+    racafeForms::racafeMetric(8, "Pendientes", icon = "clock", padding = "compact"),
+    racafeForms::racafeCard("Información", "Contenido de altura variable",
+      header = racafeForms::racafeStatusBadge("Disponible", "success"), padding = "compact")),
+  racafeForms::racafeActionBar(
+    left = racafeForms::racafeButton("volver", "Volver"),
+    right = racafeForms::racafeButtonDownload("exportar", icon = NULL)))
+```
+
+`racafeStatusBadge(value, variant = "neutral", size = "sm")` devuelve un span de texto
+escapado. Admite `success`, `warning`, `danger`, `info`, `neutral`, y tamaños `xs`, `sm`, `md`.
+Es informativo: no registra clics ni convierte cada celda en una región viva. Mantenga
+texto descriptivo para que el significado no dependa solo del color. La paleta corporativa
+predeterminada tiene contraste de texto >= 4,5:1; vuelva a comprobarlo si personaliza colores.
+
+```r
+reactable::reactable(data.frame(estado = c("Disponible", "Pendiente")),
+  columns = list(estado = reactable::colDef(cell = function(value) {
+    racafeForms::racafeStatusBadge(value, if (value == "Disponible") "success" else "warning")
+  })))
+```
+
+La selección de variante corresponde al consumidor, no a reglas de Firma Digital dentro
+del badge. `reactable` y `bs4Dash` son dependencias sugeridas para ejemplos/pruebas; no
+son necesarias para construir un badge. `TablaReactable2` permanece en `racafeModulos`.
+
+Los campos de texto, listas y rangos conservan los bindings y sus valores Shiny. Con
+Compartido 1.1.0 comparten altura, radio, borde, fuente y padding, incluso fuera de
+`racafeForm()`. Las tres densidades siguen disponibles dentro del formulario.
+`racafeButtonDownload(icon = NULL)` omite el icono y conserva `downloadHandler()`;
+un icono explícito se muestra una sola vez. Las barras de acciones distribuyen los grupos
+izquierdo/central/derecho y permiten envolver botones en móvil con `wrap = TRUE`.
+
+La demo existente se amplía, en lugar de mantener otra implementación de los componentes:
+
+```r
+options(racafeForms.shared_path = "/ruta/Compartido")
+shiny::runApp(system.file("examples", "corporate-components.R", package = "racafeForms"))
+# Para bs4Dash, establezca RACAFE_DEMO_BS4DASH=1 antes de iniciarla.
+```
+
+Instale `reactable` para esta demo. Incluye filtros y tabla con badges, dos módulos con
+namespace, descarga nativa con/sin icono, siete tamaños de modal, copia de texto e imágenes
+y estados de formulario. No requiere CSS, HTML ni handlers JS propios para esos controles.
+No se han modificado las aplicaciones. Vea [validación y compatibilidad 0.4.0](docs/visual-components-0.4.0.md).

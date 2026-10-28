@@ -18,7 +18,7 @@ racafeButtonDownload(
 
 \item{label}{Texto.}
 
-\item{icon}{Icono.}
+\item{icon}{Nombre o etiqueta de icono; NULL omite el icono sin añadir uno predeterminado.}
 
 \item{variant}{Variante CSS.}
 

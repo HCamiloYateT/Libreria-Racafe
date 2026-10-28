@@ -9,7 +9,8 @@ racafeMetric(
   label,
   detail = NULL,
   icon = NULL,
-  variant = c("default", "muted", "highlighted")
+  variant = c("default", "muted", "highlighted"),
+  padding = c("normal", "compact", "comfortable")
 )
 }
 \arguments{
@@ -22,10 +23,16 @@ racafeMetric(
 \item{icon}{Icono opcional: nombre Font Awesome o etiqueta shiny::icon.}
 
 \item{variant}{Apariencia: default, muted o highlighted.}
+
+\item{padding}{Espaciado: compact, normal o comfortable.}
 }
 \value{
 Tarjeta informativa sin clic predeterminado.
 }
 \description{
 Indicador numérico o textual
+}
+\details{
+label es el título y detail es la nota. padding = "compact" reduce espaciado
+y tamaño del valor sin añadir CSS a la aplicación. Icono y nota son opcionales.
 }
