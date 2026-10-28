@@ -6,16 +6,19 @@
 \usage{
 racafeFormMessage(
   text,
-  type = c("info", "success", "warning", "error", "muted")
+  type = c("info", "success", "warning", "error", "muted", "loading", "empty"),
+  details = NULL
 )
 }
 \arguments{
 \item{text}{Mensaje.}
 
-\item{type}{info, success, warning, error, muted.}
+\item{type}{info, success, warning, error, muted, loading o empty.}
+
+\item{details}{Detalles técnicos opcionales, explícitos y escapados; nunca se añaden desde errores automáticamente.}
 }
 \value{
-Etiqueta HTML \code{p} con el mensaje y la clase de estilo elegida.
+Etiqueta HTML accesible con el mensaje, estado y detalles opcionales.
 }
 \description{
 Aviso de formulario no modal

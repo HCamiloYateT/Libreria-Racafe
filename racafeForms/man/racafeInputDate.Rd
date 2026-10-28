@@ -12,7 +12,11 @@ racafeInputDate(
   min = NULL,
   max = NULL,
   ns = NULL,
-  width = "100\%"
+  width = "100\%",
+  disabled = FALSE,
+  required = FALSE,
+  help = NULL,
+  error = NULL
 )
 }
 \arguments{
@@ -29,6 +33,14 @@ racafeInputDate(
 \item{ns}{Namespace.}
 
 \item{width}{Ancho CSS.}
+
+\item{disabled}{Deshabilitar el control.}
+
+\item{required}{Marcar el campo como obligatorio.}
+
+\item{help}{Ayuda opcional del campo.}
+
+\item{error}{Mensaje de validación opcional.}
 }
 \value{
 Componente de entrada Shiny para incluir en la UI; su valor está disponible en \code{input$id}.

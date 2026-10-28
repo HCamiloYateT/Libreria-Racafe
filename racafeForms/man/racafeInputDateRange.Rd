@@ -12,7 +12,11 @@ racafeInputDateRange(
   min = NULL,
   max = NULL,
   ns = NULL,
-  width = "100\%"
+  width = "100\%",
+  disabled = FALSE,
+  required = FALSE,
+  help = NULL,
+  error = NULL
 )
 }
 \arguments{
@@ -27,6 +31,14 @@ racafeInputDateRange(
 \item{ns}{Namespace.}
 
 \item{width}{Ancho CSS.}
+
+\item{disabled}{Deshabilitar el control.}
+
+\item{required}{Marcar el campo como obligatorio.}
+
+\item{help}{Ayuda opcional del campo.}
+
+\item{error}{Mensaje de validación opcional.}
 }
 \value{
 Control Shiny cuyo valor en \code{input$id} es un vector \code{Date} de longitud dos.

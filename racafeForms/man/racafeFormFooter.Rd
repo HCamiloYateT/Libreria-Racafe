@@ -9,7 +9,11 @@ racafeFormFooter(
   help = NULL,
   align = c("right", "left", "center"),
   divider = TRUE,
-  sticky = FALSE
+  sticky = FALSE,
+  left = NULL,
+  center = NULL,
+  right = NULL,
+  wrap = TRUE
 )
 }
 \arguments{
@@ -22,6 +26,10 @@ racafeFormFooter(
 \item{divider}{Mostrar borde superior.}
 
 \item{sticky}{Fijar al pie dentro del contenedor scrollable.}
+
+\item{left, center, right}{Grupos opcionales para racafeActionBar; NULL conserva el diseño anterior.}
+
+\item{wrap}{Permitir que los grupos nuevos pasen a otra línea.}
 }
 \value{
 Etiqueta HTML \code{div} con las acciones y el texto de ayuda opcional.

@@ -168,3 +168,142 @@ Datepicker en rango. Esto conserva `racafeUpdateDate()`, `racafeUpdateDateRange(
 los IDs y los valores que recibe Shiny. La estructura HTML interna es diferente;
 la distribución y el estilo visibles son equivalentes. Los controles externos al
 paquete no reciben estos estilos. El campo de fecha sigue sin botón adicional.
+
+## Componentes corporativos con Compartido (0.3.0)
+
+Los componentes nuevos usan los estilos y scripts del repositorio **Compartido**,
+no una copia dentro del paquete. Mantenga una copia local controlada, por ejemplo
+`vendor/Compartido`, fijada a un commit revisado. La carga no realiza peticiones a GitHub:
+
+```r
+assets <- racafeForms::racafeSharedAssets("vendor/Compartido", version = "1.0.0")
+ui <- shiny::fluidPage(
+  assets,
+  racafeForms::racafePanel("Resumen",
+    racafeForms::racafeMetricGrid(
+      racafeForms::racafeMetric(12, "Creadas"),
+      racafeForms::racafeMetric(8, "Completadas"), columns = 2),
+    racafeForms::racafeInfoGrid(
+      racafeForms::racafeInfoItem("Referencia", "REF-001"),
+      racafeForms::racafeInfoItem("Estado", "Disponible")),
+    racafeForms::racafeInputReadOnly("referencia", "Referencia", "REF-001", copyable = TRUE))
+)
+```
+
+También puede configurar `RACAFE_SHARED_PATH` o `options(racafeForms.shared_path = ...)`
+y llamar `racafeSharedAssets(version = "1.0.0")`. Solo se publican Styles, Scripts e img;
+no se expone la raíz ni `.git`. El cargador rechaza versiones declaradas distintas de
+la solicitada y prefijos que ya apuntan a otra copia. Los recursos repetidos con la
+misma configuración se deduplican mediante las dependencias HTML de Shiny.
+
+Los parámetros `css`, `javascript` e `images` activan cada grupo de recursos de
+**Compartido**; la dependencia base anterior `racafeFormsDependencies()` se conserva.
+No incluya además los mismos archivos mediante tags link o script manuales.
+Las imágenes se construyen con `paste0(attr(assets, "image_url"), "/logo.png")`.
+
+| Función | Uso |
+|---|---|
+| `racafePanel()` | Contenedor con título, variante, padding, borde y footer opcionales; sin altura mínima por defecto. |
+| `racafeCard()` | Tarjeta informativa; clic y teclado únicamente con clickable = TRUE e ID explícito. |
+| `racafeMetric()` / `racafeMetricGrid()` | Indicadores y cuadrícula adaptable de una a cuatro columnas. |
+| `racafeInfoItem()` / `racafeInfoGrid()` | Datos de etiqueta-valor, con sustituto para vacíos. |
+| `racafeActionBar()` | Grupos de botones a izquierda, centro y derecha, con wrap configurable. |
+| `racafeModal()` / `racafeModalFooter()` | Modales nativos con los siete tamaños existentes de Compartido. |
+| `racafeCopyButton()` | Copia directa de texto, valor de otro control o PNG. |
+| `racafeCopyText()` / `racafeCopyImage()` | Solicitudes de copia desde R, con resultado asíncrono real. |
+| `racafeInputReadOnly()` | Referencias seleccionables y enfocables, con copia opcional. |
+| `racafeResetForm()` | Restaurar o limpiar campos editables de un formulario con ID. |
+
+### Composición, estados y catálogos
+
+`racafeForm(unstyled = TRUE)` evita el borde/fondo redundante al colocarlo en un panel.
+`racafeFormFooter()` conserva sus argumentos anteriores y admite `left`, `center` y
+`right` mediante `racafeActionBar()`. Los botones de descarga siguen conectándose
+al mismo `output$id <- shiny::downloadHandler(...)`, sin enlaces ocultos ni clics simulados.
+
+Texto, textarea y numéricos admiten readonly; los selectores y fechas admiten
+`disabled`, `required`, `help` y `error`. Los mensajes de error se asocian con
+`aria-describedby` y `aria-invalid`. `racafeInputText(choices = ...)` ofrece sugerencias
+con un datalist local. Para etiquetas y valores distintos o catálogos reactivos, use
+`racafeInputSelect()` con búsqueda y `racafeUpdateSelect()`; no cambia su contrato.
+Estas señales son de interfaz: los permisos y la validación real siguen en el servidor.
+
+`racafeFormMessage()` y `racafeAlert()` añaden loading y empty a los estados anteriores.
+Los detalles técnicos solo aparecen cuando la aplicación proporciona explícitamente
+`details`, siempre como texto escapado; no se muestran excepciones automáticamente.
+No pase secretos ni datos que no deban quedar disponibles en el navegador.
+
+### Módulos, portapapeles y restablecimiento
+
+Construya los controles con IDs locales y `ns = ns`. En servidor, pase la sesión del
+módulo y el ID local; no aplique el namespace dos veces:
+
+```r
+server_modulo <- function(id) {
+  shiny::moduleServer(id, function(input, output, session) {
+    shiny::observeEvent(input$copiar, {
+      racafeForms::racafeCopyText(session, "resultado", "Texto autorizado por la aplicación")
+    })
+    shiny::observeEvent(input$resultado_copy_result, {
+      if (isTRUE(input$resultado_copy_result$success)) {
+        shiny::showNotification("Copia confirmada por el navegador")
+      }
+    })
+    shiny::observeEvent(input$restablecer, racafeForms::racafeResetForm(session, "formulario"))
+  })
+}
+```
+
+Un botón `racafeCopyButton("copiar", ...)` informa en `input$copiar_copy_result`.
+El campo readonly `id = "referencia"` con copia opcional informa en
+`input$referencia_copy_copy_result`. El resultado incluye success, type, error y
+request_id, sin el contenido copiado. La copia requiere HTTPS o localhost y puede
+ser denegada por el navegador. PNG requiere ClipboardItem; URL externas requieren
+CORS. Se informa el éxito después de completar la operación, nunca antes.
+
+El reset necesita `racafeForm(id = "formulario", ns = ns)`. FALSE restaura la
+instantánea inicial de cada control; `clear = TRUE` limpia sus valores editables.
+No toca campos readonly, archivos ni botones. El resultado en
+`input$formulario_reset_result` informa success, count, failures y request_id.
+La UI dinámica conserva su propia instantánea al enlazarse con Shiny.
+
+### Demostración y pruebas
+
+```r
+options(racafeForms.shared_path = "vendor/Compartido")
+shiny::runApp(system.file("examples", "corporate-components.R", package = "racafeForms"))
+```
+
+Para la misma demo en bs4Dash, instale ese paquete opcional y defina
+`RACAFE_DEMO_BS4DASH=1` antes de ejecutarla. El paquete no añade una dependencia
+obligatoria a bs4Dash. La demo suprime los CDN opcionales ionicons/googlefonts de
+bs4Dash y utiliza iconos locales y fuentes de sustitución para funcionar sin conexión externa. La demostración incluye dos módulos simultáneos, variantes,
+cuadrículas de 1 a 4 columnas, los siete modales, UI dinámica, copia real, descargas y reset.
+
+Desde la raíz del monorepo:
+
+```r
+testthat::test_local("racafeForms", stop_on_failure = TRUE)
+```
+
+Las pruebas de navegador están en `tests/browser`. Allí ejecute `npm ci` y
+`npx playwright install chromium` una vez; arranque la demo y ejecute `npm test`.
+`RACAFE_TEST_URL` define la dirección local de la demo; `CHROMIUM_PATH` permite
+usar Chromium ya instalado. Playwright es solo una dependencia de desarrollo.
+El runner bloquea peticiones externas y comprueba copia real, fallos de permisos,
+modales, descargas, módulos, móvil y recursos deduplicados.
+
+### Compatibilidad y migración
+
+| API | Recursos | Resultado |
+|---|---|---|
+| Funciones anteriores de racafeForms 0.2.1 | Solo dependencia base | Conservan sus argumentos y comportamiento. |
+| Funciones anteriores en 0.3.0 + Compartido 1.0.0 | Adopción explícita | Usan la identidad de Compartido. |
+| Componentes nuevos de 0.3.0 | Compartido 1.0.0 | Estilos e interacciones nuevos centralizados. |
+| Copia en navegador sin soporte o permisos | Compartido 1.0.0 | Resultado de fallo; no éxito simulado. |
+
+No se añadieron dependencias R ni reglas de negocio de Firma Digital. Se conserva
+la independencia respecto a racafeShiny. Consulte la [matriz de componentes](docs/component-matrix.md)
+y la [migración representativa](docs/migration/README.md). El ejemplo representativo
+pasa de 39 a 13 líneas de UI no vacías y sin comentarios (66,7 % menos); no es una
+medición de los módulos reales de Firma Digital, que no se han recibido ni modificado.

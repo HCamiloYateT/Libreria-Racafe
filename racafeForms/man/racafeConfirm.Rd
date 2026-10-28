@@ -24,7 +24,7 @@ racafeConfirm(
 
 \item{text}{Mensaje de texto plano.}
 
-\item{type}{success, error, warning, info, question.}
+\item{type}{success, error, warning, info, question, loading o empty.}
 
 \item{confirm_label}{Texto del boton confirmar.}
 

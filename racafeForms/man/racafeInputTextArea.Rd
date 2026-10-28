@@ -14,7 +14,10 @@ racafeInputTextArea(
   required = FALSE,
   help = NULL,
   width = "100\%",
-  ns = NULL
+  ns = NULL,
+  readonly = FALSE,
+  disabled = FALSE,
+  error = NULL
 )
 }
 \arguments{
@@ -37,6 +40,12 @@ racafeInputTextArea(
 \item{width}{Ancho CSS.}
 
 \item{ns}{Funcion namespace de modulo.}
+
+\item{readonly}{Impedir edición por teclado.}
+
+\item{disabled}{Deshabilitar el control.}
+
+\item{error}{Mensaje de validación del campo, o NULL.}
 }
 \value{
 Componente de entrada Shiny para incluir en la UI; su valor está disponible en \code{input$id}.

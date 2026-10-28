@@ -8,7 +8,8 @@ racafeAlert(
   session,
   title,
   text,
-  type = c("info", "success", "error", "warning", "question")
+  type = c("info", "success", "error", "warning", "question", "loading", "empty"),
+  details = NULL
 )
 }
 \arguments{
@@ -18,7 +19,9 @@ racafeAlert(
 
 \item{text}{Mensaje de texto plano.}
 
-\item{type}{success, error, warning, info, question.}
+\item{type}{success, error, warning, info, question, loading o empty.}
+
+\item{details}{Detalles técnicos opcionales y explícitos, escapados como texto.}
 }
 \value{
 El resultado de enviar la alerta a la sesión; se usa por su efecto secundario.
