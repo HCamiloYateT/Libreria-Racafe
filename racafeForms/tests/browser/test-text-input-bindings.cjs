@@ -24,7 +24,7 @@ const { chromium } = require("playwright");
       "Readonly y disabled llegan inicialmente al servidor");
     for (const type of ["text", "email", "tel", "password"]) {
       const input = page.locator("#uno-" + type);
-      check(await input.getAttribute("type") === (type === "password" ? "password" : "text"), "Tipo HTML " + type);
+      check(await input.getAttribute("type") === type, "Tipo HTML " + type);
       check(await input.getAttribute("required") !== null, "Required " + type);
       check(await input.getAttribute("aria-invalid") === "true", "Validación " + type);
       check((await input.getAttribute("aria-describedby")) === "uno-" + type + "_help uno-" + type + "_error",
@@ -38,10 +38,21 @@ const { chromium } = require("playwright");
       if (["email", "tel"].includes(type)) {
         check(await input.getAttribute("inputmode") === type, "Teclado " + type);
         check(await input.getAttribute("autocomplete") === type, "Autocompletado " + type);
-        check(await input.evaluate(el => window.jQuery(el).data("shiny-input-binding") ===
-          window.jQuery("#uno-text").data("shiny-input-binding")), "Mismo binding nativo de texto " + type);
+        check(await input.evaluate(el => {
+          const binding = window.jQuery(el).data("shiny-input-binding");
+          const native = window.jQuery("#uno-text").data("shiny-input-binding");
+          return binding && binding.getValue === native.getValue && binding.subscribe === native.subscribe &&
+            binding.receiveMessage === native.receiveMessage;
+        }), "Métodos nativos de texto reutilizados: " + type);
       }
     }
+    const isolated = await page.evaluate(() => {
+      const fallback = Shiny.inputBindings.getBindings().find(entry => entry.binding.name === "racafeForms.textInput");
+      const container = document.createElement("div");
+      container.innerHTML = '<input type="tel" class="form-control"><input type="email" class="form-control">';
+      return fallback.binding.find(container).length === 0;
+    });
+    check(isolated, "El adaptador no captura controles ajenos a racafeForms");
     check(!(await page.locator("#dos-resultado").innerText()).includes("prueba@example.org"), "Módulos aislados");
     check(await page.locator("#uno-readonly").getAttribute("readonly") !== null &&
       !await page.locator("#uno-readonly").isEditable(), "Readonly conserva bloqueo de edición");
