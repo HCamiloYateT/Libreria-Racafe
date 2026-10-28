@@ -1,16 +1,17 @@
 Package: racafeMail
 Type: Package
-Title: Correos Corporativos Racafe con Plantillas Locales
-Version: 0.1.0
+Title: Correos Corporativos Racafe Autocontenidos
+Version: 0.2.0
 Authors@R: person("H. Camilo", "Yate T.", email = "camilo.yate@racafe.com", role = c("aut", "cre"))
 Description: Configuracion R, renderizado seguro y envio explicito de correos
-    corporativos con 'blastula'. Utiliza plantillas HTML locales versionadas
-    en Compartido y separa la generacion de vistas previas del transporte SMTP.
+    corporativos con 'blastula'. Incluye las cuatro plantillas, la configuracion
+    R y las imagenes corporativas, sin carpetas ni repositorios adicionales.
+    Separa la generacion de vistas previas del transporte SMTP.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Depends: R (>= 4.1.0)
-Imports: blastula (>= 0.3.6), htmltools
+Imports: blastula (>= 0.3.6), htmltools, base64enc
 Suggests: testthat (>= 3.2.0), roxygen2, xml2, withr
 Config/testthat/edition: 3

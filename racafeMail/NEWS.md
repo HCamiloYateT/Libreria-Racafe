@@ -1,3 +1,12 @@
+# racafeMail 0.2.0
+
+- Incluye configuración R, base, firma, cuatro plantillas y una imagen en la instalación.
+- Config() funciona sin rutas y no consulta RACAFE_MAIL_HOME; ruta explícita conserva compatibilidad optativa.
+- Incluye imágenes en previews y usa la conversión CID de blastula al componer SMTP, sin descargas por defecto.
+- Reduce archivos fuente de 32 a 15: dos archivos R, una ayuda común y pruebas consolidadas.
+- Retira el checkout de Compartido y el token externo de los flujos CI del paquete.
+- Conserva nueve funciones públicas, transporte explícito y saneamiento de errores SMTP.
+
 # racafeMail 0.1.0
 
 - Añade nueve funciones públicas para configuración R, firma, render, preview y envío de cuatro plantillas.

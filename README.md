@@ -161,10 +161,9 @@ Rscript scripts/check_documentation.R
 
 ## Correo corporativo con racafeMail
 
-`racafeMail` requiere una copia local versionada de `Compartido/email` y `blastula >= 0.3.6`.
-Configure `RACAFE_MAIL_HOME` o pase `ruta` a `racafeMailConfig()`. La configuración permanece
-en R; logotipo, firma y colores se definen en `email/config.R`. Render y preview no hacen
-SMTP. El envío es explícito y las credenciales se mantienen fuera de Git.
-Consulte [instalación y API](racafeMail/README.md) y [migración propuesta](racafeMail/docs/migration.md).
-Las ramas iniciales son `codex/racafe-mail` y `codex/racafe-mail-templates`; hasta integrarlas,
-use esas referencias o sus SHAs aprobados.
+`racafeMail` 0.2.0 incluye configuración R, cuatro plantillas, firma y logotipo en el paquete.
+No requiere Compartido ni una carpeta email externa. Use `racafeMailConfig()` sin argumentos;
+render y preview no hacen SMTP ni descargas. El envío explícito utiliza blastula y mantiene
+las credenciales fuera de Git. Consulte [instalación, API y migración](racafeMail/README.md).
+Para revisar esta versión antes de integrarla, use `ref = "codex/racafemail-self-contained"`
+al instalar el subpaquete. Fije el SHA completo aprobado para una instalación reproducible.
