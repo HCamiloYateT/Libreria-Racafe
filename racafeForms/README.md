@@ -339,3 +339,29 @@ la independencia respecto a racafeShiny. Consulte la [matriz de componentes](doc
 y la [migración representativa](docs/migration/README.md). El ejemplo representativo
 pasa de 39 a 13 líneas de UI no vacías y sin comentarios (66,7 % menos); no es una
 medición de los módulos reales de Firma Digital, que no se han recibido ni modificado.
+
+## Tipos email y tel: binding reactivo (0.3.1)
+
+`racafeInputText(type = "email")` y `type = "tel"` conservan un input HTML de texto,
+compatible con el binding nativo de Shiny. `inputmode = "email"` / `"tel"` sugiere el
+teclado virtual y `autocomplete` usa ese mismo token por defecto. Un valor explícito
+como `autocomplete = "off"` tiene precedencia. `text` y `password` conservan sus tipos.
+No se registra JavaScript ni un binding nuevo; `shiny::updateTextInput()` sirve para
+los cuatro tipos, también dentro de `moduleServer()` con IDs locales.
+
+La API `type` sigue aceptando los mismos valores. El tipo HTML efectivo de email/tel
+pasa a text: no hay validación nativa de formato de correo (`typeMismatch`). Valide
+correo y teléfono en el servidor; `required`, `readonly`, `disabled`, `help` y `error`
+conservan su función. Si un selector CSS propio dependía de `input[type=email]` o
+`input[type=tel]`, use el ID del campo o `inputmode`. No se modifican aplicaciones consumidoras.
+
+Prueba ejecutable con dos módulos, cuatro tipos y estados de campo (solo datos ficticios):
+
+```r
+shiny::runApp(system.file("examples", "text-input-bindings.R", package = "racafeForms"))
+# TEXT_BINDINGS_BS4DASH=1 activa el modo bs4Dash antes de iniciar la app.
+```
+
+La demo muestra la contraseña ficticia para verificar el valor del servidor; no utilice
+credenciales reales ni copie esa salida a una aplicación. La prueba automatizada está en
+`tests/browser/test-text-input-bindings.cjs`. Vea el [informe de la corrección](docs/text-input-bindings.md).

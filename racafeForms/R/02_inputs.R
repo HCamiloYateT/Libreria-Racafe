@@ -3,7 +3,7 @@
 #' @param label Etiqueta.
 #' @param value Valor inicial.
 #' @param placeholder Texto de ayuda dentro del campo.
-#' @param type text, email, tel o password.
+#' @param type text, email, tel o password. email y tel mantienen type HTML text para el binding nativo.
 #' @param required Indica obligatoriedad para accesibilidad (la validacion es del servidor).
 #' @param help Ayuda debajo del control.
 #' @param width Ancho CSS.
@@ -11,9 +11,15 @@
 #' @param readonly Impedir edición por teclado.
 #' @param disabled Deshabilitar el control.
 #' @param error Mensaje de validación del campo, o NULL.
-#' @param autocomplete Token de autocompletado HTML; NULL conserva el predeterminado.
+#' @param autocomplete Token de autocompletado HTML; NULL usa email/tel para esos tipos
+#'   y conserva el predeterminado de Shiny para text/password.
 #' @param choices Catálogo opcional de sugerencias de texto; no limita la validación del servidor.
 #' @return Componente de entrada Shiny para incluir en la UI; su valor está disponible en `input$id`.
+#' @details email y tel usan inputmode para sugerir el teclado virtual y autocomplete
+#'   para identificar el contenido. No se cambia el tipo HTML ni se registra un binding
+#'   JavaScript alternativo. Todos los tipos, incluido password, conservan actualizaciones
+#'   con shiny::updateTextInput(). required no valida el formato:
+#'   compruebe correo/teléfono y permisos en el servidor; error muestra el mensaje de validación.
 #' @export
 racafeInputText <- function(id, label, value = "", placeholder = NULL,
                             type = c("text", "email", "tel", "password"),
@@ -26,7 +32,8 @@ racafeInputText <- function(id, label, value = "", placeholder = NULL,
     shiny::textInput(.rf_id(id, ns), label, value = value, placeholder = placeholder, width = width)
   }
   if (type %in% c("email", "tel")) {
-    tag <- htmltools::tagQuery(tag)$find("input")$addAttrs(type = type)$allTags()
+    tag <- htmltools::tagQuery(tag)$find("input")$addAttrs(inputmode = type)$allTags()
+    if (is.null(autocomplete)) autocomplete <- type
   }
   if (!is.null(autocomplete)) {
     tag <- htmltools::tagQuery(tag)$find("input")$addAttrs(autocomplete = autocomplete)$allTags()
