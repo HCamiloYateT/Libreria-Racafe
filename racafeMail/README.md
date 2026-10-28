@@ -1,159 +1,172 @@
-# racafeMail
+# racafeMail 0.2.0
 
-Paquete independiente para correos corporativos con **configuración R**, plantillas locales
-de `Compartido/email` y transporte explícito mediante `blastula`. Requiere R >= 4.1.0.
-El renderizado, la firma y las vistas previas no envían correo. No depende de `racafeForms`
-ni modifica Firma Digital, FastAPI, MySQL o los servicios de OEAPP.
+Correos corporativos **autocontenidos**: plantillas, configuración R, logotipo y firma
+incluidos en el paquete. No requiere Compartido, `/home/compartido/email`, archivos HTML
+externos ni configuración JSON. Renderizar y generar previews no hace SMTP ni descarga recursos.
 
-## Instalación
+## Instalación y uso
 
 ```r
-install.packages("remotes") # Solo si no está instalado.
 remotes::install_github("HCamiloYateT/Libreria-Racafe", subdir = "racafeMail",
-                        ref = "codex/racafe-mail", dependencies = NA, upgrade = "never")
+                        ref = "codex/racafemail-self-contained", dependencies = NA, upgrade = "never")
+# Desde un clon local: remotes::install_local("racafeMail", dependencies = NA, upgrade = "never")
+
+config <- racafeMail::racafeMailConfig()
+correo <- racafeMail::racafeMailRender("otp",
+  list(nombre = "Ana", codigo = "012345", vigencia_minutos = 5L), config)
+archivo <- tempfile(fileext = ".html")
+racafeMail::racafeMailPreview("otp",
+  list(nombre = "Ana", codigo = "012345", vigencia_minutos = 5L), archivo, config)
 ```
 
-Para una instalación reproducible, sustituya `ref` por el **SHA completo aprobado** del
-paquete y fije también el commit de Compartido. Desde un clon local:
+Para una instalación reproducible, sustituya la rama por el SHA completo aprobado del paquete.
+Requiere R >= 4.1.0, blastula >= 0.3.6, htmltools y base64enc (ya es dependencia de blastula).
+Los únicos recursos de ejecución propios son **dos archivos R y un PNG**. Todo viaja en la
+instalación estándar de R; no copie carpetas adicionales después de instalar.
 
-```r
-remotes::install_local("racafeMail", dependencies = NA, upgrade = "never")
-```
+## Archivos y fuente única
 
-Las dependencias de ejecución son `htmltools` y `blastula >= 0.3.6` (con sus dependencias).
-No se distribuyen copias de las plantillas de producción en el paquete. Prepare una copia
-versionada de Compartido y apunte a su carpeta `email`:
+El paquete pasa de **32 a 15 archivos fuente**, manteniendo las nueve funciones públicas,
+las pruebas y los dos ejemplos. No se eliminó documentación de APIs: se agrupa en una ayuda
+común, accesible por los nueve nombres y por `help(package = "racafeMail")`.
 
-```sh
-git clone --branch codex/racafe-mail-templates https://github.com/HCamiloYateT/Compartido.git vendor/Compartido
-git -C vendor/Compartido checkout --detach d47401b5e1ae2292577dcda05def43ee051aa9f0
-# Compruebe git rev-parse HEAD y registre ambos commits antes de liberar.
-export RACAFE_MAIL_HOME="$PWD/vendor/Compartido/email"
-```
+| Archivo/grupo | Responsabilidad |
+|---|---|
+| `R/racafeMail.R` | Configuración R, validación, render, preview y transporte; API documentada. |
+| `R/resources.R` | Base HTML, firma y las cuatro plantillas como recursos R internos. |
+| `inst/img/logo.png` | Única imagen incluida, reutilizada para logo y firma por defecto. |
+| `inst/examples/` | Cuatro previews sin envío y adaptador stdin OTP propuesto. |
+| `tests/testthat/test-racafeMail.R` | Pruebas consolidadas; no duplica plantillas corporativas. |
+| `man/racafeMail.Rd` | Ayuda generada para las nueve funciones y el paquete. |
 
-`email/VERSION` debe ser 0.1.x; `version = "0.1.0"` exige coincidencia exacta del contrato.
-La versión no reemplaza el pin del commit: un despliegue reproducible debe registrar ambos
-SHAs. No se hace fetch HTTP durante el renderizado ni durante el envío. Las imágenes
-HTTPS quedan referenciadas para que las cargue el cliente de correo.
+DESCRIPTION, NAMESPACE, LICENSE, NEWS, este README y los ejecutores de pruebas completan
+la estructura estándar. La configuración inicial se define en R dentro del motor y se
+personaliza por argumentos; no existe un config.R obligatorio ni un VERSION externo.
+La versión de recursos incluidos es la versión del paquete.
 
-## Configuración R única
-
-`racafeMailConfig()` carga la lista `racafe_mail` de `email/config.R`; no hay configuración
-JSON. El archivo es **R de confianza**, administrado por el operador y no editable por usuarios
-finales. Los argumentos explícitos prevalecen sobre el archivo:
+## Personalización de identidad
 
 ```r
 config <- racafeMail::racafeMailConfig(
-  version = "0.1.0", empresa = "Racafé & Cía. S.C.A.", color = "#DA291C",
-  color_fondo = "#f4f4f4", color_texto = "#333333",
-  logo_url = "https://example.org/marca/logo.png",
-  firma_url = "https://example.org/marca/firma.png",
+  empresa = "Racafé & Cía. S.C.A.", web = "https://www.racafe.com",
+  color = "#DA291C", color_fondo = "#f4f4f4", color_texto = "#333333",
   pie = "Mensaje automático. Por favor, no responda."
 )
+# Opcional: un PNG propio se incorpora al HTML; no queda una referencia al disco.
+# config <- racafeMail::racafeMailConfig(logo_url = "/ruta/mi-logo.png")
 ```
 
-Use URL HTTPS estables/públicas para `logo_url`, `firma_url` y `web`; nunca rutas relativas
-o del disco. No se comprueba disponibilidad remota para no generar peticiones por correo.
-Si se cambia solo `logo_url` por argumento, la firma sigue ese logo salvo `firma_url` explícito.
-Los colores admiten `#RRGGBB` y se aplican a todas las plantillas. La firma es un parcial
-compartido; puede cambiar su HTML local de confianza conservando sus marcadores.
+`logo_url` y `firma_url` aceptan PNG local, PNG embebido o URL HTTPS. Por defecto usan el
+PNG incluido, sin ninguna URL de GitHub. Si pasa solo logo_url, la firma sigue ese logo;
+si especifica firma_url, puede usar otra imagen. Una URL HTTPS es una elección opcional:
+el cliente de correo deberá cargarla. Para conservar la independencia de red, use PNG local
+o el incluido. Se excluye SVG/HTML arbitrario y se validan URL, colores y valores.
 
-Las referencias SMTP vienen de `RACAFE_MAIL_FROM` y `RACAFE_MAIL_CRED`, esta última una ruta
-a un archivo externo creado con `blastula::create_smtp_creds_file()`. El paquete no crea,
-imprime ni guarda contraseñas. `RACAFE_MAIL_TEST_MODE=true` agrega un aviso de pruebas.
-Por compatibilidad, `config.R` usa como fallback `FIRMA_BLASTULA_FROM`, `FIRMA_BLASTULA_CRED`
-y `FIRMA_TEST_MODE`; los nombres nuevos tienen precedencia. El aviso de pruebas **no evita
-el envío** si se llama expresamente a una función de envío. Mantenga las credenciales fuera
-de Git y de la carpeta de recursos; el proceso solo necesita permiso de lectura.
+En previews, las imágenes van embebidas como data URI. Al componer un correo SMTP,
+blastula las convierte en partes **CID**; logo y firma iguales producen una sola imagen MIME.
+Se verificó la composición y la visualización en Chromium. La presentación real en Gmail,
+Outlook, reenvíos y adjuntos depende del cliente y aún requiere pruebas con buzones autorizados.
+No se garantiza apariencia idéntica o entrega por haber generado el HTML correctamente.
 
-## Cuatro plantillas y API
+## API y datos de las plantillas
 
-| Función | Uso |
+| Función | Resultado |
 |---|---|
-| `racafeMailConfig()` | Cargar y validar configuración y archivos locales. |
-| `racafeMailFirma()` | Renderizar la firma común, sin SMTP. |
-| `racafeMailRender()` | Devolver `list(asunto, html)` de una plantilla, sin SMTP. |
-| `racafeMailPreview()` | Guardar HTML UTF-8 local, sin SMTP ni apertura de navegador. |
-| `racafeMailEnviar()` | Enviar explícitamente con `smtp_send()` y `creds_file()`. |
-| `racafeMailOTP()` | Atajo de envío: destino, código, nombre y minutos. |
-| `racafeMailInvitacion()` | Atajo de envío: nombre, enlace y vencimiento. |
-| `racafeMailNotificacion()` | Atajo de envío: nombre y mensaje. |
-| `racafeMailConfirmacion()` | Atajo de envío: nombre, detalle y fecha. |
+| `racafeMailConfig()` | Lista de configuración validada. Funciona sin argumentos ni rutas. |
+| `racafeMailFirma(config)` | Fragmento de firma HTML, sin SMTP. |
+| `racafeMailRender(plantilla, datos, config)` | `list(asunto, html)`, sin SMTP. |
+| `racafeMailPreview(plantilla, datos, archivo, config)` | Archivo HTML UTF-8 privado, sin SMTP. |
+| `racafeMailEnviar(para, plantilla, datos, config)` | Envío explícito mediante blastula. |
+| `racafeMailOTP(para, codigo, nombre, minutos, config)` | Atajo para OTP de seis dígitos. |
+| `racafeMailInvitacion(para, nombre, enlace, vencimiento, config)` | Atajo para invitación HTTPS. |
+| `racafeMailNotificacion(para, nombre, mensaje, config)` | Atajo para notificación de texto. |
+| `racafeMailConfirmacion(para, nombre, detalle, fecha, config)` | Atajo para confirmación genérica. |
 
-| Plantilla | Datos requeridos |
+| Plantilla interna | Datos requeridos |
 |---|---|
-| `invitacion.html` | `nombre`, `enlace` HTTPS, `vencimiento` |
-| `otp.html` | `nombre`, `codigo` de texto con seis dígitos, `vigencia_minutos` entero positivo |
-| `notificacion.html` | `nombre`, `mensaje` de texto plano |
-| `confirmacion.html` | `nombre`, `detalle` de texto plano, `fecha` legible |
+| `invitacion` | nombre, enlace HTTPS, vencimiento |
+| `otp` | nombre, codigo de texto de seis dígitos, vigencia_minutos entero positivo |
+| `notificacion` | nombre, mensaje |
+| `confirmacion` | nombre, detalle, fecha legible |
 
-Todos los valores son escalares no NA. Solo `nombre` puede estar vacío. Se rechazan variables
-faltantes, adicionales, duplicadas, códigos inválidos, URLs no HTTPS y marcadores no resueltos
-en las plantillas. Los tokens remotos no se verifican ni consumen: el backend conserva su
-responsabilidad por autorización, expiración y rate limiting. Las fechas son textos legibles;
-no se infiere zona horaria ni formato. No se admite HTML de usuario, ni siquiera con `HTML()`.
+Los previews pueden guardarse como invitacion.html, otp.html, notificacion.html y confirmacion.html;
+no se necesitan esos archivos en el disco para renderizar. Todos los valores son escalares no NA;
+solo nombre puede estar vacío. No se acepta HTML de usuario. El escape de una pasada evita
+reinterpretar marcadores insertados desde los datos. Se rechazan variables faltantes, extra,
+duplicadas y marcadores sin resolver en las plantillas. Los enlaces no consumen/verifican tokens.
+La generación, expiración y rate limiting de OTP siguen siendo responsabilidad del consumidor.
 
-## Renderizado y preview sin envío
+## SMTP y credenciales
 
-```r
-config <- racafeMail::racafeMailConfig(version = "0.1.0")
-datos <- list(nombre = "Ángela", codigo = "012345", vigencia_minutos = 5L)
-correo <- racafeMail::racafeMailRender("otp", datos, config)
-archivo <- tempfile(fileext = ".html")
-racafeMail::racafeMailPreview("otp", datos, archivo, config)
-# Revise localmente archivo y elimínelo después; contiene el código de prueba.
-```
-
-`inst/examples/previews.R` genera las cuatro vistas con datos ficticios en una carpeta
-nueva del directorio de trabajo; `RACAFE_MAIL_PREVIEW_DIR` permite elegir otra ruta. Los previews se
-crean con permisos 0600 en sistemas Unix. No se sobrescriben archivos por defecto:
-`overwrite = TRUE` debe ser explícito y nunca permite reemplazar recursos ni credenciales.
-El HTML y el resultado del render contienen los datos: no los imprima en logs ni los exponga
-en rutas web públicas. Los errores de validación no incluyen los valores recibidos.
-
-## Envío explícito
-
-Configure las referencias SMTP fuera del código y ejecute únicamente con un destinatario
-que deba recibir la comunicación:
+Las credenciales no se incluyen en el paquete ni en Git. Configure `RACAFE_MAIL_FROM` y
+`RACAFE_MAIL_CRED` (ruta a credenciales creadas con `blastula::create_smtp_creds_file()`),
+o páselas explícitamente. Se mantienen los fallback FIRMA_BLASTULA_FROM y FIRMA_BLASTULA_CRED.
+RACAFE_MAIL_TEST_MODE/FIRMA_TEST_MODE agregan el aviso de pruebas, pero **no bloquean un envío
+explícito**. Ningún render, preview ni instalación envía correos automáticamente.
 
 ```r
-# Ejemplo intencional de envío: NO se ejecuta en tests ni en previews.
-config <- racafeMail::racafeMailConfig()
-racafeMail::racafeMailOTP("destinatario@example.org", "012345", nombre = "Persona", config = config)
+# ENVÍA correo: usar solo con un destinatario que deba recibirlo.
+# racafeMail::racafeMailOTP("destinatario@example.org", "012345", nombre = "Persona")
 ```
 
-Los atajos y `racafeMailEnviar()` devuelven TRUE invisible si el transporte termina sin error,
-no una confirmación de recepción. Se acepta una dirección simple por llamada; no se admiten
-cabeceras, nombres de presentación ni listas separadas por comas. El transporte no reintenta
-automáticamente. Si falla, capture `racafe_mail_smtp_error`; su mensaje es genérico y no
-adjunta el error SMTP original. No registre OTP, enlaces personales, credenciales ni datos del
-correo. Una desconexión puede ocurrir después de aceptar el mensaje: reintentar sin control
-de negocio puede duplicar envíos.
+El transporte usa smtp_send y creds_file, sin reintentos automáticos. TRUE invisible significa
+transporte completado sin error, no recepción en el buzón. Un fallo produce
+`racafe_mail_smtp_error` sin adjuntar el error del proveedor ni datos sensibles. Evite reintentar
+sin control: una desconexión puede ocurrir después de la aceptación SMTP. SPF/DKIM/DMARC,
+reputación y límites del proveedor siguen siendo necesarios para la entrega.
 
-## Ayuda, pruebas y migración
+Los previews pueden contener OTP/enlaces: no publique sus archivos ni los imprima en logs.
+Se crean con permisos 0600 en Unix y no se sobrescriben por defecto. overwrite=TRUE no permite
+reemplazar credenciales o recursos instalados. Los tests solo usan datos ficticios.
 
-```r
-help(package = "racafeMail")
-?racafeMail::racafeMailRender
-```
+## Migración y rollback
 
-Desde la raíz del monorepo, con dependencias de pruebas instaladas:
+Para adoptar 0.2.0, instale el paquete y use `racafeMailConfig()` sin ruta. Deje de hacer source()
+del motor/configuración externos y pase cualquier personalización anterior como argumentos R.
+RACAFE_MAIL_HOME ya no cambia automáticamente la ruta: esto impide que una variable heredada
+reactive accidentalmente una dependencia externa. `version="0.2.0"` permite exigir esta versión.
+
+La API conserva nombres y orden de argumentos. Para compatibilidad optativa, una ruta explícita
+`racafeMailConfig(ruta = "/ruta/email", version = "0.1.0")` sigue admitiendo el contrato externo
+anterior, con protección contra traversal/symlinks. Esa ruta es R/HTML de confianza y su uso
+renuncia a la independencia de esa carpeta. No es necesaria para ninguna función del paquete.
+
+No se han eliminado carpetas de Compartido ni modificado Firma Digital, FastAPI, MySQL u OEAPP.
+Los consumidores 0.1.x pueden continuar usando sus recursos anteriores. Para rollback reinstale
+el commit previo 0.1.x y restaure sus referencias de ruta/configuración; no hay migración de datos.
+
+El ejemplo otp-stdin.R es una propuesta, no sustituye scripts de FastAPI: conserva destino,
+código y nombre, una línea UTF-8 por campo. Hacer source() no envía; ejecutarlo directamente sí.
+Antes de integrarlo, adapte el lector al contrato real del servicio en otro PR.
+
+## Validación y reproducción
 
 ```sh
-RACAFE_MAIL_TEST_HOME=/ruta/Compartido/email Rscript -e 'testthat::test_local("racafeMail", stop_on_failure=TRUE)'
+Rscript -e 'testthat::test_local("racafeMail", stop_on_failure=TRUE)'
 Rscript scripts/check_documentation.R
+R CMD INSTALL racafeMail
 R CMD build racafeMail
-RACAFE_MAIL_TEST_HOME=/ruta/Compartido/email R CMD check --no-manual racafeMail_0.1.0.tar.gz
+R CMD check --no-manual racafeMail_0.2.0.tar.gz
+RACAFE_MAIL_PREVIEW_DIR=/tmp/racafe-mail-previews Rscript racafeMail/inst/examples/previews.R
 ```
 
-Sin `RACAFE_MAIL_TEST_HOME`, solo la integración con las plantillas externas se omite; las
-pruebas unitarias usan HTML sintético, no duplican las plantillas corporativas. No hay envíos
-reales en las pruebas. CI fija el commit `d47401b5e1ae2292577dcda05def43ee051aa9f0` de Compartido y ejecuta también
-esa integración. Si Compartido es privado, configure `COMPARTIDO_READ_TOKEN` en los secrets
-de Actions con acceso de lectura a ese repositorio; de lo contrario se usa `github.token`.
+La carpeta de previews debe ser nueva. El ejemplo funciona sin RACAFE_MAIL_HOME ni Compartido.
+Para revisión visual opcional, instale Playwright 1.62.1 en un entorno de desarrollo, configure
+CHROMIUM_PATH si usa un Chromium existente y ejecute
+`RACAFE_MAIL_PREVIEW_DIR=/tmp/racafe-mail-previews node racafeMail/tests/browser/check-previews.cjs`.
+La prueba bloquea toda red externa y valida las imágenes embebidas reales a 320/1440 px.
 
-Vea [migración y rollback](docs/migration.md) y [validación y compatibilidad de correo](docs/validation.md).
-CID se ha investigado, pero no se habilita hasta probarlo en Gmail/Outlook. Las imágenes remotas
-pueden bloquearse; permanecen el texto y los atributos alt. Tablas y estilos inline mejoran
-compatibilidad, sin garantizar apariencia idéntica entre clientes. La entrega requiere SMTP
-válido, SPF/DKIM/DMARC y reputación del remitente; no se ha probado en buzones reales.
+Se instaló el tarball en otra biblioteca R y se renderizaron las cuatro plantillas desde
+un directorio vacío, con RACAFE_MAIL_HOME apuntando a una ruta inexistente.
+Las pruebas de recursos internos se ejecutan siempre, sin variables de rutas ni omisiones
+por ausencia de Compartido. CI ya no clona ese repositorio ni necesita COMPARTIDO_READ_TOKEN.
+Se conservan pruebas de seguridad, transporte simulado y compatibilidad explícita con rutas.
+No se enviaron correos reales ni se usaron credenciales reales durante la validación.
+
+Validación local de 0.2.0 (28 de octubre de 2026): **247 comprobaciones testthat**,
+0 fallos/advertencias/omisiones; **42 comprobaciones de Chromium** con imágenes reales
+embebidas y red bloqueada; R CMD INSTALL/build/check --no-manual: **OK**. Ayuda de las
+nueve funciones y sintaxis YAML correctas. Se verificó que el HTML de los seis recursos
+internos es idéntico al HTML previamente validado y que logo/firma se deduplican en CID.
+Entorno: R 4.5.0, blastula 0.3.6, htmltools 0.5.8.1, testthat 3.2.3,
+Playwright 1.62.1 y Chromium 154. Gmail/Outlook y entrega SMTP real siguen pendientes.

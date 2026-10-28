@@ -1,5 +1,5 @@
-# Vistas previas con datos ficticios; requiere RACAFE_MAIL_HOME ----
-config <- racafeMail::racafeMailConfig(version = "0.1.0", entorno = "true")
+# Vistas previas con datos ficticios; sin rutas externas ----
+config <- racafeMail::racafeMailConfig(version = "0.2.0", entorno = "true")
 ejemplos <- list(
   invitacion = list(nombre = "Ángela", enlace = "https://example.org/autorizar?token=ficticio", vencimiento = "Hoy"),
   otp = list(nombre = "Ángela", codigo = "012345", vigencia_minutos = 5L),

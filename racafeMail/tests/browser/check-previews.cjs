@@ -3,14 +3,14 @@ const fs=require('node:fs/promises');
 const assert=require('node:assert/strict');
 const path=require('node:path');
 const preview=process.env.RACAFE_MAIL_PREVIEW_DIR;
-const logo=process.env.RACAFE_MAIL_TEST_LOGO;
-assert.ok(preview && logo, 'Defina RACAFE_MAIL_PREVIEW_DIR y RACAFE_MAIL_TEST_LOGO');
+assert.ok(preview, 'Defina RACAFE_MAIL_PREVIEW_DIR');
 (async()=>{
  const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH,args:['--no-sandbox']});
  let checks=0;
  for(const width of [320,1440]){
   const page=await browser.newPage({viewport:{width,height:900}});
-  await page.route('**/*', route=>route.fulfill({path:logo,contentType:'image/png'}));
+  const external=[];
+  await page.route('**/*', route=>{external.push(route.request().url());return route.abort();});
   for(const name of ['invitacion','otp','notificacion','confirmacion']){
    const html=await fs.readFile(path.join(preview,name+'.html'),'utf8');
    await page.setContent(html,{waitUntil:'networkidle'});
@@ -22,8 +22,9 @@ assert.ok(preview && logo, 'Defina RACAFE_MAIL_PREVIEW_DIR y RACAFE_MAIL_TEST_LO
    const images=await page.locator('img').evaluateAll(elements=>elements.every(e=>e.complete&&e.naturalWidth>0));
    assert.ok(images, `Imagen de prueba: ${name} ${width}`);checks++;
   }
+  assert.equal(external.length,0,'Preview sin solicitudes externas');checks++;
   await page.close();
  }
- console.log(`PASS ${checks}: cuatro previews a 320/1440 px; imágenes locales interceptadas, sin red externa`);
+ console.log(`PASS ${checks}: cuatro previews a 320/1440 px; imágenes incluidas reales, sin red externa`);
  await browser.close();
 })().catch(e=>{console.error(e);process.exit(1)});
