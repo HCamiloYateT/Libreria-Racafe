@@ -68,4 +68,8 @@ ListaDesplegable corporativa basada en pickerInput
 \details{
 Una selección muestra su etiqueta; varias muestran el conteo y todas, Todos o Todas.
 El resumen no modifica los valores enviados a Shiny.
+La selección simple conserva el acento rojo; la múltiple usa un check rojo sobre fondo neutro.
+Para filtros opcionales puede usar \code{empty_label = "Todos (sin filtro)"} e interpretar
+\code{length(input$id) == 0L} en el servidor como ausencia de filtro. La etiqueta no cambia
+el valor del control: vacío sigue siendo \code{NULL} o \code{character(0)} y no selecciona opciones.
 }

@@ -72,3 +72,18 @@ son representativas: 39 a 13 líneas, sin blancos/comentarios (66,7 % menos); no
 La matriz de componentes y decisiones está en component-matrix.md. El ejemplo completo antes/después
 se encuentra en migration/. Las ramas de ambos repositorios se preparan para revisión; la integración
 con main y el despliegue controlado requieren revisión del propietario del proyecto.
+
+## Ajuste de listas desplegables
+
+Se corrigió el CSS existente del picker: selección simple con acento rojo y selección
+múltiple con filas neutras y check nativo rojo. Los selectores quedan acotados a `.rf-select`;
+no requieren Compartido ni alteran controles de terceros. La prioridad del color en la
+selección simple evita que la regla `dropdown-item` de bs4Dash oculte el acento.
+
+Validación específica con Chromium/Playwright en Shiny y bs4Dash: color y visibilidad del
+check, fondo neutro, acento simple, atributo accesible `aria-selected`, selección mediante
+clic y actualización de valores Shiny. Se verificó además el ejemplo de filtro opcional:
+vacío incluye todos, una opción filtra y desmarcarla vuelve a incluir todos; otro control
+ajeno conserva sus valores. La suite R conserva 237 comprobaciones correctas y la ayuda
+pública pasa la revisión documental. El README y la ayuda explican la política opcional;
+no se cambia el contrato ni se expanden automáticamente los valores vacíos del input.

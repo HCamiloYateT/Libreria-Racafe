@@ -53,8 +53,17 @@
 .rf-select .dropdown-menu .dropdown-item,.rf-select .dropdown-menu li a {
  font-size:var(--rf-font);padding:6px 12px;white-space:normal;overflow-wrap:anywhere;background-image:none;}
 .rf-select .dropdown-menu .dropdown-item:hover,.rf-select .dropdown-menu li a:hover {background:#f7f8fa;color:#263238;}
-.rf-select .dropdown-menu .selected > a,.rf-select .dropdown-menu .dropdown-item.active {
- background:#fce9e7;color:var(--rf-red);}
+/* Selección simple con acento rojo; selección múltiple con el check nativo del picker. */
+.rf-select .bootstrap-select:not(.show-tick) .dropdown-menu .selected > a,
+.rf-select .bootstrap-select:not(.show-tick) .dropdown-menu .dropdown-item.active {
+ background:#fce9e7;color:var(--rf-red)!important;}
+.rf-select .bootstrap-select.show-tick .dropdown-menu .selected > a,
+.rf-select .bootstrap-select.show-tick .dropdown-menu .dropdown-item.active {
+ background:#fff;color:#263238;}
+.rf-select .bootstrap-select.show-tick .dropdown-menu .selected > a:hover,
+.rf-select .bootstrap-select.show-tick .dropdown-menu .selected > a:focus {
+ background:#f7f8fa;color:#263238;}
+.rf-select .bootstrap-select.show-tick .dropdown-menu .check-mark {color:var(--rf-red);}
 .rf-select .bs-actionsbox .btn {font-size:var(--rf-font);padding:4px 8px;background:#fff;
  color:var(--rf-red);border:1px solid var(--rf-gray-300);box-shadow:none;background-image:none;}
 .rf-select .bs-actionsbox .btn:hover {background:#fce9e7;}
