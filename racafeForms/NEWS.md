@@ -1,3 +1,9 @@
+# racafeForms 0.4.1
+
+- Corrige email y tel de racafeInputText conservando el binding nativo con type HTML text.
+- Añade inputmode y autocomplete adecuados sin sobrescribir autocomplete explícito.
+- Verifica valores reactivos, namespaces, actualizaciones y estados de campo en Shiny y bs4Dash.
+
 # racafeForms 0.4.0
 
 - Añade racafeStatusBadge con variantes semánticas, texto escapado y tamaños xs/sm/md.

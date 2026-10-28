@@ -30,7 +30,7 @@ racafeInputText(
 
 \item{placeholder}{Texto de ayuda dentro del campo.}
 
-\item{type}{text, email, tel o password.}
+\item{type}{text, email, tel o password. email y tel mantienen type HTML text para el binding nativo.}
 
 \item{required}{Indica obligatoriedad para accesibilidad (la validacion es del servidor).}
 
@@ -46,7 +46,8 @@ racafeInputText(
 
 \item{error}{Mensaje de validación del campo, o NULL.}
 
-\item{autocomplete}{Token de autocompletado HTML; NULL conserva el predeterminado.}
+\item{autocomplete}{Token de autocompletado HTML; NULL usa email/tel para esos tipos
+y conserva el predeterminado de Shiny para text/password.}
 
 \item{choices}{Catálogo opcional de sugerencias de texto; no limita la validación del servidor.}
 }
@@ -55,4 +56,11 @@ Componente de entrada Shiny para incluir en la UI; su valor está disponible en 
 }
 \description{
 Entrada de texto corporativa
+}
+\details{
+email y tel usan inputmode para sugerir el teclado virtual y autocomplete
+para identificar el contenido. No se cambia el tipo HTML ni se registra un binding
+JavaScript alternativo. Todos los tipos, incluido password, conservan actualizaciones
+con shiny::updateTextInput(). required no valida el formato:
+compruebe correo/teléfono y permisos en el servidor; error muestra el mensaje de validación.
 }
