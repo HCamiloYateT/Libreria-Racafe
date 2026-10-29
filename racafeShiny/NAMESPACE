@@ -50,3 +50,8 @@ export(MostrarModalConfirmacion)
 importFrom(racafeCore, "%||%")
 importFrom(racafeGraph, "ColoresGreenBlue")
 importFrom(rlang, ".data")
+
+# ---- Loaders corporativos ----
+export(racafePreloader)
+export(racafeLoaderUI)
+export(racafeLoader)
