@@ -4,18 +4,17 @@
 \alias{racafePreloader}
 \title{Contenido corporativo para los preloaders de bs4Dash}
 \usage{
-racafePreloader(
-  type = c("inicio", "actualizar", "calculando"),
-  text = NULL,
-  logo = NULL
-)
+racafePreloader(type = "inicio", text = NULL, logo = NULL, show_logo = TRUE)
 }
 \arguments{
-\item{type}{Variante: inicio, actualizar o calculando.}
+\item{type}{Operación: inicio, actualizar, consultar, calculando, guardar, enviar,
+generar, descargar, validar, importar, eliminar o sincronizar.}
 
 \item{text}{Mensaje de texto plano; NULL usa el mensaje de la variante.}
 
-\item{logo}{Ruta o URL del logotipo; NULL no carga imágenes externas.}
+\item{logo}{Ruta o URL del logotipo; NULL usa logo2.png incluido en el paquete.}
+
+\item{show_logo}{Mostrar el logotipo; FALSE lo oculta explícitamente.}
 }
 \value{
 Lista html/color compatible con el argumento preloader de bs4Dash.

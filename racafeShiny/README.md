@@ -177,97 +177,134 @@ Los formatos numéricos predeterminados usan punto decimal y coma de miles: **1,
 Los valores reactivos siguen siendo numéricos; no convierta el texto formateado con
 `as.numeric()` sin retirar antes los separadores de miles. Las fechas conservan su formato.
 
-## Loaders corporativos (1.1.0)
+## Loaders corporativos (1.2.0)
 
-Los tres loaders de `PlantillaBs4Dash` están disponibles como componentes del paquete:
-`inicio` («Cargando…»), `actualizar` («Actualizando…») y `calculando` («Calculando…»).
-Utilizan **waiter**, recursos CSS/JS locales y los colores corporativos. No necesitan
-Compartido, Bootstrap ni logotipos remotos; `logo` permite indicar una imagen propia.
-`waiter` se instala como dependencia obligatoria mediante las instrucciones anteriores.
+Los loaders usan `waiter`, recursos locales y el logo corporativo `logo2.png` incluido
+en el paquete. Funcionan sin Compartido, CDN ni acceso a internet. El logo aparece
+encima del mensaje, conserva sus proporciones y cabe en móvil. Todas las operaciones
+comparten tarjeta blanca, texto oscuro y animación roja; se respeta movimiento reducido.
 
-### Mostrar antes de que R quede ocupado
+| `type` | Mensaje predeterminado |
+| --- | --- |
+| inicio | Cargando aplicación… |
+| actualizar | Actualizando información… |
+| consultar | Consultando información… |
+| calculando | Procesando cálculos… |
+| guardar | Guardando información… |
+| enviar | Enviando información… |
+| generar | Generando documento… |
+| descargar | Preparando descarga… |
+| validar | Validando información… |
+| importar | Importando información… |
+| eliminar | Eliminando registro… |
+| sincronizar | Sincronizando información… |
+
+### API pública
 
 ```r
-ui <- shiny::fluidPage(
-  racafeShiny::racafeLoaderUI(
-    triggers = c(actualizar = "recargar", calculando = "procesar")
-  ),
-  shiny::actionButton("recargar", "Actualizar"),
-  shiny::actionButton("procesar", "Procesar")
+racafePreloader(type = "inicio", text = NULL, logo = NULL, show_logo = TRUE)
+racafeLoaderUI(startup = TRUE, busy = TRUE, triggers = NULL, ns = NULL,
+               logo = NULL, show_logo = TRUE)
+racafeLoader(session = shiny::getDefaultReactiveDomain(), type = "inicio", text = NULL,
+             logo = NULL, id = NULL, ns = NULL, show_logo = TRUE)
+```
+
+`text` permite personalizar el mensaje; se muestra como texto escapado. `logo = NULL`
+ahora utiliza el logo corporativo local. Para cambiarlo indique una ruta o URL; si la
+imagen falla, se intenta el logo local y la operación sigue funcionando. Para ocultarlo
+use `show_logo = FALSE`. Los argumentos anteriores mantienen su posición; los tipos
+`inicio`, `actualizar` y `calculando` conservan su funcionamiento y actualizan sus textos.
+`waiter` sigue siendo la única dependencia del motor de loaders.
+
+### Activación inmediata y módulos
+
+```r
+# Dentro del body de Shiny o bs4Dash:
+racafeShiny::racafeLoaderUI(
+  startup = FALSE, busy = TRUE,
+  triggers = c(consultar = "consultar_firmas-actualizar",
+               guardar = "crear_firma-crear_confirmado",
+               enviar = "crear_firma-envio_confirmado",
+               validar = "crear_masiva-revisar",
+               enviar = "crear_masiva-confirmar_envio")
 )
 ```
 
-Incluya `racafeLoaderUI()` una vez en el body. `startup = TRUE` cubre la carga inicial;
-`busy = TRUE` responde a los eventos busy/idle de Shiny. Los `triggers` muestran el
-loader **en el navegador al hacer clic**, antes de que la acción llegue al servidor.
-No sustituyen el binding del botón. Use IDs con namespace o `ns = ns` para IDs locales;
-el namespace se aplica una sola vez. Un vector sin nombres usa `calculando`.
+Los nombres repetidos de `triggers` son válidos. Puede usar IDs completos como arriba,
+o IDs locales con `ns = ns`; no se duplica el namespace. Los vectores sin nombres
+usan `calculando`. Incluya la configuración una vez en el body; los recursos se deduplican.
+Los botones deben producir una acción en el servidor para que haya un ciclo busy/idle.
 
-El loader automático cierra en idle y al desconectarse. Sus recursos solo afectan a
-clases `rsh-loader-*`; no retira los waiters explícitos de otros paneles. Respeta la
-preferencia de movimiento reducido. Registre botones que efectivamente envíen acciones
-al servidor; un botón puramente local no genera el ciclo busy/idle necesario para cerrar.
+El clic activa el loader **en el navegador antes de enviar la acción**. `startup` cubre
+la carga inicial y `busy` detecta actividad de Shiny. El automático cierra en idle,
+error controlado y desconexión, y cede si ya existe un waiter. No cierra modales ni
+notificaciones; al terminar desaparece y deja visibles los avisos de la operación.
+Los loaders corporativos explícitos se limpian también al desconectar.
 
-**Limitación de Shiny:** llamar a `$show()` desde R e iniciar inmediatamente una tarea
-síncrona puede retrasar el envío hasta que termine. Por eso se ofrece la activación por
-clic. Ningún loader vuelve asíncrona una consulta o cálculo: la animación puede continuar
-en el navegador mientras R trabaja, pero la sesión no atenderá otras tareas y no podrá
-recibir actualizaciones intermedias del servidor durante ese bloqueo. Para trabajo
-asíncrono use mecanismos como `ExtendedTask` y controle el cierre explícitamente.
-
-### Objetos waiter por sesión o panel
+### Objetos por sesión y contenedor
 
 ```r
-shiny::moduleServer("modulo", function(input, output, session) {
-  # La UI del módulo debe contener un div con id = ns("panel").
-  loader <- racafeShiny::racafeLoader(session, "calculando", id = "panel")
-  shiny::observeEvent(input$mostrar, loader$show())
-  shiny::observeEvent(input$mensaje, {
-    loader$update(racafeShiny::racafePreloader("actualizar", "Procesando datos…")$html)
-  })
-  shiny::observeEvent(input$ocultar, loader$hide())
-})
+loader <- racafeShiny::racafeLoader(session, type = "consultar", id = "tabla_solicitudes")
+loader$show()
+loader$update(racafeShiny::racafePreloader("consultar", "Consultando solicitudes…")$html)
+loader$hide()
 ```
 
-Sin `id`, el objeto cubre la pantalla. El objeto encapsula `waiter::Waiter` y fija la
-sesión al ejecutar cada método; no lo almacene globalmente ni lo comparta entre usuarios.
-El cierre del objeto es explícito. Proteja su limpieza al terminar y ante errores:
+El ID debe corresponder a un contenedor HTML existente. Dentro de un módulo se aplica
+`session$ns` una sola vez; sin `id` se cubre la pantalla. Los objetos encapsulan
+`waiter::Waiter`, fijan la sesión por método y ofrecen `show()`, `update(html)` y `hide()`.
+No los comparta globalmente entre usuarios. `update()` recibe HTML de confianza;
+use `racafePreloader()` para generar mensajes escapados.
+
+Proteja el cierre explícito con `on.exit(loader$hide(), add = TRUE)` dentro de la función
+que ejecuta la operación, o con `tryCatch(..., finally = loader$hide())`. Para promesas
+cierre tanto al resolver como al rechazar; no use `on.exit()` en una función que solo
+agenda el trabajo. `busy = FALSE` permite trabajar únicamente con objetos explícitos.
+
+**Límite de Shiny:** `$show()` seguido inmediatamente de un cálculo síncrono puede no
+llegar al navegador a tiempo; use `triggers` para ese caso. La animación no convierte
+la operación en asíncrona ni permite enviar avances mientras R está bloqueado.
+No se implementa `setProgress()` en esta versión: no se simulan porcentajes por registro.
+Para progreso real el trabajo debe proporcionar avances y devolver el control al bucle
+de eventos; el loader actual permite actualizar mensajes en esas oportunidades.
+
+### Integración con el preloader de bs4Dash
 
 ```r
-procesar <- function(loader) {
-  loader$show()
-  on.exit(loader$hide(), add = TRUE)
-  # Operación y manejo de errores propios de la aplicación.
-}
+# En bs4Dash::dashboardPage():
+preloader <- racafeShiny::racafePreloader("inicio", "Cargando autorización de datos…")
+# En dashboardBody(), para el resto de operaciones:
+recursos <- racafeShiny::racafeLoaderUI(startup = FALSE, triggers = c(guardar = "guardar"))
 ```
 
-Este patrón garantiza limpieza; no garantiza que `$show()` se pinte antes de un cálculo
-síncrono. En una promesa cierre en las ramas de resolución y rechazo, sin `on.exit()`
-en la función que únicamente agenda el trabajo. Desactive `busy` si solo necesita el
-objeto persistente y no quiere un segundo loader automático.
+El preloader devuelve la lista `html`/`color` que espera bs4Dash. Use `startup = FALSE`
+cuando bs4Dash ya controla el inicio. También se detecta un waiter existente para evitar
+superponer el automático incluso si una aplicación dejó `startup = TRUE`.
 
-### Preloader nativo de bs4Dash
+### Actualización y demo
 
 ```r
-# Argumento de bs4Dash::dashboardPage():
-preloader <- racafeShiny::racafePreloader("inicio", text = "Preparando aplicación…")
+remotes::install_github("HCamiloYateT/Libreria-Racafe", subdir = "racafeShiny",
+                        dependencies = NA, upgrade = "never")
+# Mientras la ampliación esté pendiente de integrar, añada:
+# ref = "codex/shiny-loader-operations"
 ```
 
-La función devuelve la lista `html`/`color` que espera `preloader`. Si utiliza ese
-preloader inicial, configure `racafeLoaderUI(startup = FALSE, ...)` para evitar duplicarlo.
-Los textos se escapan; `loader$update()` recibe HTML de confianza, como el generado por
-`racafePreloader()`. La plantilla original se mantiene sin cambios: la migración consiste
-en reemplazar sus objetos locales y añadir la configuración UI de la librería.
-
-### Demo y validación
+Reinicie la sesión de R y la aplicación tras actualizar. El motor no añade dependencias
+obligatorias nuevas. La demo admite `readxl` para importar Excel, `racafeForms` para
+mostrar `racafeNotify()` al finalizar y `bs4Dash` para ese layout; son dependencias opcionales.
+Sin `readxl` la importación XLSX informa el requisito y cierra el loader; CSV usa R base.
 
 ```r
 shiny::runApp(system.file("examples", "loaders.R", package = "racafeShiny"))
-# Para la misma demo en bs4Dash, antes de ejecutarla:
+# Para bs4Dash, antes de ejecutar:
 Sys.setenv(RACAFE_LOADER_BS4DASH = "1")
+# Para probar también su preloader inicial nativo:
+Sys.setenv(RACAFE_LOADER_PRELOADER = "1")
 ```
 
-Incluye dos módulos, carga inicial lenta, tareas que bloquean R intencionalmente,
-error controlado y objetos locales con actualización/cierre. No ejecute `Sys.sleep()`
-en producción; aquí permite comprobar el comportamiento durante un bloqueo real.
-Consulte el [informe de validación](docs/loaders-1.1.0.md).
+La demo incluye dos módulos, tabla local, consulta, actualización, guardado en memoria,
+validación/importación de archivos, correo simulado, PDF real y preparación de descarga,
+error controlado y operaciones consecutivas. No envía correos ni modifica bases de datos.
+Los bloqueos intencionales con `Sys.sleep()` sirven exclusivamente para la demostración.
+Vea el [informe de validación de 1.2.0](docs/loaders-1.2.0.md).

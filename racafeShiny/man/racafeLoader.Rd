@@ -6,25 +6,29 @@
 \usage{
 racafeLoader(
   session = shiny::getDefaultReactiveDomain(),
-  type = c("inicio", "actualizar", "calculando"),
+  type = "inicio",
   text = NULL,
   logo = NULL,
   id = NULL,
-  ns = NULL
+  ns = NULL,
+  show_logo = TRUE
 )
 }
 \arguments{
 \item{session}{Sesión Shiny, incluida la sesión de un módulo.}
 
-\item{type}{Variante: inicio, actualizar o calculando.}
+\item{type}{Operación: inicio, actualizar, consultar, calculando, guardar, enviar,
+generar, descargar, validar, importar, eliminar o sincronizar.}
 
 \item{text}{Mensaje de texto plano; NULL usa el mensaje de la variante.}
 
-\item{logo}{Ruta o URL del logotipo; NULL no carga imágenes externas.}
+\item{logo}{Ruta o URL del logotipo; NULL usa logo2.png incluido en el paquete.}
 
 \item{id}{ID local opcional del contenedor a cubrir; NULL cubre la pantalla.}
 
 \item{ns}{Namespace opcional; por defecto utiliza session$ns para el contenedor.}
+
+\item{show_logo}{Mostrar el logotipo; FALSE lo oculta explícitamente.}
 }
 \value{
 Objeto racafe_loader que encapsula waiter::Waiter con métodos show(), hide() y update(html).

@@ -1,3 +1,12 @@
+# racafeShiny 1.2.0
+
+- Amplía los loaders a doce operaciones sin cambiar sus métodos ni argumentos anteriores.
+- Incluye logo2.png local por defecto; añade show_logo y respaldo para imágenes fallidas.
+- Evita duplicar el automático con waiters existentes o el preloader nativo de bs4Dash.
+- Limpia loaders corporativos al desconectar y conserva modales/notificaciones.
+- Amplía demo, documentación y pruebas de variantes, recursos locales y operaciones reales de prueba.
+- No simula progreso porcentual de tareas síncronas ni añade dependencias obligatorias.
+
 # racafeShiny 1.1.0
 
 - Añade racafePreloader con variantes inicio, actualizar y calculando basadas en PlantillaBs4Dash.
