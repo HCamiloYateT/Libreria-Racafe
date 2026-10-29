@@ -9,7 +9,8 @@ racafeLoaderUI(
   busy = TRUE,
   triggers = NULL,
   ns = NULL,
-  logo = NULL
+  logo = NULL,
+  show_logo = TRUE
 )
 }
 \arguments{
@@ -18,11 +19,13 @@ racafeLoaderUI(
 \item{busy}{Mostrarlo durante los ciclos busy/idle de Shiny.}
 
 \item{triggers}{Vector de IDs de botones que lo muestran inmediatamente al pulsar.
-Puede nombrar cada elemento inicio, actualizar o calculando para elegir la variante.}
+Nombre cada elemento con cualquiera de las doce operaciones; admite nombres repetidos.}
 
 \item{ns}{Función namespace opcional para IDs locales de triggers.}
 
-\item{logo}{Ruta o URL opcional del logotipo.}
+\item{logo}{Ruta o URL del logotipo; NULL usa logo2.png incluido en el paquete.}
+
+\item{show_logo}{Mostrar el logotipo; FALSE lo oculta explícitamente.}
 }
 \value{
 Recursos y configuración UI; incluya una vez en el body de la aplicación.
@@ -36,7 +39,8 @@ El cierre automático ocurre en idle, error de conexión o desconexión. No conv
 tareas síncronas en asíncronas ni permite progreso intermedio mientras R está bloqueado.
 No registre botones sin acción de servidor: no producirían un ciclo busy/idle.
 Para tareas asíncronas use el objeto racafeLoader y cierre al resolver o rechazar.
-No combine startup TRUE con el preloader inicial de bs4Dash: elija uno de los dos.
+Si bs4Dash ya muestra un preloader, el automático cede para no duplicarlo.
+Se recomienda startup FALSE cuando bs4Dash controla la carga inicial.
 }
 \examples{
 racafeLoaderUI(triggers = c(actualizar = "recargar", calculando = "procesar"))

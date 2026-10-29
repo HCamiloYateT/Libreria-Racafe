@@ -6,27 +6,42 @@
   as.vector(value, mode = "character")
 }
 
+.rsh_loader_messages <- c(
+  inicio = "Cargando aplicación…", actualizar = "Actualizando información…",
+  consultar = "Consultando información…",
+  calculando = "Procesando cálculos…", guardar = "Guardando información…", enviar = "Enviando información…",
+  generar = "Generando documento…", descargar = "Preparando descarga…", validar = "Validando información…",
+  importar = "Importando información…", eliminar = "Eliminando registro…",
+  sincronizar = "Sincronizando información…"
+)
+.rsh_loader_types <- function() names(.rsh_loader_messages)
+.rsh_loader_flag <- function(value, name) {
+  if (!is.logical(value) || length(value) != 1L || is.na(value)) stop(name, " debe ser lógico.", call. = FALSE)
+}
+.rsh_loader_logo <- "racafe-shiny-loaders-1.2.0/logo2.png"
+
 .rsh_loader_dependency <- function() {
-  htmltools::htmlDependency("racafe-shiny-loaders", "1.1.0",
+  htmltools::htmlDependency("racafe-shiny-loaders", "1.2.0",
     src = c(file = system.file("loaders", package = "racafeShiny")),
     script = "loaders.js", stylesheet = "loaders.css")
 }
 
 #' Contenido corporativo para los preloaders de bs4Dash
-#' @param type Variante: inicio, actualizar o calculando.
+#' @param type Operación: inicio, actualizar, consultar, calculando, guardar, enviar,
+#'   generar, descargar, validar, importar, eliminar o sincronizar.
 #' @param text Mensaje de texto plano; NULL usa el mensaje de la variante.
-#' @param logo Ruta o URL del logotipo; NULL no carga imágenes externas.
+#' @param logo Ruta o URL del logotipo; NULL usa logo2.png incluido en el paquete.
+#' @param show_logo Mostrar el logotipo; FALSE lo oculta explícitamente.
 #' @return Lista html/color compatible con el argumento preloader de bs4Dash.
 #' @details No activa loaders automáticos. Use racafeLoaderUI para activar la detección
 #'   en el navegador. Los recursos son locales y no requieren Compartido ni Bootstrap.
 #' @examples
 #' racafePreloader("inicio")
 #' @export
-racafePreloader <- function(type = c("inicio", "actualizar", "calculando"), text = NULL, logo = NULL) {
-  type <- match.arg(type)
-  if (is.null(text)) {
-    text <- switch(type, inicio = "Cargando…", actualizar = "Actualizando…", calculando = "Calculando…")
-  }
+racafePreloader <- function(type = "inicio", text = NULL, logo = NULL, show_logo = TRUE) {
+  type <- match.arg(type, .rsh_loader_types())
+  .rsh_loader_flag(show_logo, "show_logo")
+  if (is.null(text)) text <- .rsh_loader_messages[[type]]
   text <- .rsh_loader_scalar(text, "text")
   # bs4Dash inserta este HTML en JavaScript: preserva también comillas y barras.
   text <- htmltools::htmlEscape(text)
@@ -34,13 +49,20 @@ racafePreloader <- function(type = c("inicio", "actualizar", "calculando"), text
   text <- gsub(intToUtf8(92L), "&#92;", text, fixed = TRUE)
   text <- gsub(intToUtf8(13L), "&#13;", text, fixed = TRUE)
 
-  if (!is.null(logo)) logo <- .rsh_loader_scalar(logo, "logo")
+  if (is.null(logo)) logo <- .rsh_loader_logo
+  logo <- .rsh_loader_scalar(logo, "logo")
   card <- shiny::tags$div(class = paste("rsh-loader-card", paste0("rsh-loader--", type)),
     role = "status", `aria-live` = "polite", `aria-atomic` = "true",
-    if (!is.null(logo)) shiny::tags$img(class = "rsh-loader-logo", src = logo, alt = ""),
+    if (show_logo) shiny::tags$img(class = "rsh-loader-logo", src = logo, alt = "Racafé",
+      `data-rsh-fallback` = .rsh_loader_logo),
     shiny::tags$p(class = "rsh-loader-text", htmltools::HTML(text)),
     shiny::tags$span(class = "rsh-loader-spinner", `aria-hidden` = "true"))
-  list(html = htmltools::attachDependencies(card, .rsh_loader_dependency()),
+  # La lista preloader de bs4Dash se serializa dentro de un literal JavaScript.
+  safe <- as.character(card)
+  safe <- gsub("'", "&#39;", safe, fixed = TRUE)
+  safe <- gsub(intToUtf8(92L), "&#92;", safe, fixed = TRUE)
+  safe <- gsub(intToUtf8(13L), "&#13;", safe, fixed = TRUE)
+  list(html = htmltools::attachDependencies(htmltools::HTML(safe), .rsh_loader_dependency()),
        color = if (type == "inicio") "#e5e7e9" else "rgba(255,255,255,0.65)")
 }
 
@@ -48,38 +70,41 @@ racafePreloader <- function(type = c("inicio", "actualizar", "calculando"), text
 #' @param startup Mostrar el loader hasta el primer evento idle de Shiny.
 #' @param busy Mostrarlo durante los ciclos busy/idle de Shiny.
 #' @param triggers Vector de IDs de botones que lo muestran inmediatamente al pulsar.
-#'   Puede nombrar cada elemento inicio, actualizar o calculando para elegir la variante.
+#'   Nombre cada elemento con cualquiera de las doce operaciones; admite nombres repetidos.
 #' @param ns Función namespace opcional para IDs locales de triggers.
-#' @param logo Ruta o URL opcional del logotipo.
+#' @inheritParams racafePreloader
 #' @return Recursos y configuración UI; incluya una vez en el body de la aplicación.
 #' @details La activación por clic ocurre sin esperar al servidor y conserva los bindings.
 #'   El cierre automático ocurre en idle, error de conexión o desconexión. No convierte
 #'   tareas síncronas en asíncronas ni permite progreso intermedio mientras R está bloqueado.
 #'   No registre botones sin acción de servidor: no producirían un ciclo busy/idle.
 #'   Para tareas asíncronas use el objeto racafeLoader y cierre al resolver o rechazar.
-#'   No combine startup TRUE con el preloader inicial de bs4Dash: elija uno de los dos.
+#'   Si bs4Dash ya muestra un preloader, el automático cede para no duplicarlo.
+#'   Se recomienda startup FALSE cuando bs4Dash controla la carga inicial.
 #' @examples
 #' racafeLoaderUI(triggers = c(actualizar = "recargar", calculando = "procesar"))
 #' @export
-racafeLoaderUI <- function(startup = TRUE, busy = TRUE, triggers = NULL, ns = NULL, logo = NULL) {
-  for (value in list(startup, busy)) {
-    if (!is.logical(value) || length(value) != 1L || is.na(value)) stop("startup y busy deben ser lógicos.")
-  }
+racafeLoaderUI <- function(startup = TRUE, busy = TRUE, triggers = NULL, ns = NULL, logo = NULL,
+                            show_logo = TRUE) {
+  .rsh_loader_flag(startup, "startup")
+  .rsh_loader_flag(busy, "busy")
+  .rsh_loader_flag(show_logo, "show_logo")
   if (!is.null(ns) && !is.function(ns)) stop("ns debe ser una función.", call. = FALSE)
   if (!is.null(triggers) && (!is.character(triggers) || anyNA(triggers) || any(!nzchar(triggers)))) {
     stop("triggers debe contener IDs de botones.", call. = FALSE)
   }
   types <- names(triggers)
   if (is.null(types)) types <- rep("calculando", length(triggers))
+  if (anyNA(types)) stop("Variante de trigger no válida.", call. = FALSE)
   types[!nzchar(types)] <- "calculando"
-  if (any(!types %in% c("inicio", "actualizar", "calculando"))) stop("Variante de trigger no válida.")
+  if (any(!types %in% .rsh_loader_types())) stop("Variante de trigger no válida.")
   if (!is.null(ns)) triggers <- vapply(triggers, function(id) {
     if (startsWith(id, ns(""))) id else ns(id)
   }, character(1))
   config <- shiny::tags$div(class = "rsh-loader-config", hidden = "hidden",
     `data-startup` = tolower(as.character(startup)), `data-busy` = tolower(as.character(busy)),
-    lapply(c("inicio", "actualizar", "calculando"), function(type) {
-      shiny::tags$template(`data-rsh-type` = type, racafePreloader(type, logo = logo)$html)
+    lapply(.rsh_loader_types(), function(type) {
+      shiny::tags$template(`data-rsh-type` = type, racafePreloader(type, logo = logo, show_logo = show_logo)$html)
     }),
     lapply(seq_along(triggers), function(i) {
       shiny::tags$span(`data-rsh-trigger` = triggers[[i]], `data-rsh-type` = types[[i]])
@@ -101,10 +126,10 @@ racafeLoaderUI <- function(startup = TRUE, busy = TRUE, triggers = NULL, ns = NU
 #'   No comparta el objeto entre sesiones. Para actualizar el texto use
 #'   loader$update(racafePreloader("calculando", text = "Nuevo mensaje")$html).
 #' @export
-racafeLoader <- function(session = shiny::getDefaultReactiveDomain(), type = c("inicio", "actualizar", "calculando"),
-                         text = NULL, logo = NULL, id = NULL, ns = NULL) {
+racafeLoader <- function(session = shiny::getDefaultReactiveDomain(), type = "inicio", text = NULL,
+                         logo = NULL, id = NULL, ns = NULL, show_logo = TRUE) {
   if (is.null(session)) stop("Se requiere una sesión Shiny activa.", call. = FALSE)
-  preset <- racafePreloader(match.arg(type), text, logo)
+  preset <- racafePreloader(type, text, logo, show_logo)
   if (!is.null(id)) {
     id <- .rsh_loader_scalar(id, "id")
     if (is.null(ns)) ns <- session$ns

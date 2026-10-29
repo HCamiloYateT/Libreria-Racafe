@@ -5,8 +5,23 @@
   var host, active = false, startupDone = false;
   function configs() { return Array.from(document.querySelectorAll(".rsh-loader-config")); }
   function first(flag) { return configs().find(function (config) { return config.dataset[flag] === "true"; }); }
+  function otherWaiters() {
+    return Array.from(document.querySelectorAll(".waiter-overlay")).filter(function (overlay) {
+      return !overlay.closest(".rsh-loader-host");
+    });
+  }
+  function reconcile() {
+    var seen = new Map();
+    otherWaiters().forEach(function (overlay) {
+      if (!overlay.querySelector(".rsh-loader-card")) return;
+      var previous = seen.get(overlay.parentElement);
+      if (previous) previous.remove();
+      seen.set(overlay.parentElement, overlay);
+    });
+    if (otherWaiters().length) hide();
+  }
   function show(config, type) {
-    if (!config || !window.waiter) return;
+    if (!config || !window.waiter || otherWaiters().length) return;
     if (!host) {
       host = document.createElement("div"); host.id = "rsh-loader-host";
       host.className = "rsh-loader-host"; host.hidden = true; document.body.appendChild(host);
@@ -39,6 +54,23 @@
   }, true);
   $(document).on("shiny:busy.rshLoaders", function () { show(first("busy"), "calculando"); });
   $(document).on("shiny:idle.rshLoaders", function () { startupDone = true; hide(); });
-  $(document).on("shiny:disconnected.rshLoaders shiny:connectionfailed.rshLoaders", hide);
-  $(function () { if (!startupDone) show(first("startup"), "inicio"); });
+  $(document).on("shiny:disconnected.rshLoaders shiny:connectionfailed.rshLoaders", function () {
+    hide();
+    otherWaiters().forEach(function (overlay) {
+      if (overlay.querySelector(".rsh-loader-card")) overlay.remove();
+    });
+  });
+  // Una imagen personalizada fallida vuelve al recurso corporativo, sin bloquear la operación.
+  document.addEventListener("error", function (event) {
+    var image = event.target;
+    if (!image.matches || !image.matches(".rsh-loader-logo")) return;
+    var fallback = image.dataset.rshFallback;
+    if (fallback && image.getAttribute("src") !== fallback && !image.dataset.rshTriedFallback) {
+      image.dataset.rshTriedFallback = "true"; image.src = fallback;
+    } else image.hidden = true;
+  }, true);
+  $(function () {
+    new MutationObserver(reconcile).observe(document.body, { childList: true, subtree: true });
+    if (!startupDone) show(first("startup"), "inicio");
+  });
 }(window.jQuery));

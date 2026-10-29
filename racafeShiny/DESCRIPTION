@@ -1,7 +1,7 @@
 Package: racafeShiny
 Type: Package
 Title: Componentes Shiny y Estilos para Racafe
-Version: 1.1.0
+Version: 1.2.0
 Authors@R: person("H. Camilo", "Yate T.", email = "camilo.yate@racafe.com",
     role = c("aut", "cre"))
 Description: Capa de presentacion del ecosistema Racafe. Inputs y outputs
@@ -29,8 +29,12 @@ Imports:
     rlang
 Suggests:
     testthat (>= 3.0.0),
-    shinytest2
+    shinytest2,
+    bs4Dash,
+    racafeForms,
+    readxl
 Config/testthat/edition: 3
 Remotes:
     HCamiloYateT/Libreria-Racafe/racafeCore,
-    HCamiloYateT/Libreria-Racafe/racafeGraph
+    HCamiloYateT/Libreria-Racafe/racafeGraph,
+    HCamiloYateT/Libreria-Racafe/racafeForms
