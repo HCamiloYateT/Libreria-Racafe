@@ -494,3 +494,9 @@ La demo usa bs4Dash por defecto. `Sys.setenv(RACAFE_FILES_BS4DASH = "0")` activa
 simple; `RACAFE_SHARED_PATH` permite probar un clon local de Compartido. Incluye dos
 módulos, cargas XLSX/PDF/múltiples, validación, estados, avisos y confirmaciones.
 La [validación de 0.5.0](docs/files-notifications-0.5.0.md) documenta ejecución y alcance.
+
+## Separadores numéricos
+
+Los formatos numéricos predeterminados usan punto decimal y coma de miles: **1,234.56**.
+Los valores reactivos siguen siendo numéricos; no convierta el texto formateado con
+`as.numeric()` sin retirar antes los separadores de miles. Las fechas conservan su formato.

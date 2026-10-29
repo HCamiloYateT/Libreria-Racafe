@@ -28,27 +28,29 @@ DefinirFormato <- function(formato, fn = NULL, ...) {
   }
 
   generadores <- list(
-    coma = function(...) scales::label_number(accuracy = 1, big.mark = ",", ...),
-    numero = function(...) scales::label_number(accuracy = 0.01, big.mark = ",", ...),
-    dinero = function(...) scales::label_number(accuracy = 1, prefix = "$", big.mark = ",", ...),
-    dolares = function(...) scales::label_number(accuracy = 0.01, prefix = "$", big.mark = ",", ...),
+    coma = function(...) scales::label_number(accuracy = 1, big.mark = ",", decimal.mark = ".", ...),
+    numero = function(...) scales::label_number(accuracy = 0.01, big.mark = ",", decimal.mark = ".", ...),
+    dinero = function(...) scales::label_number(accuracy = 1, prefix = "$", big.mark = ",", decimal.mark = ".", ...),
+    dolares = function(...) scales::label_number(
+      accuracy = 0.01, prefix = "$", big.mark = ",", decimal.mark = ".", ...
+    ),
     miles = function(...) scales::label_number(
-      accuracy = 0.01, scale = 0.001, prefix = "$", big.mark = ",", ...
+      accuracy = 0.01, scale = 0.001, prefix = "$", big.mark = ",", decimal.mark = ".", ...
     ),
     miles0 = function(...) scales::label_number(
-      accuracy = 1, scale = 0.001, prefix = "$", big.mark = ",", ...
+      accuracy = 1, scale = 0.001, prefix = "$", big.mark = ",", decimal.mark = ".", ...
     ),
     porcentaje = function(...) scales::label_number(
-      accuracy = 0.01, scale = 100, suffix = "%", big.mark = ",", ...
+      accuracy = 0.01, scale = 100, suffix = "%", big.mark = ",", decimal.mark = ".", ...
     ),
-    cientifico = function(...) scales::label_scientific(...),
+    cientifico = function(...) scales::label_scientific(decimal.mark = ".", ...),
     millones = function(...) scales::label_number(
-      accuracy = 0.01, scale = 0.000001, prefix = "$", suffix = " M", big.mark = ",", ...
+      accuracy = 0.01, scale = 0.000001, prefix = "$", suffix = " M", big.mark = ",", decimal.mark = ".", ...
     ),
-    entero = function(...) scales::label_number(accuracy = 1, big.mark = ",", ...),
+    entero = function(...) scales::label_number(accuracy = 1, big.mark = ",", decimal.mark = ".", ...),
     tiempo = function(...) scales::label_time(...),
     kwh = function(...) scales::label_number(
-      accuracy = 0.01, suffix = " kWh", big.mark = ",", ...
+      accuracy = 0.01, suffix = " kWh", big.mark = ",", decimal.mark = ".", ...
     ),
     log = function(...) scales::label_log(...)
   )
@@ -359,8 +361,8 @@ gt_pct_style <- function(gt_table, ...) {
     gt::fmt_percent(
       columns  = c(...),
       decimals = 1,
-      dec_mark = ",",
-      sep_mark = "."
+      dec_mark = ".",
+      sep_mark = ","
     )
 }
 
@@ -377,8 +379,8 @@ gt_var_style <- function(gt_table, ...) {
       columns     = c(...),
       decimals    = 1,
       force_sign  = TRUE,
-      dec_mark    = ",",
-      sep_mark    = "."
+      dec_mark    = ".",
+      sep_mark    = ","
     ) |>
     gt::tab_style(
       style = gt::cell_text(color = "#1A7A5E"),

@@ -127,7 +127,7 @@ racafeInputSelect <- function(id, label = NULL, choices, selected = NULL, multip
 #' @param decimals Decimales; NULL usa el formato predefinido.
 #' @param min,max Limites.
 #' @param prefix,suffix Texto visual sin alterar el valor numerico del servidor.
-#' @param thousand,decimal Separadores, por defecto Colombia.
+#' @param thousand,decimal Separadores: coma de miles y punto decimal por defecto.
 #' @param width Ancho CSS.
 #' @param ns Namespace del modulo.
 #' @return Componente de entrada Shiny para incluir en la UI; su valor está disponible en `input$id`.
@@ -139,7 +139,7 @@ racafeInputSelect <- function(id, label = NULL, choices, selected = NULL, multip
 #' @export
 racafeInputNumeric <- function(id, label, value = 0, format = "number", decimals = NULL,
                                min = NULL, max = NULL, prefix = NULL, suffix = NULL,
-                               thousand = ".", decimal = ",", width = "100%", ns = NULL,
+                               thousand = ",", decimal = ".", width = "100%", ns = NULL,
                                readonly = FALSE, disabled = FALSE, required = FALSE, help = NULL, error = NULL) {
   presets <- list(
     integer = list(decimals = 0, suffix = NULL), number = list(decimals = 2),

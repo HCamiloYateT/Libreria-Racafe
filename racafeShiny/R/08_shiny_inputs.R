@@ -37,6 +37,8 @@
         maximumValue = max,
         minimumValue = min,
         decimalPlaces = dec,
+        decimalCharacter = ".",
+        digitGroupSeparator = ",",
         width = "100%",
         currencySymbol = currency_symbol,
         currencySymbolPlacement = currency_placement,

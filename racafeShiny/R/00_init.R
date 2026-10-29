@@ -24,14 +24,14 @@
   # Alias retrocompatibles
   DefinirFormato("decimal", scales::label_number(
     accuracy = 0.01,
-    big.mark = ","
+    big.mark = ",", decimal.mark = "."
   ))
   DefinirFormato("variacion", scales::label_number(
     accuracy = 0.01,
     scale = 100,
     suffix = "%",
     style_positive = "plus",
-    big.mark = ","
+    big.mark = ",", decimal.mark = "."
   ))
 }
 

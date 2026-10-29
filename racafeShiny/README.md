@@ -170,3 +170,9 @@ valor de retorno. También puede usar `?racafeShiny::nombre_de_funcion`, sustitu
 `nombre_de_funcion` por el nombre real, o pulsar **F1** sobre una función en RStudio.
 Si actualiza desde una versión sin ayuda, reinstale el paquete y reinicie R.
 Consulte la [guía general de ayuda](../README.md#ayuda-de-las-funciones-en-rstudio).
+
+## Separadores numéricos
+
+Los formatos numéricos predeterminados usan punto decimal y coma de miles: **1,234.56**.
+Los valores reactivos siguen siendo numéricos; no convierta el texto formateado con
+`as.numeric()` sin retirar antes los separadores de miles. Las fechas conservan su formato.
