@@ -14,8 +14,8 @@ racafeInputNumeric(
   max = NULL,
   prefix = NULL,
   suffix = NULL,
-  thousand = ".",
-  decimal = ",",
+  thousand = ",",
+  decimal = ".",
   width = "100\%",
   ns = NULL,
   readonly = FALSE,
@@ -40,7 +40,7 @@ racafeInputNumeric(
 
 \item{prefix, suffix}{Texto visual sin alterar el valor numerico del servidor.}
 
-\item{thousand, decimal}{Separadores, por defecto Colombia.}
+\item{thousand, decimal}{Separadores: coma de miles y punto decimal por defecto.}
 
 \item{width}{Ancho CSS.}
 

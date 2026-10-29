@@ -1,3 +1,8 @@
+# Separadores numéricos
+
+- Unifica los formatos predeterminados en punto decimal y coma de miles (1,234.56).
+- Fija los separadores de controles y formatos para evitar diferencias regionales.
+
 # Novedades
 
 Este paquete sigue **Semantic Versioning (SemVer)**: `MAJOR.MINOR.PATCH`.

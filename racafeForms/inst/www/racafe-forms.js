@@ -108,8 +108,8 @@
   }
   function bytes_label(bytes) {
     if (bytes < 1024) return bytes + " B";
-    if (bytes < 1048576) return (bytes / 1024).toLocaleString("es-CO", { maximumFractionDigits: 1 }) + " KB";
-    return (bytes / 1048576).toLocaleString("es-CO", { maximumFractionDigits: 1 }) + " MB";
+    if (bytes < 1048576) return (bytes / 1024).toLocaleString("en-US", { maximumFractionDigits: 1 }) + " KB";
+    return (bytes / 1048576).toLocaleString("en-US", { maximumFractionDigits: 1 }) + " MB";
   }
   function allowed(file, accept) {
     if (!accept.length) return true;

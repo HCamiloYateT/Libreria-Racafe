@@ -167,3 +167,11 @@ render y preview no hacen SMTP ni descargas. El envío explícito utiliza blastu
 las credenciales fuera de Git. Consulte [instalación, API y migración](racafeMail/README.md).
 Para revisar esta versión antes de integrarla, use `ref = "codex/racafemail-self-contained"`
 al instalar el subpaquete. Fije el SHA completo aprobado para una instalación reproducible.
+
+### Convención numérica
+
+Los componentes y formatos numéricos de la librería usan **punto decimal** y
+**coma de miles**: `1,234.56`. La convención se aplica a los controles numéricos,
+formatos de moneda y porcentaje, tablas gt y tamaños de archivo. Los valores del
+servidor conservan su tipo numérico. Los parámetros explícitos de formato siguen
+permitiendo excepciones cuando una integración las requiera.
