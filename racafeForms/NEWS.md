@@ -1,3 +1,11 @@
+# racafeForms 0.5.0
+
+- Añade racafeInputFile con binding nativo, selección múltiple, estados y validación visual.
+- Añade racafeValidateInputFile para validar metadatos, tamaño y lectura en el servidor.
+- Añade racafeNotify y racafeRemoveNotify sobre notificaciones nativas, con namespaces y actualización por ID.
+- Integra estilos y scripts acotados al paquete, sin nuevas dependencias ni cambios en Alert/Confirm.
+- Incluye demo modular Shiny/bs4Dash, ayuda de RStudio y pruebas de cargas reales y notificaciones.
+
 # racafeForms 0.4.2
 
 - Elimina type antes de asignar email/tel y conserva los tipos HTML literales.
