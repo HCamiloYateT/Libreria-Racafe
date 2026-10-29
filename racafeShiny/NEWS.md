@@ -1,3 +1,10 @@
+# racafeShiny 1.1.0
+
+- Añade racafePreloader con variantes inicio, actualizar y calculando basadas en PlantillaBs4Dash.
+- Añade racafeLoaderUI para activación en el navegador antes de tareas bloqueantes y detección busy/idle.
+- Añade objetos racafeLoader sobre waiter con show, update y hide, aislados por sesión y namespace.
+- Incorpora recursos locales, movimiento reducido, cierre automático y demo modular Shiny/bs4Dash.
+
 # Separadores numéricos
 
 - Unifica los formatos predeterminados en punto decimal y coma de miles (1,234.56).

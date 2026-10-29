@@ -1,0 +1,10 @@
+{
+  "name": "racafe-shiny-browser-tests",
+  "private": true,
+  "scripts": {
+    "test:loaders": "node test-loaders.cjs"
+  },
+  "devDependencies": {
+    "playwright": "1.62.1"
+  }
+}
