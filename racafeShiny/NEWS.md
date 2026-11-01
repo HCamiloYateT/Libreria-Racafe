@@ -1,3 +1,10 @@
+# Desarrollo (sin publicar)
+
+- Añade racafeCollapsible con details/summary, triángulo rojo, teclado y estado Shiny.
+- Añade racafeUpdateCollapsible para abrir/cerrar sin recrear contenido ni duplicar namespaces.
+- Añade racafeModalFooter, adaptador del footer de racafeForms con estilos acotados.
+- Conserva APIs y estilos previos; no se cambia el footer predeterminado de modales existentes.
+
 # racafeShiny 1.2.0
 
 - Amplía los loaders a doce operaciones sin cambiar sus métodos ni argumentos anteriores.
