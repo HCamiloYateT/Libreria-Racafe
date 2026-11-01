@@ -356,4 +356,4 @@ del orden de `library()`. Los helpers/modal existentes no cambian de apariencia 
 La demo completa se distribuye en racafeModulos, `inst/examples/componentes-ui.R`, junto
 con TarjetaUI/Tarjeta. Las instrucciones, archivos modificados y límites de validación
 están en [Componentes UI de detalle](docs/ui-components.md). No se cambió la versión del
-paquete ni se publicó este trabajo: instale la copia local para revisar las APIs nuevas.
+paquete ni se publicó una versión: instale la copia de revisión para usar las APIs nuevas.

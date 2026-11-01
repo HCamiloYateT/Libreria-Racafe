@@ -1,8 +1,8 @@
 # Componentes UI corporativos — borrador sin publicar
 
 Solo se modifican Libreria-Racafe y racafeModulos. No se modifica CRM Nacional,
-PlantillaBs4Dash o Compartido. No se hacen commits, pushes, tags ni publicaciones;
-las versiones de los paquetes se conservan.
+PlantillaBs4Dash o Compartido. Los cambios se entregan mediante PR;
+no se crean tags ni se publican versiones de paquetes.
 
 ## Arquitectura y reutilización
 
@@ -139,4 +139,4 @@ RACAFE_TEST_URL=http://127.0.0.1:3940 node tests/browser/test-componentes-ui.cjs
 ```
 
 El test admite CHROMIUM_PATH, NODE_PATH y CI=1 para contenedores. No usa correos, APIs
-ni bases de datos. Todo queda como cambios locales para revisión del usuario.
+ni bases de datos. Los cambios se entregan para revisión, sin publicación de versiones de paquetes.
