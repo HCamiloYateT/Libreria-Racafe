@@ -1,3 +1,4 @@
 /* Componentes corporativos sin estilos generales de aplicación. */
 @import url("tokens.css");
 @import url("racafe-forms.css");
+@import url("racafe-modal-sizes.css");

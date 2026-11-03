@@ -1,3 +1,12 @@
+# Correcciones de modal y controlbar (sin publicar)
+
+- Precarga tamaños desde una fuente canónica de Compartido y evita apertura con CSS pendiente.
+- Normaliza botones nativos de footers a rf-btn; cancelar secundario y confirmar principal rojo.
+- Mantiene acciones horizontales a la derecha en móvil, conservando IDs y bindings.
+- Evita falsos clics externos de pickers del controlbar, incluidos menús al body y renderUI.
+- Conserva Bootstrap, selección múltiple, cierre normal y una sola instalación de listeners.
+- Amplía galería, prueba fría del primer modal y regresiones de navegación/controles.
+
 # Validación inline y selectores agregables (sin publicar)
 
 - Añade asteriscos rojos en obligatorios y metadatos de obligatoriedad condicional.

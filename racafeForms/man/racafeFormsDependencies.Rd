@@ -12,3 +12,7 @@ Objeto \code{htmltools::htmlDependency} con los estilos y comportamientos del pa
 \description{
 Dependencias visuales de racafeForms
 }
+\details{
+Incluya esta dependencia en la UI inicial, especialmente si solo genera modales desde showModal.
+Los tamaños corporativos quedan precargados antes de abrir el primer modal.
+}

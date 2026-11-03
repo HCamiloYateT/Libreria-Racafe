@@ -9,11 +9,16 @@ racafeModalFooter(..., left = NULL, center = NULL, right = NULL)
 \arguments{
 \item{...}{Acciones situadas a la derecha. Sin acciones se incluye Cerrar nativo de Shiny.}
 
-\item{left, center, right}{Grupos opcionales, como en racafeActionBar.}
+\item{left, center, right}{Grupos opcionales; conservan contenido y orden, alineados
+a la derecha dentro del footer, también en pantallas pequeñas.}
 }
 \value{
-Pie HTML con botones nativos y apariencia corporativa.
+Pie HTML con botones nativos normalizados a rf-btn y acciones horizontales a la derecha.
 }
 \description{
 Pie de modal con grupos de acciones
+}
+\details{
+Conserva IDs, handlers, estados y data-dismiss. Cerrar/Cancelar son secundarios;
+confirmar/guardar/aceptar y botones sin variante son principales. Otras variantes rf explícitas se conservan.
 }

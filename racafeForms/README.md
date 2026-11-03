@@ -573,3 +573,13 @@ mediante CSS; los valores y el catálogo permanecen intactos. FALSE conserva la 
 original. `racafeFormRow(..., actions = TRUE)` alinea un campo y su acción sin CSS local.
 La [guía de migración](docs/select-validation.md) explica estos cambios y la integración
 con `racafeModulos::ListaDesplegableAgregable()`.
+
+## Modales y controlbar
+
+`racafeFormsDependencies()` precarga también los tamaños corporativos. Inclúyala en la UI
+inicial si todos sus componentes RF se crean dinámicamente. `racafeModal()` espera sus CSS
+antes de abrirse y normaliza el footer a botones rf-btn horizontales a la derecha.
+Los pickers del controlbar conservan el panel abierto al seleccionar, incluidos menús externos
+y controles creados con renderUI; el cierre normal del panel permanece disponible.
+La galería incorpora casos interactivos de estos comportamientos. Consulte la
+[guía de modales y controlbar](docs/modal-controlbar.md).

@@ -195,3 +195,8 @@ Los selectores ofrecen uppercase para cambiar únicamente su presentación. La c
 Agregables utiliza la revisión nueva de racafeModulos si está instalada; de lo contrario
 explica qué instalar sin impedir el uso de la galería. Es una integración opcional (Suggests),
 no una dependencia obligatoria de los controles ni una copia del módulo.
+
+La revisión local de modales/controlbar añade el tamaño de modal configurable en sus tarjetas
+y una barra lateral con selectores simples, múltiples y dinámicos/portales. Véase
+[modal-controlbar.md](modal-controlbar.md). Las acciones de footer se normalizan a rf-btn y
+la dependencia inicial incluye los tamaños sin depender del primer showModal().
