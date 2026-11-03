@@ -40,7 +40,8 @@ racafeFormsGallery <- function() {
 }
 .rf_gallery_defaults <- function() {
   list(size = "compact", variant = "soft", required = FALSE, readonly = FALSE, disabled = FALSE,
-       loading = FALSE, format = "number", decimals = 2L, value = 1234.56, min = -10000, max = 10000,
+       row_columns = "2", row_responsive = "auto", loading = FALSE, format = "number",
+       decimals = 2L, value = 1234.56, min = -10000, max = 10000,
        thousand = ",", decimal = ".", multiple = FALSE, search = TRUE, empty = TRUE,
        gender = "m", uppercase = TRUE, unique_choices = TRUE, list_size = 6L, message = "info", icon = FALSE)
 }
@@ -124,7 +125,10 @@ racafeFormsGallery <- function() {
     server <- paste(server, 'output$file <- shiny::downloadHandler("demo.csv", function(file) {',
       '  utils::write.csv(data.frame(nombre = "Demo", importe = 1234.56), file, row.names = FALSE)', '})', sep = "\n")
   }
-  forms <- c("racafeForm", "racafeFormGroup", "racafeFormRow", "racafeFormFooter", "Formulario completo",
+  if (name == "racafeFormRow") {
+    control <- .rf_gallery_rows_code(as.integer(config$row_columns), config$row_responsive)
+  }
+  forms <- c("racafeForm", "racafeFormGroup", "racafeFormFooter", "Formulario completo",
              "racafeValidateForm", "racafeShowValidation", "racafeFormValidation", "racafeDownloadHandler")
   if (name %in% forms) {
     control <- paste0('shiny::tagList(\n',
@@ -353,6 +357,9 @@ racafeFormsGallery <- function() {
             shiny::checkboxInput("disabled", "Deshabilitado")),
           shiny::conditionalPanel("/^racafeButton/.test(input.component)",
                                   shiny::checkboxInput("loading", "Procesando")),
+          shiny::conditionalPanel("input.component === 'racafeFormRow'",
+            shiny::selectInput("row_columns", "Columnas", as.character(1:4), selected = "2"),
+            shiny::selectInput("row_responsive", "Distribuci\u00f3n", c("auto", "stack", "fixed", "legacy"))),
           shiny::conditionalPanel("input.component === 'racafeInputNumeric'",
             shiny::selectInput("format", "Formato", c("integer", "number", "currency", "percent"), selected = "number"),
             shiny::numericInput("value", "Valor inicial", 1234.56),
@@ -476,7 +483,7 @@ racafeFormsGallery <- function() {
 # Selector normal y menú externo dentro de bs4DashControlbar ----
 .rf_gallery_bar_ui <- function(id) {
   ns <- shiny::NS(id)
-  racafeForm(id = "form", ns = ns, variant = "plain",
+  shiny::tagList(racafeForm(id = "form", ns = ns, variant = "plain",
     racafeFormGroup(title = "Selectores en controlbar",
       racafeInputSelect("single", "Selecci\u00f3n simple", c("Caf\u00e9" = "cafe", "Cacao" = "cacao"), ns = ns),
       racafeInputSelect("multiple", "Selecci\u00f3n m\u00faltiple",
@@ -486,10 +493,27 @@ racafeFormsGallery <- function() {
       racafeInputCheckbox("dynamic_multiple", "Din\u00e1mico con selecci\u00f3n m\u00faltiple", value = TRUE, ns = ns),
       shiny::uiOutput(ns("dynamic_ui")),
       racafeButton("renew", "Reconstruir selector din\u00e1mico", ns = ns),
-      shiny::verbatimTextOutput(ns("state"))))
+      shiny::verbatimTextOutput(ns("state")))),
+    racafeForm(variant = "plain",
+      shiny::h4("Columnas en controlbar"),
+      shiny::selectInput(ns("row_columns"), "Columnas", as.character(1:4), selected = "2"),
+      shiny::selectInput(ns("row_responsive"), "Distribuci\u00f3n", c("auto", "stack", "fixed", "legacy"),
+                         selected = "fixed"),
+      shiny::selectInput(ns("row_density"), "Densidad", c("compact", "normal", "comfortable"))),
+    shiny::uiOutput(ns("row_ui")), shiny::verbatimTextOutput(ns("row_values")))
 }
 .rf_gallery_bar_server <- function(id) {
   shiny::moduleServer(id, function(input, output, session) {
+    output$row_ui <- shiny::renderUI({
+      shiny::req(input$row_columns, input$row_responsive, input$row_density)
+      ns <- session$ns
+      racafeForm(id = "row_form", ns = ns, variant = "plain", size = input$row_density,
+        eval(parse(text = .rf_gallery_rows_code(as.integer(input$row_columns), input$row_responsive))))
+    })
+    output$row_values <- shiny::renderPrint({
+      values <- shiny::reactiveValuesToList(input)
+      values[grepl("^(FT_|row_(number|date|datetime|button)$)", names(values))]
+    })
     revision <- shiny::reactiveVal(0L)
     shiny::observeEvent(input$renew, { revision(revision() + 1L) })
     output$dynamic_ui <- shiny::renderUI({
@@ -503,4 +527,23 @@ racafeFormsGallery <- function() {
     output$state <- shiny::renderPrint(list(single = input$single, multiple = input$multiple,
                                            dynamic = input$dynamic, revision = revision()))
   })
+}
+
+# Ejemplo compartido entre el formulario normal, el controlbar y el código copiable ----
+.rf_gallery_rows_code <- function(columns = 2L, responsive = "auto") {
+  args <- paste0("columns = ", as.integer(columns),
+    if (responsive != "legacy") paste0(", responsive = ", .rf_gallery_literal(responsive)))
+  ids <- c("FT_LinNeg", "FT_Segmento", "FT_Categoria", "FT_Producto")
+  labels <- c("L\u00ednea de Negocio", "Segmento", "Categor\u00eda", "Producto")
+  fields <- vapply(seq_along(ids), function(i) paste0(
+    "racafeForms::racafeInputSelect(", .rf_gallery_literal(ids[[i]]), ", ",
+    .rf_gallery_literal(labels[[i]]),
+    ', choices = c("Caf\u00e9" = "cafe", "Cacao" = "cacao"), multiple = TRUE, ns = ns)'), character(1))
+  paste0("shiny::tagList(racafeForms::racafeFormRow(", args, ",\n",
+    paste(fields, collapse = ",\n"), "),\n",
+    "racafeForms::racafeFormRow(", args, ",\n",
+    'racafeForms::racafeInputNumeric("row_number", "Cantidad", ns = ns),\n',
+    'racafeForms::racafeInputDate("row_date", "Fecha", ns = ns),\n',
+    'racafeForms::racafeInputDateTime("row_datetime", "Fecha y hora", ns = ns),\n',
+    'racafeForms::racafeButton("row_button", "Consultar", ns = ns)))')
 }

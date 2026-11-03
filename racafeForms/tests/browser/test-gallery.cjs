@@ -122,6 +122,27 @@ const { chromium } = require("playwright");
     await page.locator("#preview button[id$='-reset']").click();
     await page.waitForFunction(() => document.querySelector('#preview input[id$="-value"]').value === "");
     check(true, "Restablecimiento nativo de formulario");
+    await navigate(1, "racafeFormRow");
+    await page.locator('[data-widget="control-sidebar"]').first().click();
+    for (const columns of ['1', '2', '3', '4']) for (const mode of ['auto', 'stack', 'fixed', 'legacy']) {
+      await select('row_columns', columns);
+      await select('row_responsive', mode);
+      await page.locator('#apply').click();
+      await page.waitForFunction(({columns, mode}) => {
+        const rows = [...document.querySelectorAll('#preview .rf-row')];
+        return rows.length === 2 && rows.every(row => row.classList.contains('rf-row--' + columns) &&
+          (mode === 'legacy' ? !row.closest('.rf-row-container') : row.classList.contains('rf-row--' + mode)));
+      }, {columns, mode});
+      check(true, `Galería normal: ${columns} columnas, ${mode}`);
+      await select('controlbar_demo-row_columns', columns);
+      await select('controlbar_demo-row_responsive', mode);
+      await page.waitForFunction(({columns, mode}) => {
+        const rows = [...document.querySelectorAll('#controlbar_demo-row_ui .rf-row')];
+        return rows.length === 2 && rows.every(row => row.classList.contains('rf-row--' + columns) &&
+          (mode === 'legacy' ? !row.closest('.rf-row-container') : row.classList.contains('rf-row--' + mode)));
+      }, {columns, mode});
+      check(true, `Galería controlbar: ${columns} columnas, ${mode}`);
+    }
     await page.setViewportSize({ width: 390, height: 844 });
     await page.waitForTimeout(400);
     check(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), "Sin desbordamiento móvil");

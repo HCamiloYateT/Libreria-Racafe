@@ -4,7 +4,7 @@
 \alias{racafeFormRow}
 \title{Fila flexible y adaptable de campos}
 \usage{
-racafeFormRow(..., columns = 2L, actions = FALSE)
+racafeFormRow(..., columns = 2L, actions = FALSE, responsive = NULL)
 }
 \arguments{
 \item{...}{Componentes a distribuir horizontalmente.}
@@ -12,10 +12,22 @@ racafeFormRow(..., columns = 2L, actions = FALSE)
 \item{columns}{Numero de columnas en escritorio (1 a 4).}
 
 \item{actions}{Fila de campo y acción: dos columnas, botón alineado con el input, incluso con errores debajo.}
+
+\item{responsive}{NULL conserva el diseño anterior. auto adapta las columnas al ancho del contenedor;
+stack hace lo mismo pero apila dentro del controlbar; fixed respeta columns mientras cada campo
+disponga de al menos 80 px. En auto y stack se reservan aproximadamente 160 px por columna.}
 }
 \value{
 Etiqueta HTML \code{div} que distribuye los campos en columnas adaptables.
 }
 \description{
 Fila flexible y adaptable de campos
+}
+\details{
+Las modalidades explícitas generan su propio contenedor de consulta CSS, sin estilos inline.
+actions conserva la distribución de campo y botón; se apila si no hay espacio suficiente.
+}
+\examples{
+racafeForm(racafeFormRow(columns = 2, responsive = "fixed",
+  racafeInputText("nombre", "Nombre"), racafeInputText("correo", "Correo")))
 }

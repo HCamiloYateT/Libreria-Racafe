@@ -583,3 +583,57 @@ Los pickers del controlbar conservan el panel abierto al seleccionar, incluidos 
 y controles creados con renderUI; el cierre normal del panel permanece disponible.
 La galería incorpora casos interactivos de estos comportamientos. Consulte la
 [guía de modales y controlbar](docs/modal-controlbar.md).
+
+## Columnas nativas en formularios y controlbar
+
+`racafeFormRow()` admite de una a cuatro columnas sin contenedores ni CSS en la aplicación:
+
+```r
+ns <- shiny::NS("filtros")
+racafeForms::racafeForm(
+  size = "compact", variant = "plain",
+  racafeForms::racafeFormRow(columns = 2, responsive = "fixed",
+    racafeForms::racafeInputSelect("FT_LinNeg", "Línea de Negocio",
+      choices = character(0), multiple = TRUE, ns = ns),
+    racafeForms::racafeInputSelect("FT_Segmento", "Segmento",
+      choices = character(0), multiple = TRUE, ns = ns)),
+  racafeForms::racafeFormRow(columns = 2, responsive = "fixed",
+    racafeForms::racafeInputSelect("FT_Categoria", "Categoría",
+      choices = character(0), multiple = TRUE, ns = ns),
+    racafeForms::racafeInputSelect("FT_Producto", "Producto",
+      choices = character(0), multiple = TRUE, ns = ns)))
+```
+
+| `responsive` | Comportamiento |
+| --- | --- |
+| `NULL` (predeterminado) | Conserva exactamente la distribución heredada, incluida la columna única del controlbar compacto. |
+| `"auto"` | Adapta las columnas al ancho real del contenedor, hasta el máximo solicitado. |
+| `"stack"` | Como `auto` fuera del controlbar; siempre una columna dentro del panel. |
+| `"fixed"` | Mantiene las columnas solicitadas; las reduce cuando cada campo tendría menos de 80 px. |
+
+`auto` y `stack` utilizan container queries: dos columnas desde 336 px, tres desde 512 px
+y cuatro desde 688 px, según `columns`. Los navegadores sin container queries utilizan
+CSS Grid intrínseco con un mínimo aproximado de 160 px. No dependen del ancho de la ventana.
+`actions = TRUE` conserva la distribución especial campo/botón y se apila por debajo de 176 px.
+Los IDs y bindings de los componentes permanecen intactos.
+
+En `racafeFormsGallery()`, seleccione **racafeFormRow**, el número de columnas y la modalidad.
+El controlbar incluye los mismos ejemplos y controles de densidad independientes.
+
+### Regresión de columnas en navegador
+
+Desde la raíz del repositorio, con el paquete instalado y `bs4Dash` disponible:
+
+```r
+shiny::runApp("racafeForms/tests/browser/responsive-rows-app.R", port = 4031)
+```
+
+En otra terminal, instale las dependencias de `tests/browser` con `npm ci` y ejecute:
+
+```sh
+node racafeForms/tests/browser/responsive-rows.cjs
+```
+
+Se puede configurar `ROW_TEST_URL` y `CHROMIUM_PATH`. La prueba cubre las cuatro cantidades
+de columnas, tres densidades, tres anchos de ventana, seis anchos de contenedor, el diseño
+heredado y los bindings de selectores, numéricos y fechas dentro de un módulo Shiny.
