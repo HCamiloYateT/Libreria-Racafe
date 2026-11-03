@@ -308,3 +308,52 @@ validación/importación de archivos, correo simulado, PDF real y preparación d
 error controlado y operaciones consecutivas. No envía correos ni modifica bases de datos.
 Los bloqueos intencionales con `Sys.sleep()` sirven exclusivamente para la demostración.
 Vea el [informe de validación de 1.2.0](docs/loaders-1.2.0.md).
+
+## Componentes UI de detalle (desarrollo, sin publicar)
+
+```r
+racafeShiny::racafeCollapsible(
+  id = ns("detalle_pedidos"), title = "Detalle de pedidos, lotes y fechas", open = FALSE,
+  shiny::tableOutput(ns("pedidos")), icon = "list", color = "#DA291C"
+)
+# Dentro de moduleServer: use ID local o el ID con namespace de la misma sesión.
+racafeShiny::racafeUpdateCollapsible(session, "detalle_pedidos", open = TRUE)
+```
+
+`racafeCollapsible(id, title, open = FALSE, ..., icon = NULL, color = "#DA291C", class = NULL)`
+usa HTML `details`/`summary`. El triángulo rojo apunta a la derecha al cerrar y hacia
+abajo al abrir; Enter/Espacio y el foco del navegador funcionan sin dependencias externas.
+`input$detalle_pedidos` es lógico. El binding propio sincroniza el estado y comunica
+visibilidad a Shiny para reanudar tablas, gráficos y outputs suspendidos al ocultarse.
+No reconstruye el contenido ni cambia el estado de los controles incluidos.
+
+`color` admite nombres de R o hexadecimal; `icon` acepta nombre Font Awesome o etiqueta.
+El título es texto escapado. `...` admite UI arbitraria y `class` añade clases al contenedor.
+
+```r
+shiny::showModal(shiny::modalDialog(
+  title = "Información comercial", "Contenido o módulo hijo",
+  footer = racafeShiny::racafeModalFooter(cerrar = FALSE, acciones = shiny::tagList(
+    racafeForms::racafeButtonCancel("cancelar", "Cancelar", ns = ns),
+    racafeForms::racafeButtonSave("guardar", "Guardar", ns = ns)
+  ))
+))
+# En observers separados de cancelar y guardar, llame a shiny::removeModal(session).
+```
+
+`racafeModalFooter(cerrar = TRUE, acciones = NULL, ..., texto_cerrar = "Cerrar")` reutiliza
+la estructura y botones de racafeForms, que debe estar instalado. El cierre nativo no
+guarda ni emite un evento personalizado; para Cancelar/Guardar con eventos use IDs y
+`cerrar = FALSE`. Puede añadir Confirmar o cualquier otro `racafeButton()` a `acciones`.
+Se mantiene alineación derecha, separación de 8 px y altura compacta uniforme.
+No se alteran botones Bootstrap ni pies de modal ajenos al contenedor corporativo.
+
+**Nombres homónimos:** racafeForms ya exporta `racafeModalFooter(..., left, center, right)`.
+Las firmas son distintas: use siempre `racafeShiny::racafeModalFooter()` para este
+adaptador o `racafeForms::racafeModalFooter()` para el helper anterior, evitando depender
+del orden de `library()`. Los helpers/modal existentes no cambian de apariencia por defecto.
+
+La demo completa se distribuye en racafeModulos, `inst/examples/componentes-ui.R`, junto
+con TarjetaUI/Tarjeta. Las instrucciones, archivos modificados y límites de validación
+están en [Componentes UI de detalle](docs/ui-components.md). No se cambió la versión del
+paquete ni se publicó una versión: instale la copia de revisión para usar las APIs nuevas.

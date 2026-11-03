@@ -55,3 +55,7 @@ importFrom(rlang, ".data")
 export(racafePreloader)
 export(racafeLoaderUI)
 export(racafeLoader)
+
+export(racafeCollapsible)
+export(racafeUpdateCollapsible)
+export(racafeModalFooter)
