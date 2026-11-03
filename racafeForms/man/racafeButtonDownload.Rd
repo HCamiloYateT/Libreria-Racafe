@@ -10,7 +10,10 @@ racafeButtonDownload(
   icon = "download",
   variant = "secondary",
   size = "sm",
-  ns = NULL
+  ns = NULL,
+  disabled = FALSE,
+  loading = FALSE,
+  validate = FALSE
 )
 }
 \arguments{
@@ -25,6 +28,10 @@ racafeButtonDownload(
 \item{size}{Tamano.}
 
 \item{ns}{Namespace.}
+
+\item{disabled, loading}{Estados visuales iniciales.}
+
+\item{validate}{Validar mediante racafeDownloadHandler antes de iniciar la descarga.}
 }
 \value{
 Etiqueta HTML de descarga asociada a un \code{shiny::downloadHandler}.

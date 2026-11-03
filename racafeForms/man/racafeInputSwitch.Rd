@@ -9,7 +9,11 @@ racafeInputSwitch(
   label,
   value = FALSE,
   variant = c("primary", "success", "warning", "danger", "neutral"),
-  ns = NULL
+  ns = NULL,
+  required = FALSE,
+  help = NULL,
+  disabled = FALSE,
+  error = NULL
 )
 }
 \arguments{
@@ -22,6 +26,8 @@ racafeInputSwitch(
 \item{variant}{primary, success, warning, danger, neutral.}
 
 \item{ns}{Namespace.}
+
+\item{required, help, disabled, error}{Obligatoriedad, ayuda, deshabilitado y error del campo.}
 }
 \value{
 Componente de entrada Shiny para incluir en la UI; su valor está disponible en \code{input$id}.

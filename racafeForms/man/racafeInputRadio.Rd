@@ -4,7 +4,18 @@
 \alias{racafeInputRadio}
 \title{Opciones radiales corporativas}
 \usage{
-racafeInputRadio(id, label, choices, selected = NULL, inline = TRUE, ns = NULL)
+racafeInputRadio(
+  id,
+  label,
+  choices,
+  selected = NULL,
+  inline = TRUE,
+  ns = NULL,
+  required = FALSE,
+  help = NULL,
+  disabled = FALSE,
+  error = NULL
+)
 }
 \arguments{
 \item{id}{ID local.}
@@ -18,6 +29,8 @@ racafeInputRadio(id, label, choices, selected = NULL, inline = TRUE, ns = NULL)
 \item{inline}{Disposicion horizontal.}
 
 \item{ns}{Namespace.}
+
+\item{required, help, disabled, error}{Obligatoriedad, ayuda, deshabilitado y error del campo.}
 }
 \value{
 Componente de entrada Shiny para incluir en la UI; su valor está disponible en \code{input$id}.

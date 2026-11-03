@@ -7,13 +7,14 @@
 #' @param ns Namespace de modulo.
 #' @param title Tooltip accesible.
 #' @param disabled Estado inicial deshabilitado.
+#' @param loading Estado inicial ocupado, sin cambiar el binding.
 #' @param ... Argumentos adicionales para racafeButton.
 #' @return Etiqueta HTML de botón Shiny; las variantes conservan el ID para `input$id`.
 #' @export
 racafeButton <- function(id, label, icon = NULL,
                          variant = c("primary", "secondary", "success", "warning", "danger", "ghost"),
                          size = c("sm", "xxs", "xs", "md", "lg"),
-                         ns = NULL, title = NULL, disabled = FALSE) {
+                         ns = NULL, title = NULL, disabled = FALSE, loading = FALSE) {
   variant <- match.arg(variant)
   size <- match.arg(size)
   if (is.null(label) && is.null(icon)) stop("label e icon no pueden ser ambos NULL")
@@ -22,7 +23,11 @@ racafeButton <- function(id, label, icon = NULL,
   btn <- shiny::actionButton(.rf_id(id, ns), label = content,
                              class = .rf_button_class(variant, size))
   if (!is.null(title)) btn <- shiny::tagAppendAttributes(btn, title = title)
-  if (isTRUE(disabled)) btn <- shiny::tagAppendAttributes(btn, disabled = "disabled")
+  .rf_flag(disabled, "disabled")
+  .rf_flag(loading, "loading")
+  if (isTRUE(disabled) || loading) btn <- shiny::tagAppendAttributes(btn, disabled = "disabled")
+  if (loading) btn <- shiny::tagAppendAttributes(btn, class = "rf-btn--loading", `aria-busy` = "true")
+  btn <- shiny::tagAppendAttributes(btn, `data-rf-inactive` = tolower(as.character(disabled)))
   .rf_attach(btn)
 }
 
@@ -49,11 +54,18 @@ racafeButtonDelete <- function(id, label = "Eliminar", ns = NULL, ...) {
 #' @param size Tamano.
 #' @param ns Namespace.
 #' @return Etiqueta HTML de descarga asociada a un `shiny::downloadHandler`.
+#' @param disabled,loading Estados visuales iniciales.
+#' @param validate Validar mediante racafeDownloadHandler antes de iniciar la descarga.
 #' @export
 racafeButtonDownload <- function(id, label = "Descargar", icon = "download",
-                                 variant = "secondary", size = "sm", ns = NULL) {
-  .rf_attach(shiny::downloadButton(.rf_id(id, ns), label = label, icon = .rf_icon(icon),
-                                  class = .rf_button_class(variant, size)))
+                                 variant = "secondary", size = "sm", ns = NULL, disabled = FALSE,
+                                 loading = FALSE, validate = FALSE) {
+  .rf_flag(disabled, "disabled"); .rf_flag(loading, "loading"); .rf_flag(validate, "validate")
+  tag <- shiny::downloadButton(.rf_id(id, ns), label = label, icon = .rf_icon(icon),
+                                  class = .rf_button_class(variant, size))
+  .rf_attach(shiny::tagAppendAttributes(tag, `data-rf-validate-download` = tolower(as.character(validate)),
+    `data-rf-inactive` = tolower(as.character(disabled)), `aria-disabled` = if (disabled || loading) "true",
+    `aria-busy` = if (loading) "true", class = if (loading) "rf-btn--loading"))
 }
 
 #' Mostrar alerta SweetAlert corporativa

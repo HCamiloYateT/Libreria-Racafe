@@ -4,7 +4,16 @@
 \alias{racafeInputCheckbox}
 \title{Casilla corporativa}
 \usage{
-racafeInputCheckbox(id, label, value = FALSE, ns = NULL)
+racafeInputCheckbox(
+  id,
+  label,
+  value = FALSE,
+  ns = NULL,
+  required = FALSE,
+  help = NULL,
+  disabled = FALSE,
+  error = NULL
+)
 }
 \arguments{
 \item{id}{ID local.}
@@ -14,6 +23,8 @@ racafeInputCheckbox(id, label, value = FALSE, ns = NULL)
 \item{value}{Estado inicial.}
 
 \item{ns}{Namespace.}
+
+\item{required, help, disabled, error}{Obligatoriedad, ayuda, deshabilitado y error del campo.}
 }
 \value{
 Componente de entrada Shiny para incluir en la UI; su valor está disponible en \code{input$id}.

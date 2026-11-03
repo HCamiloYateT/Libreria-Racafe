@@ -500,3 +500,42 @@ La [validación de 0.5.0](docs/files-notifications-0.5.0.md) documenta ejecució
 Los formatos numéricos predeterminados usan punto decimal y coma de miles: **1,234.56**.
 Los valores reactivos siguen siendo numéricos; no convierta el texto formateado con
 `as.numeric()` sin retirar antes los separadores de miles. Las fechas conservan su formato.
+
+## Formularios estandarizados (desarrollo sin publicar)
+
+La guía de [estandarización y migración](docs/form-standardization.md) describe las
+nuevas funciones, sus contratos y los cambios visuales. Esta revisión conserva la versión
+actual: para probarla instale **la copia local modificada**, reinicie R y recargue el navegador
+sin caché. La instalación de `main` no incorpora cambios que todavía no se han publicado.
+
+```r
+remotes::install_local("racafeForms", dependencies = NA, upgrade = "never")
+# En una sesión nueva:
+shiny::runApp(system.file("examples", "standardized-forms.R", package = "racafeForms"))
+```
+
+La demostración incluye dos módulos independientes, todos los tipos de entrada, campos
+dinámicos, validación condicional, fecha-hora, descarga CSV y modal con footer corporativo.
+Utiliza bs4Dash por defecto; `Sys.setenv(RACAFE_STANDARD_BS4DASH = "0")` permite probar Shiny
+sin dashboard. `RACAFE_STANDARD_MODE` admite `inline`, `alert` o `both`;
+`RACAFE_SHARED_PATH` permite cargar los recursos locales existentes de Compartido.
+
+Declare `required = TRUE` en los campos, reutilice su UI como esquema y registre una sola
+instancia de `racafeFormValidation()` por formulario en el servidor. Antes de guardar,
+consulte `validation$validate()`. La validación ocurre en R, muestra pendientes y enfoca
+el primero; no muestra errores antes del primer intento y los limpia al corregir.
+Las reglas condicionales reciben los valores locales del módulo; `session$ns` conserva
+el namespace completo, incluso en módulos anidados.
+
+`racafeValidateForm()` devuelve un resultado sin efectos visuales;
+`racafeShowValidation()` permite mostrarlo por separado. `racafeInputDateTime()` utiliza
+el mismo Air Datepicker de fechas y rangos, devuelve `POSIXct` y acepta límites y zona IANA.
+`racafeUpdateButton()` controla `disabled`, `loading` y confirmación `success`.
+Para descargas, combine `racafeButtonDownload(validate = TRUE)` con
+`racafeDownloadHandler()`: valida antes de iniciar y antes de generar el contenido,
+reutilizando el enlace visible nativo de Shiny.
+
+Los grupos consecutivos administran sus separadores sin `hr()` manuales y el footer evita
+bordes duplicados. Los encabezados HTML conservan su contenido con tipografía compacta.
+Use `unstyled = TRUE` al anidar un formulario dentro de un panel. Los estilos están en el
+paquete, acotados a sus clases, y respetan las variables corporativas de Compartido.

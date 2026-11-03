@@ -11,7 +11,7 @@ racafeFormGroup(..., title = NULL, divider = TRUE)
 
 \item{title}{Titulo opcional del grupo.}
 
-\item{divider}{Separador inferior.}
+\item{divider}{Separador automático entre este grupo y el siguiente, sin duplicar el footer.}
 }
 \value{
 Etiqueta HTML \code{section} con los campos y el título opcional.
