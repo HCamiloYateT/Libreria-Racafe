@@ -91,11 +91,16 @@ racafeInputTextArea <- function(id, label, value = "", placeholder = NULL, rows 
 #' @param required Marcar el campo como obligatorio.
 #' @param help Ayuda opcional del campo.
 #' @param error Mensaje de validación opcional.
+#' @param unique_choices Eliminar valores repetidos conservando la primera etiqueta y los grupos.
+#' @examples
+#' racafeInputSelect("region", "Región", c("A" = "a", "Repetido" = "a"), unique_choices = TRUE)
 #' @export
 racafeInputSelect <- function(id, label = NULL, choices, selected = NULL, multiple = FALSE,
                               search = TRUE, empty = TRUE, empty_label = "Ninguno", size = 6,
                               dropup_auto = FALSE, width = "100%", ns = NULL, gender = c("m", "f"),
-                              disabled = FALSE, required = FALSE, help = NULL, error = NULL) {
+                              disabled = FALSE, required = FALSE, help = NULL, error = NULL, unique_choices = FALSE) {
+  .rf_flag(unique_choices, "unique_choices")
+  choices <- .rf_select_choices(choices, unique_choices)
   gender <- match.arg(gender)
   if (missing(empty_label)) empty_label <- if (gender == "f") "Ninguna" else "Ninguno"
   if (!multiple && empty && !"" %in% as.character(.rf_choice_values(choices))) {

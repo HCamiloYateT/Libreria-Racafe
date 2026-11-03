@@ -7,7 +7,9 @@
 racafeFormMessage(
   text,
   type = c("info", "success", "warning", "error", "muted", "loading", "empty"),
-  details = NULL
+  details = NULL,
+  size = c("compact", "normal", "comfortable"),
+  icon = NULL
 )
 }
 \arguments{
@@ -16,10 +18,17 @@ racafeFormMessage(
 \item{type}{info, success, warning, error, muted, loading o empty.}
 
 \item{details}{Detalles técnicos opcionales, explícitos y escapados; nunca se añaden desde errores automáticamente.}
+
+\item{size}{compact, normal o comfortable.}
+
+\item{icon}{Nombre Font Awesome o etiqueta; NULL omite el icono.}
 }
 \value{
 Etiqueta HTML accesible con el mensaje, estado y detalles opcionales.
 }
 \description{
 Aviso de formulario no modal
+}
+\examples{
+racafeFormMessage("Procesando", "loading", size = "compact", icon = "clock")
 }

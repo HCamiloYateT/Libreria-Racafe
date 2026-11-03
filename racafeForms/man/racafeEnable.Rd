@@ -4,22 +4,24 @@
 \alias{racafeEnable}
 \alias{racafeDisable}
 \alias{racafeToggle}
-\title{Activar un input usando shinyjs}
+\title{Activar un control corporativo sin inicializar shinyjs}
 \usage{
-racafeEnable(id)
+racafeEnable(id, session = shiny::getDefaultReactiveDomain())
 
-racafeDisable(id)
+racafeDisable(id, session = shiny::getDefaultReactiveDomain())
 
-racafeToggle(id, condition)
+racafeToggle(id, condition, session = shiny::getDefaultReactiveDomain())
 }
 \arguments{
 \item{id}{ID local.}
 
-\item{condition}{Logico; TRUE activa y FALSE desactiva.}
+\item{session}{Sesión Shiny actual; resuelve el namespace del módulo.}
+
+\item{condition}{Lógico; TRUE activa y FALSE desactiva.}
 }
 \value{
-El resultado de la llamada a shinyjs; se usa para modificar el estado del control.
+Invisiblemente NULL; actualiza el estado real y visual del control.
 }
 \description{
-Activar un input usando shinyjs
+Activar un control corporativo sin inicializar shinyjs
 }

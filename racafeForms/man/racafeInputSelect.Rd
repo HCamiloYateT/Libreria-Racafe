@@ -21,7 +21,8 @@ racafeInputSelect(
   disabled = FALSE,
   required = FALSE,
   help = NULL,
-  error = NULL
+  error = NULL,
+  unique_choices = FALSE
 )
 }
 \arguments{
@@ -58,6 +59,8 @@ racafeInputSelect(
 \item{help}{Ayuda opcional del campo.}
 
 \item{error}{Mensaje de validación opcional.}
+
+\item{unique_choices}{Eliminar valores repetidos conservando la primera etiqueta y los grupos.}
 }
 \value{
 Componente de entrada Shiny para incluir en la UI; su valor está disponible en \code{input$id}.
@@ -72,4 +75,7 @@ La selección simple conserva el acento rojo; la múltiple usa un check rojo sob
 Para filtros opcionales puede usar \code{empty_label = "Todos (sin filtro)"} e interpretar
 \code{length(input$id) == 0L} en el servidor como ausencia de filtro. La etiqueta no cambia
 el valor del control: vacío sigue siendo \code{NULL} o \code{character(0)} y no selecciona opciones.
+}
+\examples{
+racafeInputSelect("region", "Región", c("A" = "a", "Repetido" = "a"), unique_choices = TRUE)
 }
