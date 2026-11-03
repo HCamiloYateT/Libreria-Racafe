@@ -1,3 +1,10 @@
+# Columnas nativas de formulario (sin publicar)
+
+- Añade responsive = NULL/auto/stack/fixed a racafeFormRow, conservando el HTML y diseño heredados por defecto.
+- Adapta las columnas al contenedor mediante CSS Grid y container queries, sin CSS de aplicación.
+- Respeta columnas explícitas en el controlbar, con reducción de seguridad para controles muy estrechos.
+- Amplía la galería, ayuda de RStudio y pruebas de columnas, densidades, namespaces y bindings.
+
 # Correcciones de modal y controlbar (sin publicar)
 
 - Precarga tamaños desde una fuente canónica de Compartido y evita apertura con CSS pendiente.

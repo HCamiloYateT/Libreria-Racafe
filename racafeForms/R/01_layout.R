@@ -58,14 +58,28 @@ racafeFormGroup <- function(..., title = NULL, divider = TRUE, variant = NULL) {
 #' @param ... Componentes a distribuir horizontalmente.
 #' @param columns Numero de columnas en escritorio (1 a 4).
 #' @param actions Fila de campo y acción: dos columnas, botón alineado con el input, incluso con errores debajo.
+#' @param responsive NULL conserva el diseño anterior. auto adapta las columnas al ancho del contenedor;
+#'   stack hace lo mismo pero apila dentro del controlbar; fixed respeta columns mientras cada campo
+#'   disponga de al menos 80 px. En auto y stack se reservan aproximadamente 160 px por columna.
+#' @details Las modalidades explícitas generan su propio contenedor de consulta CSS, sin estilos inline.
+#'   actions conserva la distribución de campo y botón; se apila si no hay espacio suficiente.
 #' @return Etiqueta HTML `div` que distribuye los campos en columnas adaptables.
+#' @examples
+#' racafeForm(racafeFormRow(columns = 2, responsive = "fixed",
+#'   racafeInputText("nombre", "Nombre"), racafeInputText("correo", "Correo")))
 #' @export
-racafeFormRow <- function(..., columns = 2L, actions = FALSE) {
+racafeFormRow <- function(..., columns = 2L, actions = FALSE, responsive = NULL) {
   .rf_flag(actions, "actions")
   if (actions && (columns != 2L || length(list(...)) != 2L)) stop("actions requiere dos columnas y dos elementos.")
   stopifnot(length(columns) == 1L, columns %in% 1:4)
-  shiny::tags$div(class = paste("rf-row", paste0("rf-row--", columns), if (actions) "rf-row--actions"),
-                  lapply(list(...), function(x) shiny::tags$div(class = "rf-col", x)))
+  if (!is.null(responsive)) responsive <- match.arg(responsive, c("auto", "stack", "fixed"))
+  if (is.null(responsive)) return(shiny::tags$div(
+    class = paste("rf-row", paste0("rf-row--", columns), if (actions) "rf-row--actions"),
+    lapply(list(...), function(x) shiny::tags$div(class = "rf-col", x))))
+  row <- shiny::tags$div(class = paste("rf-row", paste0("rf-row--", columns),
+    if (actions) "rf-row--actions", paste0("rf-row--", responsive)),
+    lapply(list(...), function(x) shiny::tags$div(class = "rf-col", x)))
+  .rf_attach(shiny::tags$div(class = "rf-row-container", row))
 }
 
 #' Pie de formulario con acciones compactas
