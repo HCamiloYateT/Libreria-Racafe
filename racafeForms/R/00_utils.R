@@ -86,3 +86,22 @@
   }
   shiny::tags[[level]](class = class, normalize(title))
 }
+
+# Catálogos con una sola opción vacía ----
+.rf_select_choices <- function(choices, unique_choices = FALSE) {
+  seen <- character()
+  walk <- function(items) {
+    keep <- rep(TRUE, length(items))
+    for (i in seq_along(items)) {
+      if (is.list(items[[i]]) || length(items[[i]]) > 1L) {
+        items[[i]] <- walk(items[[i]])
+      } else {
+        value <- as.character(items[[i]])
+        if (length(value) && (unique_choices || identical(value, "")) && value %in% seen) keep[[i]] <- FALSE
+        seen <<- c(seen, value)
+      }
+    }
+    items[keep]
+  }
+  walk(choices)
+}

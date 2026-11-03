@@ -6,6 +6,8 @@
 #' @param version Versión requerida de ASSETS_VERSION; NULL acepta la versión local.
 #' @param css,javascript,images Activar estilos, scripts e imágenes, respectivamente.
 #' @param prefix Prefijo URL propio; no es una ruta del sistema.
+#' @param global_css TRUE conserva style.css; FALSE carga components.css sin reglas generales de aplicación.
+#'   FALSE requiere la copia de Compartido con Styles/components.css y Styles/tokens.css.
 #' @return Lista de etiquetas con dependencias deduplicables. El atributo `image_url`
 #'   contiene la URL base para logo.png y logo2.png cuando `images = TRUE`.
 #' @details Publica solo Styles, Scripts e img mediante addResourcePath, nunca la raíz,
@@ -22,9 +24,10 @@
 #' }
 racafeSharedAssets <- function(path = getOption("racafeForms.shared_path", Sys.getenv("RACAFE_SHARED_PATH")),
                                version = NULL, css = TRUE, javascript = TRUE, images = TRUE,
-                               prefix = "racafe-shared") {
+                               prefix = "racafe-shared", global_css = TRUE) {
   .rf_scalar(path, "path")
   .rf_flag(css, "css")
+  .rf_flag(global_css, "global_css")
   .rf_flag(javascript, "javascript")
   .rf_flag(images, "images")
   .rf_scalar(prefix, "prefix")
@@ -40,7 +43,11 @@ racafeSharedAssets <- function(path = getOption("racafeForms.shared_path", Sys.g
     stop(sprintf("Se requiere Compartido %s; la copia local declara %s.", version, actual), call. = FALSE)
   }
   enabled <- c(Styles = css, Scripts = javascript, img = images)
-  required <- c(if (css) c("Styles/style.css", "Styles/racafe-forms.css"),
+  if (css && !global_css && !all(file.exists(file.path(path, c("Styles/components.css", "Styles/tokens.css"))))) {
+    stop("Actualice Compartido: faltan los estilos de componentes sin CSS global.")
+  }
+  required <- c(if (css) c(if (global_css) "Styles/style.css" else "Styles/components.css",
+                           "Styles/racafe-forms.css"),
                 if (javascript) c("Scripts/scripts", "Scripts/clipboard.js", "Scripts/forms.js"),
                 if (images) c("img/logo.png", "img/logo2.png"))
   if (!all(file.exists(file.path(path, required)))) stop("La copia de Compartido est\u00e1 incompleta.", call. = FALSE)
@@ -56,7 +63,7 @@ racafeSharedAssets <- function(path = getOption("racafeForms.shared_path", Sys.g
   }
   for (directory in names(enabled)[enabled]) shiny::addResourcePath(urls[[directory]], file.path(path, directory))
   dependency <- htmltools::htmlDependency("racafeSharedAssets", actual, src = c(href = ""), all_files = FALSE,
-    stylesheet = if (css) paste0(urls[["Styles"]], "/style.css"),
+    stylesheet = if (css) paste0(urls[["Styles"]], if (global_css) "/style.css" else "/components.css"),
     script = if (javascript) paste0(urls[["Scripts"]], c("/scripts", "/clipboard.js", "/forms.js")))
   result <- shiny::tagList(racafeFormsDependencies(), dependency)
   attr(result, "image_url") <- if (images) urls[["img"]] else NULL

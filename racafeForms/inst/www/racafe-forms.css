@@ -327,3 +327,15 @@
 .rf-field .rf-field-error,.rf-field .rf-validation-error {margin:4px 0 0;line-height:1.4;}
 .rf-panel > .rf-panel-title,.rf-form .rf-group-title {font-family:var(--rf-body-font,inherit);
  font-weight:600;color:var(--color-gray-950,var(--rf-gray-900));}
+/* Superficies optativas; las clases antiguas conservan su apariencia. */
+.rf-form.rf-surface--plain,.rf-form-group.rf-surface--plain {background:transparent;border:0;padding:0;}
+.rf-form.rf-surface--soft,.rf-form-group.rf-surface--soft {background:var(--rf-gray-100);border:1px solid var(--rf-gray-300);
+ border-radius:var(--rf-border-radius);padding:var(--rf-gap,10px);}
+.rf-form.rf-surface--bordered,.rf-form-group.rf-surface--bordered {background:var(--rf-white);border:1px solid #b8c0cc;
+ border-radius:var(--rf-border-radius);padding:var(--rf-gap,10px);}
+.rf-form--compact {--rf-control-height:36px;--rf-font:11px;--rf-gap:10px;}
+.rf-message--compact {font-size:11px;padding:6px 8px;}
+.rf-message--normal {font-size:12px;padding:9px 12px;}
+.rf-message--comfortable {font-size:13px;padding:12px 16px;}
+.rf-message > .fa,.rf-message > .fas {margin-right:6px;}
+.rf-field--disabled {opacity:.7;}

@@ -10,7 +10,8 @@ racafeSharedAssets(
   css = TRUE,
   javascript = TRUE,
   images = TRUE,
-  prefix = "racafe-shared"
+  prefix = "racafe-shared",
+  global_css = TRUE
 )
 }
 \arguments{
@@ -22,6 +23,9 @@ o la variable no secreta \code{RACAFE_SHARED_PATH}.}
 \item{css, javascript, images}{Activar estilos, scripts e imágenes, respectivamente.}
 
 \item{prefix}{Prefijo URL propio; no es una ruta del sistema.}
+
+\item{global_css}{TRUE conserva style.css; FALSE carga components.css sin reglas generales de aplicación.
+FALSE requiere la copia de Compartido con Styles/components.css y Styles/tokens.css.}
 }
 \value{
 Lista de etiquetas con dependencias deduplicables. El atributo \code{image_url}

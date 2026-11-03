@@ -1,3 +1,14 @@
+# Galería y ampliación de componentes (sin publicar)
+
+- Añade racafeFormsGallery con inventario completo, configuración por componente,
+  código ejecutable/copiar, ayuda local y formulario comercial autocontenido.
+- Añade variantes plain/soft/bordered sin alterar los defaults de bordered/unstyled.
+- Amplía selectores con deduplicación opcional y conserva una sola opción vacía.
+- Centraliza habilitación real/visual, también antes de renderUI, sin requerir shinyjs.
+- Añade densidad/iconos a mensajes y resuelve Escape entre SweetAlert y Bootstrap.
+- Incluye recursos de Compartido versionados sin CSS general, documentación y pruebas.
+- No modifica aplicaciones productivas ni publica una nueva versión.
+
 # Desarrollo (sin publicar)
 
 - Unifica etiquetas, encabezados HTML compactos, separadores de grupos y footers.

@@ -14,16 +14,23 @@ racafeFormsDependencies <- function() {
 #' @param id ID local opcional, necesario para racafeResetForm.
 #' @param ns Función namespace del módulo.
 #' @param unstyled Omitir el contenedor visual con borde y fondo, conservando estilos de los campos.
+#' @param variant NULL conserva bordered/unstyled; plain, soft o bordered tiene prioridad explícita.
+#' @details Sin variant se conserva el aspecto anterior. unstyled omite el marco; bordered = TRUE
+#'   conserva el fondo gris anterior. Las variantes explícitas no dependen de esos argumentos.
 #' @return Lista de etiquetas Shiny con el contenedor del formulario y su dependencia CSS.
+#' @examples
+#' racafeForm(variant = "soft", size = "compact", racafeInputText("nombre", "Nombre"))
 #' @export
 racafeForm <- function(..., size = c("compact", "normal", "comfortable"), bordered = TRUE,
-                         id = NULL, ns = NULL, unstyled = FALSE) {
+                         id = NULL, ns = NULL, unstyled = FALSE, variant = NULL) {
   size <- match.arg(size)
   .rf_flag(unstyled, "unstyled")
   .rf_flag(bordered, "bordered")
+  if (!is.null(variant)) variant <- match.arg(variant, c("plain", "soft", "bordered"))
   shiny::tagList(racafeFormsDependencies(),
     shiny::tags$div(class = paste("rf-form", paste0("rf-form--", size),
-                                 if (bordered && !unstyled) "rf-form--bordered"),
+                                 if (is.null(variant) && bordered && !unstyled) "rf-form--bordered",
+                                 if (!is.null(variant)) paste0("rf-surface--", variant)),
                     id = if (!is.null(id)) .rf_id(id, ns), ...))
 }
 
@@ -31,11 +38,16 @@ racafeForm <- function(..., size = c("compact", "normal", "comfortable"), border
 #' @param ... Campos o texto.
 #' @param title Titulo opcional del grupo.
 #' @param divider Separador automático entre este grupo y el siguiente, sin duplicar el footer.
+#' @param variant plain, soft o bordered; NULL conserva el grupo anterior sin superficie.
 #' @return Etiqueta HTML `section` con los campos y el título opcional.
+#' @examples
+#' racafeFormGroup(title = "Contacto", variant = "soft", racafeInputText("correo", "Correo"))
 #' @export
-racafeFormGroup <- function(..., title = NULL, divider = TRUE) {
+racafeFormGroup <- function(..., title = NULL, divider = TRUE, variant = NULL) {
   .rf_flag(divider, "divider")
-  .rf_attach(shiny::tags$section(class = paste("rf-form-group", if (divider) "rf-form-group--divider"),
+  if (!is.null(variant)) variant <- match.arg(variant, c("plain", "soft", "bordered"))
+  .rf_attach(shiny::tags$section(class = paste("rf-form-group", if (divider) "rf-form-group--divider",
+    if (!is.null(variant)) paste0("rf-surface--", variant)),
     if (!is.null(title)) .rf_heading(title, "rf-group-title", "h4"), ...))
 }
 
@@ -78,18 +90,23 @@ racafeFormFooter <- function(..., help = NULL, align = c("right", "left", "cente
 #' @param text Mensaje.
 #' @param type info, success, warning, error, muted, loading o empty.
 #' @param details Detalles técnicos opcionales, explícitos y escapados; nunca se añaden desde errores automáticamente.
+#' @param size compact, normal o comfortable.
+#' @param icon Nombre Font Awesome o etiqueta; NULL omite el icono.
 #' @return Etiqueta HTML accesible con el mensaje, estado y detalles opcionales.
+#' @examples
+#' racafeFormMessage("Procesando", "loading", size = "compact", icon = "clock")
 #' @export
 racafeFormMessage <- function(text, type = c("info", "success", "warning", "error", "muted", "loading", "empty"),
-                                details = NULL) {
+                                details = NULL, size = c("compact", "normal", "comfortable"), icon = NULL) {
+  size <- match.arg(size)
   if (identical(type, "e")) type <- "error"
   type <- match.arg(type)
   if (!is.null(details)) details <- .rf_scalar(unclass(details), "details", empty = TRUE)
   container <- if (is.null(details)) shiny::tags$p else shiny::tags$div
-  .rf_attach(container(class = paste("rf-message", paste0("rf-message--", type)),
+  .rf_attach(container(class = paste("rf-message", paste0("rf-message--", type), paste0("rf-message--", size)),
     role = if (type %in% c("error", "warning")) "alert" else "status",
     `aria-live` = if (type == "error") "assertive" else "polite",
-    `aria-busy` = if (type == "loading") "true", text,
+    `aria-busy` = if (type == "loading") "true", .rf_icon(icon), text,
     if (!is.null(details)) shiny::tags$details(class = "rf-message-details",
       shiny::tags$summary("Detalles t\u00e9cnicos"), shiny::tags$pre(details))))
 }

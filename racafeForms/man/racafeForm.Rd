@@ -10,7 +10,8 @@ racafeForm(
   bordered = TRUE,
   id = NULL,
   ns = NULL,
-  unstyled = FALSE
+  unstyled = FALSE,
+  variant = NULL
 )
 }
 \arguments{
@@ -25,10 +26,19 @@ racafeForm(
 \item{ns}{Función namespace del módulo.}
 
 \item{unstyled}{Omitir el contenedor visual con borde y fondo, conservando estilos de los campos.}
+
+\item{variant}{NULL conserva bordered/unstyled; plain, soft o bordered tiene prioridad explícita.}
 }
 \value{
 Lista de etiquetas Shiny con el contenedor del formulario y su dependencia CSS.
 }
 \description{
 Contenedor visual de formulario
+}
+\details{
+Sin variant se conserva el aspecto anterior. unstyled omite el marco; bordered = TRUE
+conserva el fondo gris anterior. Las variantes explícitas no dependen de esos argumentos.
+}
+\examples{
+racafeForm(variant = "soft", size = "compact", racafeInputText("nombre", "Nombre"))
 }

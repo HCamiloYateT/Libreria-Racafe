@@ -539,3 +539,22 @@ Los grupos consecutivos administran sus separadores sin `hr()` manuales y el foo
 bordes duplicados. Los encabezados HTML conservan su contenido con tipografía compacta.
 Use `unstyled = TRUE` al anidar un formulario dentro de un panel. Los estilos están en el
 paquete, acotados a sus clases, y respetan las variables corporativas de Compartido.
+
+## Galería interactiva de componentes
+
+```r
+library(racafeForms)
+racafeFormsGallery()
+```
+
+Requiere bs4Dash y una instalación de esta revisión; reinicie R y recargue sin caché.
+La galería local incluye 58 funciones públicas y un formulario completo, ayuda, código
+ejecutable y copia al portapapeles. No necesita CRM ni una carpeta externa a la instalación.
+Permite probar variantes, densidades, selectores, validaciones, actualizadores y modales.
+Consulte la [guía de la galería y compatibilidad](docs/gallery.md) y la
+[propuesta para IndFormularioUI](docs/ind-formulario-proposal.md).
+
+Esta ampliación no incrementa la versión del paquete. Las aplicaciones conservan el
+aspecto anterior mientras no especifiquen `variant`; las variantes explícitas tienen
+prioridad sobre `bordered` y `unstyled`. `racafeUpdateEnabled()` reemplaza el JavaScript
+local para habilitar controles, también cuando se crean con renderUI.

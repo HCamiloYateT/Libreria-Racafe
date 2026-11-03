@@ -4,7 +4,7 @@
 \alias{racafeFormGroup}
 \title{Grupo con divisoria opcional}
 \usage{
-racafeFormGroup(..., title = NULL, divider = TRUE)
+racafeFormGroup(..., title = NULL, divider = TRUE, variant = NULL)
 }
 \arguments{
 \item{...}{Campos o texto.}
@@ -12,10 +12,15 @@ racafeFormGroup(..., title = NULL, divider = TRUE)
 \item{title}{Titulo opcional del grupo.}
 
 \item{divider}{Separador automático entre este grupo y el siguiente, sin duplicar el footer.}
+
+\item{variant}{plain, soft o bordered; NULL conserva el grupo anterior sin superficie.}
 }
 \value{
 Etiqueta HTML \code{section} con los campos y el título opcional.
 }
 \description{
 Grupo con divisoria opcional
+}
+\examples{
+racafeFormGroup(title = "Contacto", variant = "soft", racafeInputText("correo", "Correo"))
 }

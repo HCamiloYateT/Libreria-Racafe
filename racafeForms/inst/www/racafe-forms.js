@@ -339,3 +339,63 @@
     if (data.allowed && el.getAttribute("aria-disabled") !== "true") { approved.add(el); el.click(); }
   });
 }(window.jQuery, window.Shiny));
+
+// Habilitación acotada y persistente para inputs dinámicos del paquete.
+(function ($) {
+  "use strict";
+  if ($.data(document, "rfEnabled")) return;
+  $.data(document, "rfEnabled", true);
+  var states = new Map(), queued = false;
+  function apply(id, enabled) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    var field = el.closest(".rf-field,.shiny-input-container");
+    var controls = el.matches("input,select,textarea,button,a.rf-btn") ? [el] :
+      Array.from(el.querySelectorAll("input,select,textarea,button"));
+    controls.forEach(function (control) {
+      var disabled = !enabled || control.classList.contains("rf-btn--loading");
+      if (control.disabled !== disabled) control.disabled = disabled;
+      control.setAttribute("aria-disabled", String(disabled));
+      if (control.classList.contains("rf-btn")) control.dataset.rfInactive = String(!enabled);
+      if (control.tagName === "SELECT") {
+        var picker = $(control).data("selectpicker");
+        if (picker) picker.checkDisabled();
+      }
+    });
+    if (field) field.classList.toggle("rf-field--disabled", !enabled);
+  }
+  function register() {
+    if (!window.Shiny || $.data(document, "rfEnabledRegistered")) return;
+    $.data(document, "rfEnabledRegistered", true);
+    Shiny.addCustomMessageHandler("racafe-enabled", function (params) {
+      states.set(params.id, params.enabled); apply(params.id, params.enabled);
+    });
+  }
+  $(register); $(document).on("shiny:connected.rfEnabled", register);
+  $(document).on("shiny:bound.rfEnabled", function () { states.forEach(function (value, id) { apply(id, value); }); });
+  new MutationObserver(function (changes) {
+    if (!changes.some(function (change) { return change.addedNodes.length; }) || queued) return;
+    queued = true;
+    requestAnimationFrame(function () {
+      queued = false; states.forEach(function (value, id) { apply(id, value); });
+    });
+  }).observe(document.documentElement, { childList: true, subtree: true });
+}(window.jQuery));
+
+// Escape pertenece primero a SweetAlert; Bootstrap conserva el modal que está debajo.
+(function () {
+  if (window.rfConfirmEscape) return;
+  window.rfConfirmEscape = true;
+  document.addEventListener("keydown", function (event) {
+    if (event.key !== "Escape" && event.keyCode !== 27) return;
+    var popup = document.querySelector(".swal2-container:not(.swal2-hidden) .swal2-popup");
+    if (!popup) return;
+    event.stopImmediatePropagation(); event.preventDefault();
+    var cancel = popup.querySelector(".swal2-cancel");
+    if (cancel && getComputedStyle(cancel).display !== "none") cancel.click();
+    else {
+      var confirm = popup.querySelector(".swal2-confirm");
+      if (confirm && getComputedStyle(confirm).display !== "none") confirm.click();
+    }
+  }, true);
+}());

@@ -1,0 +1,11 @@
+.rf-gallery {max-width:1500px;margin:auto;padding:16px;min-width:0;}
+.rf-gallery h1 {font-size:23px;color:var(--rf-gray-900);}
+.rf-gallery h2 {font-size:16px;}
+.rf-gallery-config,.rf-gallery-code {padding:16px;border:1px solid var(--rf-gray-300);border-radius:12px;
+ background:#fff;margin:12px 0;min-width:0;}
+.rf-gallery pre {max-height:540px;overflow:auto;font-size:12px;white-space:pre-wrap;overflow-wrap:anywhere;}
+.rf-gallery .rf-gallery-config .shiny-input-container {width:100%;}
+.rf-gallery-code > a {margin-left:12px;}
+.rf-gallery .rf-form {margin:12px 0;}
+.main-sidebar .nav-sidebar>.nav-item>.nav-link.active {background-color:#DA291C;}
+@media(max-width:767px) {.rf-gallery {padding:8px;}.rf-gallery-code > a {display:block;margin:8px 0;}}

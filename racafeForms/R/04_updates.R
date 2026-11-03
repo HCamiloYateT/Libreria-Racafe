@@ -9,6 +9,7 @@
 #' @export
 racafeUpdateSelect <- function(session, id, ...) {
   args <- list(...)
+  if (!is.null(args$choices)) args$choices <- .rf_select_choices(args$choices, FALSE)
   if (!is.null(args$choices) && !"selected" %in% names(args)) {
     actuales <- session$input[[id]]
     args$selected <- intersect(as.character(actuales), as.character(.rf_choice_values(args$choices)))
@@ -39,18 +40,43 @@ racafeUpdateDateRange <- function(session, id, ...) {
 racafeUpdateSwitch <- function(session, id, value) {
   shinyWidgets::updateMaterialSwitch(session, inputId = id, value = value)
 }
-#' Activar un input usando shinyjs
+#' Actualizar habilitación real y visual de un control corporativo
+#' @param session Sesión Shiny, incluida la de moduleServer.
+#' @param id ID local del control, sin namespace duplicado.
+#' @param enabled TRUE habilita, FALSE deshabilita. No cambia valores ni permisos de negocio.
+#' @return Invisiblemente NULL. El estado se conserva para renderUI posterior en esta sesión/página.
+#' @examples
+#' \dontrun{
+#' shiny::observeEvent(input$activo, {
+#'   racafeUpdateEnabled(session, "cuenta", enabled = isTRUE(input$activo))
+#' })
+#' }
+#' @export
+racafeUpdateEnabled <- function(session = shiny::getDefaultReactiveDomain(), id, enabled = TRUE) {
+  if (is.null(session)) stop("Se requiere una sesi\u00f3n Shiny.")
+  .rf_flag(enabled, "enabled")
+  prefix <- session$ns("")
+  id <- .rf_scalar(id, "id")
+  if (!startsWith(id, prefix)) id <- session$ns(id)
+  session$sendCustomMessage("racafe-enabled", list(id = id, enabled = enabled))
+  invisible(NULL)
+}
+
+#' Activar un control corporativo sin inicializar shinyjs
 #' @param id ID local.
-#' @return El resultado de la llamada a shinyjs; se usa para modificar el estado del control.
+#' @param session Sesión Shiny actual; resuelve el namespace del módulo.
+#' @return Invisiblemente NULL; actualiza el estado real y visual del control.
 #' @export
-racafeEnable <- function(id) shinyjs::enable(id)
+racafeEnable <- function(id, session = shiny::getDefaultReactiveDomain()) racafeUpdateEnabled(session, id, TRUE)
 #' @rdname racafeEnable
 #' @export
-racafeDisable <- function(id) shinyjs::disable(id)
+racafeDisable <- function(id, session = shiny::getDefaultReactiveDomain()) racafeUpdateEnabled(session, id, FALSE)
 #' @rdname racafeEnable
-#' @param condition Logico; TRUE activa y FALSE desactiva.
+#' @param condition Lógico; TRUE activa y FALSE desactiva.
 #' @export
-racafeToggle <- function(id, condition) shinyjs::toggleState(id, condition = condition)
+racafeToggle <- function(id, condition, session = shiny::getDefaultReactiveDomain()) {
+  racafeUpdateEnabled(session, id, condition)
+}
 
 # Restablecimiento acotado a un formulario ----
 
