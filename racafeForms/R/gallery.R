@@ -172,12 +172,17 @@ racafeFormsGallery <- function() {
       '  if (isTRUE(validation$attempted())) racafeForms::racafeShowValidation(session, result)', '})', sep = "\n")
   }
   if (name %in% c("racafeModal", "racafeModalFooter", "racafeConfirm")) {
-    control <- 'racafeForms::racafeButton("open", "Abrir modal", ns = ns)'
+    control <- paste0('shiny::tagList(\n',
+      '  racafeForms::racafeInputSelect("modal_size", "Tama\u00f1o",\n',
+      '    c("ventana", "subventana1", "subventana2", "subventana3", "subventana4", "subventana5", "aviso"),\n',
+      '    selected = "subventana3", empty = FALSE, search = FALSE, ns = ns),\n',
+      '  racafeForms::racafeButton("open", "Abrir modal", ns = ns))')
     server <- paste(server, 'shiny::observeEvent(input$open, {',
       '  shiny::showModal(racafeForms::racafeModal("Contenido de demostraci\u00f3n", title = "Modal corporativo",',
+      '    size = if (is.null(input$modal_size)) "subventana3" else input$modal_size,',
       '    easy_close = TRUE, footer = racafeForms::racafeModalFooter(',
-      '      racafeForms::racafeButton("ask", "Confirmar dentro del modal", ns = session$ns),',
-      '      shiny::modalButton("Cerrar"))))',
+      '      shiny::actionButton(session$ns("ask"), "Confirmar dentro del modal"),',
+      '      shiny::modalButton("Cancelar"))))',
       '})', 'shiny::observeEvent(input$ask, {',
       '  racafeForms::racafeConfirm(session, "confirm", "Confirmar",',
       '    "Escape conserva el modal inferior", ns = session$ns)',
@@ -323,7 +328,7 @@ racafeFormsGallery <- function() {
       bs4Dash::sidebarMenu(id = "category", .list = lapply(seq_along(categories), function(i) {
         bs4Dash::menuItem(categories[[i]], tabName = paste0("category", i), icon = shiny::icon("layer-group"))
       }))),
-    body = bs4Dash::dashboardBody(assets,
+    body = bs4Dash::dashboardBody(racafeFormsDependencies(), assets,
       shiny::tags$link(rel = "stylesheet", href = "gallery.css"),
       shiny::tags$main(class = "rf-gallery",
         shiny::h1("Galer\u00eda de componentes"),
@@ -366,9 +371,12 @@ racafeFormsGallery <- function() {
             shiny::selectInput("message", "Estado",
                                c("info", "success", "warning", "error", "muted", "loading", "empty")),
             shiny::checkboxInput("icon", "Mostrar icono")),
-          racafeButton("apply", "Aplicar configuraci\u00f3n")))))))
+          racafeButton("apply", "Aplicar configuraci\u00f3n")))))),
+    controlbar = bs4Dash::dashboardControlbar(.rf_gallery_bar_ui("controlbar_demo"),
+      id = "gallery_controlbar", width = 440, pinned = FALSE))
   ui <- shiny::tagList(htmltools::suppressDependencies("googlefonts", "ionicons"), ui)
   server <- function(input, output, session) {
+    .rf_gallery_bar_server("controlbar_demo")
     configs <- shiny::reactiveValues()
     active <- shiny::reactiveVal(catalog$name[[1]])
     config <- function(name = active()) configs[[name]] %||% defaults
@@ -463,4 +471,36 @@ racafeFormsGallery <- function() {
     line <- paste0(indent, trimws(substring(line, split + 1L), which = "left"))
   }
   c(result, line)
+}
+
+# Selector normal y menú externo dentro de bs4DashControlbar ----
+.rf_gallery_bar_ui <- function(id) {
+  ns <- shiny::NS(id)
+  racafeForm(id = "form", ns = ns, variant = "plain",
+    racafeFormGroup(title = "Selectores en controlbar",
+      racafeInputSelect("single", "Selecci\u00f3n simple", c("Caf\u00e9" = "cafe", "Cacao" = "cacao"), ns = ns),
+      racafeInputSelect("multiple", "Selecci\u00f3n m\u00faltiple",
+                        c("Caf\u00e9" = "cafe", "Cacao" = "cacao", "T\u00e9" = "te"),
+                        multiple = TRUE, ns = ns),
+      racafeInputCheckbox("portal", "Men\u00fa din\u00e1mico fuera del panel", ns = ns),
+      racafeInputCheckbox("dynamic_multiple", "Din\u00e1mico con selecci\u00f3n m\u00faltiple", value = TRUE, ns = ns),
+      shiny::uiOutput(ns("dynamic_ui")),
+      racafeButton("renew", "Reconstruir selector din\u00e1mico", ns = ns),
+      shiny::verbatimTextOutput(ns("state"))))
+}
+.rf_gallery_bar_server <- function(id) {
+  shiny::moduleServer(id, function(input, output, session) {
+    revision <- shiny::reactiveVal(0L)
+    shiny::observeEvent(input$renew, { revision(revision() + 1L) })
+    output$dynamic_ui <- shiny::renderUI({
+      tag <- racafeInputSelect("dynamic", paste("Din\u00e1mico", revision()), c("A" = "a", "B" = "b", "C" = "c"),
+                               multiple = isTRUE(input$dynamic_multiple), ns = session$ns)
+      if (isTRUE(input$portal)) {
+        tag <- htmltools::tagQuery(tag)$find("select")$addAttrs(`data-container` = "body")$allTags()
+      }
+      tag
+    })
+    output$state <- shiny::renderPrint(list(single = input$single, multiple = input$multiple,
+                                           dynamic = input$dynamic, revision = revision()))
+  })
 }

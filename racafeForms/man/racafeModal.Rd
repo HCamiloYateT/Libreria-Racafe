@@ -25,10 +25,14 @@ racafeModal(
 \item{easy_close}{Permitir cierre con Escape o clic fuera. FALSE requiere una acción de cierre explícita.}
 }
 \value{
-Modal para pasar a shiny::showModal. Requiere racafeSharedAssets; no duplica reglas de ancho.
+Modal para shiny::showModal con tamaños corporativos incluidos en la dependencia base.
 }
 \description{
 Modal Shiny con tamaños corporativos definidos en Compartido
+}
+\details{
+Precargue racafeFormsDependencies en la UI inicial. Si el primer componente se genera
+desde showModal, espera a sus CSS antes de ejecutar la apertura nativa, evitando saltos de ancho.
 }
 \examples{
 \dontrun{

@@ -18,5 +18,5 @@ test_that("contenedor y opciones renderizan HTML", {
 test_that("la dependencia CSS corresponde al paquete instalado", {
   dep <- racafeFormsDependencies()
   expect_identical(dep$version, as.character(utils::packageVersion("racafeForms")))
-  expect_true(file.exists(system.file(dep$src$file, dep$stylesheet, package = dep$package)))
+  expect_true(all(file.exists(system.file(dep$src$file, dep$stylesheet, package = dep$package))))
 })

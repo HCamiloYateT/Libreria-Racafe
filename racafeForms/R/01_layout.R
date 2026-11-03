@@ -1,10 +1,13 @@
 #' Dependencias visuales de racafeForms
+#' @details Incluya esta dependencia en la UI inicial, especialmente si solo genera modales desde showModal.
+#'   Los tamaños corporativos quedan precargados antes de abrir el primer modal.
 #' @return Objeto `htmltools::htmlDependency` con los estilos y comportamientos del paquete.
 #' @export
 racafeFormsDependencies <- function() {
   htmltools::htmlDependency("racafeForms", as.character(utils::packageVersion("racafeForms")),
                             src = c(file = "www"),
-                            stylesheet = "racafe-forms.css", script = "racafe-forms.js", package = "racafeForms")
+                            stylesheet = c("racafe-forms.css", "racafe-modal-sizes.css"),
+                            script = "racafe-forms.js", package = "racafeForms")
 }
 
 #' Contenedor visual de formulario

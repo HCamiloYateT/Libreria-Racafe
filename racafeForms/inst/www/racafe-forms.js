@@ -42,6 +42,10 @@
     document.addEventListener("click", function (event) {
       var button = event.target.closest && event.target.closest(".bs-select-all");
       var field = button && button.closest(".rf-select[data-rf-action-value]");
+      if (!field && button) {
+        var menu = button.closest(".rf-select-menu"), select = menu && document.getElementById(menu.dataset.rfSelectId);
+        field = select && select.closest(".rf-select[data-rf-action-value]");
+      }
       if (!field) return;
       var select = field.querySelector("select");
       if (!select || select.disabled) return;
@@ -424,3 +428,50 @@
     }
   }, true);
 }());
+
+// Conservar Bootstrap y evitar que bs4Dash confunda un picker con un clic externo.
+(function ($) {
+  "use strict";
+  if ($.data(document, "rfControlbarPickers")) return;
+  $.data(document, "rfControlbarPickers", true);
+  var menus = new WeakMap();
+  function remember(event) {
+    var select = event.target, field = select.closest && select.closest(".rf-select");
+    var sidebar = field && field.closest("aside.control-sidebar"), picker = $(select).data("selectpicker");
+    if (!field || !picker || !picker.$menu) return;
+    var menu = picker.$menu[0];
+    menu.classList.add("rf-select-menu");
+    menu.classList.toggle("rf-select-menu--uppercase", field.classList.contains("rf-select--uppercase"));
+    menu.dataset.rfMultiple = String(select.multiple);
+    menu.dataset.rfSelectId = select.id;
+    var style = getComputedStyle(field);
+    ["--rf-font", "--rf-control-height", "--rf-input-radius", "--rf-red", "--rf-red-hover",
+      "--rf-gray-300", "--rf-gray-900", "--rf-white"].forEach(function (name) {
+      var value = style.getPropertyValue(name); if (value) menu.style.setProperty(name, value);
+    });
+    if (sidebar) menus.set(menu, sidebar);
+  }
+  $(document).on("loaded.bs.select.rfControlbar shown.bs.select.rfControlbar refreshed.bs.select.rfControlbar",
+    ".rf-select select", remember);
+  $(document).on("shiny:bound.rfControlbar", ".rf-select select", remember);
+  $(document).on("shiny:unbound.rfControlbar", ".rf-select select", function () {
+    var picker = $(this).data("selectpicker");
+    if (picker && picker.$menu) menus.delete(picker.$menu[0]);
+    if (picker && picker.$bsContainer) picker.$bsContainer.remove();
+  });
+  $(function () { $(".control-sidebar .rf-select select").each(function () { remember({ target: this }); }); });
+  document.addEventListener("click", function (event) {
+    var path = event.composedPath ? event.composedPath() : [], field = null, sidebar = null;
+    path.forEach(function (node) {
+      if (!(node instanceof Element)) return;
+      if (node.matches(".rf-select")) field = node;
+      if (node.matches("aside.control-sidebar")) sidebar = node;
+      if (menus.has(node)) sidebar = menus.get(node);
+    });
+    if (!field && !sidebar) return;
+    if (!sidebar && field) sidebar = field.closest("aside.control-sidebar");
+    if (!sidebar || !sidebar.isConnected || (!field && !path.some(function (node) { return menus.has(node); }))) return;
+    // Solo se detiene la subida a window; Bootstrap mantiene sus handlers de document.
+    event.stopPropagation();
+  });
+}(window.jQuery));
