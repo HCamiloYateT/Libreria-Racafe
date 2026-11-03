@@ -15,7 +15,8 @@ racafeButton(
   size = c("sm", "xxs", "xs", "md", "lg"),
   ns = NULL,
   title = NULL,
-  disabled = FALSE
+  disabled = FALSE,
+  loading = FALSE
 )
 
 racafeButtonSave(id, label = "Guardar cambios", ns = NULL, ...)
@@ -40,6 +41,8 @@ racafeButtonDelete(id, label = "Eliminar", ns = NULL, ...)
 \item{title}{Tooltip accesible.}
 
 \item{disabled}{Estado inicial deshabilitado.}
+
+\item{loading}{Estado inicial ocupado, sin cambiar el binding.}
 
 \item{...}{Argumentos adicionales para racafeButton.}
 }

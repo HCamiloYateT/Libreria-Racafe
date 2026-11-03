@@ -218,3 +218,124 @@
     if (event.key === "Enter" || event.key === " ") { event.preventDefault(); $(this).trigger("click"); }
   });
 }(window.jQuery));
+
+// Validación y descargas autorizadas por el servidor; no cambia bindings nativos.
+(function ($, Shiny) {
+  "use strict";
+  if (!Shiny || window.racafeFormValidation) return;
+  window.racafeFormValidation = true;
+  var pendingFocus = null, approved = new WeakSet(), validations = new Map();
+  function wrapper(id) {
+    var input = document.getElementById(id);
+    return input ? (input.closest(".rf-field") || input.closest(".shiny-input-container")) : Array.from(document.querySelectorAll(".rf-field[data-rf-id]")).find(
+      function (field) { return field.dataset.rfId === id; });
+  }
+  function focusField(id) {
+    var field = wrapper(id);
+    if (!field) return;
+    var parent = field.parentElement;
+    while (parent) { if (parent.tagName === "DETAILS") parent.open = true; parent = parent.parentElement; }
+    var target = field.querySelector(".bootstrap-select > button") || document.getElementById(id);
+    if (!target || !target.matches("input,select,textarea,button")) target = field.querySelector("input,select,textarea,button");
+    if (target && !target.getClientRects().length) {
+      field.tabIndex = -1; target = field;
+    }
+    if (target) { target.focus(); target.scrollIntoView({ block: "center", behavior: "auto" }); }
+  }
+  function tryFocus() {
+    if (pendingFocus && wrapper(pendingFocus) && !document.querySelector(".swal2-container")) {
+      var id = pendingFocus; pendingFocus = null; focusField(id);
+    }
+  }
+  $(function () {
+    new MutationObserver(function (records) {
+      tryFocus();
+      var added = records.some(function (record) {
+        return Array.from(record.addedNodes).some(function (node) {
+          return node.nodeType === 1 && (node.matches(".rf-field") || node.querySelector(".rf-field"));
+        });
+      });
+      if (added) validations.forEach(function (params, key) {
+        if (key instanceof Element && !key.isConnected) { validations.delete(key); return; }
+        renderValidation(Object.assign({}, params, { focus: false }));
+      });
+    }).observe(document.body, { childList: true, subtree: true });
+  });
+  function renderValidation(params) {
+    var form = params.form && document.getElementById(params.form);
+    if (!form && params.fields.length) {
+      var first = wrapper(params.fields[0]); form = first && first.closest(".rf-form");
+    }
+    var fields = form ? Array.from(form.querySelectorAll(".rf-field,.rf-validation-invalid")) : params.fields.map(wrapper).filter(Boolean);
+    fields.forEach(function (field) {
+      field.querySelectorAll(".rf-validation-error").forEach(function (error) {
+        field.querySelectorAll("[aria-describedby]").forEach(function (control) {
+          var ids = control.getAttribute("aria-describedby").split(/\s+/).filter(function (id) { return id !== error.id; });
+          if (ids.length) control.setAttribute("aria-describedby", ids.join(" ")); else control.removeAttribute("aria-describedby");
+        }); error.remove();
+      });
+      field.classList.remove("rf-validation-invalid");
+      field.querySelectorAll("input,select,textarea,button.dropdown-toggle").forEach(function (control) {
+        control.setAttribute("aria-invalid", field.querySelector(".rf-field-error") ? "true" : "false");
+      });
+    });
+    var summary = form && form.querySelector(".rf-validation-summary");
+    if (form && !summary) {
+      summary = document.createElement("div"); summary.className = "rf-validation-summary";
+      summary.setAttribute("role", "alert"); form.prepend(summary);
+    }
+    if (summary) { summary.textContent = ""; summary.hidden = !params.inline || !params.errors.length; }
+    if (params.inline) params.errors.forEach(function (item) {
+      var field = wrapper(item.id);
+      if (!field) return;
+      var error = document.createElement("span"); error.id = item.id + "_validation";
+      error.className = "rf-validation-error"; error.setAttribute("role", "alert"); error.textContent = item.text;
+      field.classList.add("rf-validation-invalid"); field.appendChild(error);
+      field.querySelectorAll("input,select,textarea,button.dropdown-toggle").forEach(function (control) {
+        var ids = (control.getAttribute("aria-describedby") || "").split(/\s+/).filter(Boolean);
+        ids.push(error.id); control.setAttribute("aria-describedby", Array.from(new Set(ids)).join(" "));
+        control.setAttribute("aria-invalid", "true");
+      });
+      if (summary) {
+        var link = document.createElement("button"); link.type = "button";
+        link.textContent = item.label + ": " + item.text; link.addEventListener("click", function () { focusField(item.id); });
+        summary.appendChild(link);
+      }
+    });
+    if (params.focus && params.errors.length) {
+      pendingFocus = params.errors[0].id; requestAnimationFrame(tryFocus);
+    }
+  }
+  Shiny.addCustomMessageHandler("racafe-validation", function (params) {
+    var first = params.fields.length && wrapper(params.fields[0]);
+    var form = (params.form && document.getElementById(params.form)) || (first && first.closest(".rf-form"));
+    validations.set(form || params.fields.join("|"), params); renderValidation(params);
+  });
+  function buttonState(el, data) {
+    if (typeof data.disabled === "boolean") el.dataset.rfInactive = String(data.disabled);
+    if (typeof data.loading === "boolean") el.classList.toggle("rf-btn--loading", data.loading);
+    if (typeof data.success === "boolean") el.classList.toggle("rf-btn--success-feedback", data.success);
+    var busy = el.classList.contains("rf-btn--loading"), disabled = busy || el.dataset.rfInactive === "true";
+    el.setAttribute("aria-busy", String(busy)); el.setAttribute("aria-disabled", String(disabled));
+    if (el.tagName === "BUTTON") el.disabled = disabled;
+  }
+  Shiny.addCustomMessageHandler("racafe-button-state", function (data) {
+    var el = document.getElementById(data.id); if (el) buttonState(el, data);
+  });
+  document.addEventListener("click", function (event) {
+    var el = event.target.closest && event.target.closest(".rf-btn");
+    if (!el) return;
+    if (el.getAttribute("aria-disabled") === "true" || el.disabled) {
+      event.preventDefault(); event.stopImmediatePropagation(); return;
+    }
+    if (el.dataset.rfValidateDownload !== "true") return;
+    if (approved.has(el)) { approved.delete(el); return; }
+    event.preventDefault(); event.stopImmediatePropagation(); buttonState(el, { loading: true });
+    Shiny.setInputValue(el.id + "_request", Date.now() + Math.random(), { priority: "event" });
+  }, true);
+  Shiny.addCustomMessageHandler("racafe-download-result", function (data) {
+    var el = document.getElementById(data.id); if (!el) return;
+    buttonState(el, { loading: false });
+    if (data.allowed && el.getAttribute("aria-disabled") !== "true") { approved.add(el); el.click(); }
+  });
+}(window.jQuery, window.Shiny));

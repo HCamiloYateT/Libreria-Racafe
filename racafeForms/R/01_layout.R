@@ -30,12 +30,13 @@ racafeForm <- function(..., size = c("compact", "normal", "comfortable"), border
 #' Grupo con divisoria opcional
 #' @param ... Campos o texto.
 #' @param title Titulo opcional del grupo.
-#' @param divider Separador inferior.
+#' @param divider Separador automático entre este grupo y el siguiente, sin duplicar el footer.
 #' @return Etiqueta HTML `section` con los campos y el título opcional.
 #' @export
 racafeFormGroup <- function(..., title = NULL, divider = TRUE) {
-  shiny::tags$section(class = paste("rf-form-group", if (divider) "rf-form-group--divider"),
-                      if (!is.null(title)) shiny::tags$h4(class = "rf-group-title", title), ...)
+  .rf_flag(divider, "divider")
+  .rf_attach(shiny::tags$section(class = paste("rf-form-group", if (divider) "rf-form-group--divider"),
+    if (!is.null(title)) .rf_heading(title, "rf-group-title", "h4"), ...))
 }
 
 #' Fila flexible y adaptable de campos

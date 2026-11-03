@@ -43,7 +43,7 @@
 
 # Estado accesible de campos ----
 .rf_input_state <- function(tag, id, readonly = FALSE, disabled = FALSE, required = FALSE,
-                             help = NULL, error = NULL) {
+                             help = NULL, error = NULL, kind = "text", min = NULL, max = NULL) {
   .rf_flag(readonly, "readonly")
   .rf_flag(disabled, "disabled")
   .rf_flag(required, "required")
@@ -57,11 +57,32 @@
       `aria-invalid` = if (invalid) "true", `aria-describedby` = if (length(described)) paste(described, collapse = " ")
     )$allTags()
   }
-  tag <- shiny::tagAppendAttributes(tag, class = paste("rf-field", if (invalid) "rf-field--error",
+  bound <- function(value) {
+    if (is.null(value)) return(NULL)
+    if (inherits(value, "POSIXt")) value <- as.numeric(value)
+    as.character(value)
+  }
+  tag <- shiny::tagAppendAttributes(tag, `data-rf-id` = id, `data-rf-kind` = kind,
+    `data-rf-required` = tolower(as.character(required)), `data-rf-min` = bound(min), `data-rf-max` = bound(max),
+    class = paste("rf-field", if (invalid) "rf-field--error",
                                                       if (disabled) "rf-field--disabled"))
   if (!is.null(help)) tag <- shiny::tagAppendChildren(tag,
     shiny::tags$small(id = paste0(id, "_help"), class = "rf-help", help))
   if (invalid) tag <- shiny::tagAppendChildren(tag,
     shiny::tags$span(id = paste0(id, "_error"), class = "rf-field-error", role = "alert", error))
   .rf_attach(tag)
+}
+
+# Títulos de sección sin tamaños heredados de encabezados externos ----
+.rf_heading <- function(title, class, level = "h3") {
+  normalize <- function(tag) {
+    if (inherits(tag, "shiny.tag")) {
+      if (tag$name %in% paste0("h", 1:6)) tag$name <- "span"
+      tag$children <- lapply(tag$children, normalize)
+    } else if (inherits(tag, "html")) {
+      tag <- htmltools::HTML(gsub("<(/?)h[1-6]([ >])", "<\\1span\\2", as.character(tag), perl = TRUE))
+    } else if (is.list(tag)) tag <- lapply(tag, normalize)
+    tag
+  }
+  shiny::tags[[level]](class = class, normalize(title))
 }

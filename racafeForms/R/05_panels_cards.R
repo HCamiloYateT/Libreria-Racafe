@@ -21,7 +21,7 @@ racafePanel <- function(title = NULL, ..., variant = c("default", "muted", "high
     class = paste("rf-panel", paste0("rf-panel--", variant), paste0("rf-padding--", padding),
                   if (bordered) "rf-panel--bordered"),
     style = if (!is.null(min_height)) paste0("min-height:", shiny::validateCssUnit(min_height), ";"),
-    if (!is.null(title)) shiny::tags$h3(class = "rf-panel-title", title),
+    if (!is.null(title)) .rf_heading(title, "rf-panel-title"),
     if (!is.null(header)) shiny::tags$div(class = "rf-panel-header", header),
     shiny::tags$div(class = "rf-panel-body", ...),
     if (!is.null(footer)) shiny::tags$div(class = "rf-panel-footer", footer)))

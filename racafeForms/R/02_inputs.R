@@ -116,7 +116,7 @@ racafeInputSelect <- function(id, label = NULL, choices, selected = NULL, multip
     )
   )
   tag <- shiny::tagAppendAttributes(tag, class = "rf-select", `data-rf-gender` = gender)
-  .rf_input_state(tag, .rf_id(id, ns), disabled = disabled, required = required, help = help, error = error)
+  .rf_input_state(tag, .rf_id(id, ns), disabled = disabled, required = required, help = help, error = error, kind = "select")
 }
 
 #' Entrada numerica corporativa usando AutoNumeric
@@ -165,7 +165,7 @@ racafeInputNumeric <- function(id, label, value = 0, format = "number", decimals
     decimalCharacter = decimal, digitGroupSeparator = thousand,
     currencySymbol = sym, currencySymbolPlacement = pos, width = width
   )
-  .rf_input_state(tag, .rf_id(id, ns), readonly, disabled, required, help, error)
+  .rf_input_state(tag, .rf_id(id, ns), readonly, disabled, required, help, error, kind = "numeric", min = min, max = max)
 }
 
 #' Selector de dia, mes o anio
@@ -204,7 +204,8 @@ racafeInputDate <- function(id, label = NULL, value = Sys.Date(),
     addon = "none", firstDay = 1
   )
   tag <- shiny::tagAppendAttributes(tag, class = "rf-date")
-  .rf_input_state(tag, .rf_id(id, ns), disabled = disabled, required = required, help = help, error = error)
+  .rf_input_state(tag, .rf_id(id, ns), disabled = disabled, required = required, help = help, error = error, kind = "date",
+                  min = min, max = max)
 }
 
 #' Selector de rango de fechas (dos valores Date)
@@ -221,7 +222,8 @@ racafeInputDateRange <- function(id, label = NULL, start = NULL, end = NULL,
                         min = min, max = max, language = "es", format = "dd/mm/yyyy",
                         separator = "-", weekstart = 1, width = width)
   tag <- shiny::tagAppendAttributes(tag, class = "rf-date-range")
-  .rf_input_state(tag, .rf_id(id, ns), disabled = disabled, required = required, help = help, error = error)
+  .rf_input_state(tag, .rf_id(id, ns), disabled = disabled, required = required, help = help, error = error, kind = "range",
+                  min = min, max = max)
 }
 
 #' Interruptor corporativo
@@ -231,15 +233,18 @@ racafeInputDateRange <- function(id, label = NULL, start = NULL, end = NULL,
 #' @param variant primary, success, warning, danger, neutral.
 #' @param ns Namespace.
 #' @return Componente de entrada Shiny para incluir en la UI; su valor está disponible en `input$id`.
+#' @param required,help,disabled,error Obligatoriedad, ayuda, deshabilitado y error del campo.
 #' @export
 racafeInputSwitch <- function(id, label, value = FALSE,
                               variant = c("primary", "success", "warning", "danger", "neutral"),
-                              ns = NULL) {
+                              ns = NULL, required = FALSE, help = NULL, disabled = FALSE, error = NULL) {
   variant <- match.arg(variant)
   status <- switch(variant, primary = "danger", success = "success", warning = "warning",
                    danger = "danger", neutral = "secondary")
-  shinyWidgets::materialSwitch(.rf_id(id, ns), label = label, value = value,
-                               status = status, right = TRUE, width = "100%")
+  tag <- shinyWidgets::materialSwitch(.rf_id(id, ns), label = label, value = value,
+                                     status = status, right = TRUE, width = "100%")
+  .rf_input_state(tag, .rf_id(id, ns), disabled = disabled, required = required, help = help, error = error,
+                  kind = "logical")
 }
 
 #' Opciones radiales corporativas
@@ -250,10 +255,13 @@ racafeInputSwitch <- function(id, label, value = FALSE,
 #' @param inline Disposicion horizontal.
 #' @param ns Namespace.
 #' @return Componente de entrada Shiny para incluir en la UI; su valor está disponible en `input$id`.
+#' @param required,help,disabled,error Obligatoriedad, ayuda, deshabilitado y error del campo.
 #' @export
-racafeInputRadio <- function(id, label, choices, selected = NULL, inline = TRUE, ns = NULL) {
-  shiny::radioButtons(.rf_id(id, ns), label, choices = choices, selected = selected,
+racafeInputRadio <- function(id, label, choices, selected = NULL, inline = TRUE, ns = NULL,
+                             required = FALSE, help = NULL, disabled = FALSE, error = NULL) {
+  tag <- shiny::radioButtons(.rf_id(id, ns), label, choices = choices, selected = selected,
                       inline = inline, width = "100%")
+  .rf_input_state(tag, .rf_id(id, ns), disabled = disabled, required = required, help = help, error = error, kind = "select")
 }
 
 #' Casilla corporativa
@@ -262,9 +270,13 @@ racafeInputRadio <- function(id, label, choices, selected = NULL, inline = TRUE,
 #' @param value Estado inicial.
 #' @param ns Namespace.
 #' @return Componente de entrada Shiny para incluir en la UI; su valor está disponible en `input$id`.
+#' @param required,help,disabled,error Obligatoriedad, ayuda, deshabilitado y error del campo.
 #' @export
-racafeInputCheckbox <- function(id, label, value = FALSE, ns = NULL) {
-  shiny::checkboxInput(.rf_id(id, ns), label, value = value, width = "100%")
+racafeInputCheckbox <- function(id, label, value = FALSE, ns = NULL, required = FALSE,
+                                help = NULL, disabled = FALSE, error = NULL) {
+  tag <- shiny::checkboxInput(.rf_id(id, ns), label, value = value, width = "100%")
+  .rf_input_state(tag, .rf_id(id, ns), disabled = disabled, required = required, help = help, error = error,
+                  kind = "logical")
 }
 
 # Campos informativos ----
@@ -289,9 +301,8 @@ racafeInputReadOnly <- function(id, label, value = "", copyable = FALSE, multili
   input <- if (multiline) shiny::textAreaInput(.rf_id(id, ns), label, value, rows = 3, width = "100%") else {
     shiny::textInput(.rf_id(id, ns), label, value, width = "100%")
   }
-  input <- htmltools::tagQuery(input)$find(if (multiline) "textarea" else "input")$
-    addAttrs(readonly = "readonly")$allTags()
-  .rf_attach(shiny::tags$div(class = "rf-readonly", shiny::tags$div(class = "rf-readonly-control", input,
+  tag <- shiny::tags$div(class = "rf-readonly", shiny::tags$div(class = "rf-readonly-control", input,
     if (copyable) racafeCopyButton(paste0(id, "_copy"), target = id, ns = ns)),
-    shiny::tags$small(class = "rf-readonly-label", "Solo lectura")))
+    shiny::tags$small(class = "rf-readonly-label", "Solo lectura"))
+  .rf_input_state(tag, .rf_id(id, ns), readonly = TRUE)
 }

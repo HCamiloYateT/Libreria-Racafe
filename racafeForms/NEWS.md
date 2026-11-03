@@ -1,3 +1,14 @@
+# Desarrollo (sin publicar)
+
+- Unifica etiquetas, encabezados HTML compactos, separadores de grupos y footers.
+- Añade validación de servidor reutilizable, reglas condicionales, resumen y foco,
+  modos inline/alert/both y limpieza reactiva por formulario con namespaces.
+- Añade racafeInputDateTime con POSIXct y zona horaria, estados de botones y
+  descargas validadas que reutilizan el enlace nativo.
+- Mantiene las firmas anteriores; amplía estados de switches, casillas y radios.
+- Incluye una demo modular completa, pruebas y guía de migración.
+- No incrementa la versión ni publica cambios.
+
 # Separadores numéricos
 
 - Unifica los formatos predeterminados en punto decimal y coma de miles (1,234.56).
