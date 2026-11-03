@@ -1,3 +1,7 @@
+> Política vigente: los valores mode heredados se aceptan, pero la validación muestra
+> exclusivamente un mensaje por campo, sin resumen ni SweetAlert. Consulte
+> [la actualización de selectores y validación](select-validation.md).
+
 # Estandarización integral de formularios
 
 Estado: cambios preparados para revisión mediante PR, validados el 3 de noviembre de 2026.
@@ -68,8 +72,8 @@ TRUE cuando esté inactivo; ocultarlo en el navegador no modifica las reglas del
 
 No muestra errores hasta `validate()`, salvo `initial = TRUE`. Después revalida al editar,
 limpia errores corregidos y actualiza pendientes sin repetir alertas ni mover el foco.
-`validate()` enfoca el primer pendiente; con alerta espera al cierre. Inline incluye resumen
-y errores por campo con atributos accesibles. Los errores explícitos `error=` permanecen
+`validate()` enfoca el primer pendiente sin abrir alertas. La presentación incluye un único
+error por campo con atributos accesibles, sin resumen duplicado. Los errores explícitos `error=` permanecen
 bajo control de la aplicación y no se eliminan automáticamente.
 
 ### Migración de validaciones manuales

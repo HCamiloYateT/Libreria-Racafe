@@ -4,12 +4,14 @@
 \alias{racafeFormRow}
 \title{Fila flexible y adaptable de campos}
 \usage{
-racafeFormRow(..., columns = 2L)
+racafeFormRow(..., columns = 2L, actions = FALSE)
 }
 \arguments{
 \item{...}{Componentes a distribuir horizontalmente.}
 
 \item{columns}{Numero de columnas en escritorio (1 a 4).}
+
+\item{actions}{Fila de campo y acción: dos columnas, botón alineado con el input, incluso con errores debajo.}
 }
 \value{
 Etiqueta HTML \code{div} que distribuye los campos en columnas adaptables.

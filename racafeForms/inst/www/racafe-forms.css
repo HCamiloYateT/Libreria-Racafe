@@ -339,3 +339,16 @@
 .rf-message--comfortable {font-size:13px;padding:12px 16px;}
 .rf-message > .fa,.rf-message > .fas {margin-right:6px;}
 .rf-field--disabled {opacity:.7;}
+/* Obligatoriedad y presentación de selectores, sin transformar valores. */
+.rf-required {color:var(--rf-red,#DA291C);font-weight:700;}
+.rf-select--uppercase .dropdown-toggle .filter-option,
+.rf-select--uppercase .dropdown-menu .text,
+.rf-select--uppercase .dropdown-header,
+.rf-select--uppercase .bs-actionsbox .btn,
+.rf-select--uppercase .bs-searchbox input,
+.rf-select--uppercase .no-results {text-transform:uppercase;}
+/* La acción se alinea con el campo, independientemente de sus errores. */
+.rf-form .rf-row.rf-row--actions {grid-template-columns:minmax(0,1fr) auto;align-items:start;}
+.rf-row--actions .control-label {line-height:1.5;}
+.rf-row--actions > .rf-col:last-child {padding-top:calc(var(--rf-font,11px) * 1.5 + 4px);}
+.rf-row--actions > .rf-col:last-child > .rf-btn {min-height:var(--rf-control-height,36px)!important;}

@@ -54,11 +54,14 @@ racafeFormGroup <- function(..., title = NULL, divider = TRUE, variant = NULL) {
 #' Fila flexible y adaptable de campos
 #' @param ... Componentes a distribuir horizontalmente.
 #' @param columns Numero de columnas en escritorio (1 a 4).
+#' @param actions Fila de campo y acción: dos columnas, botón alineado con el input, incluso con errores debajo.
 #' @return Etiqueta HTML `div` que distribuye los campos en columnas adaptables.
 #' @export
-racafeFormRow <- function(..., columns = 2L) {
+racafeFormRow <- function(..., columns = 2L, actions = FALSE) {
+  .rf_flag(actions, "actions")
+  if (actions && (columns != 2L || length(list(...)) != 2L)) stop("actions requiere dos columnas y dos elementos.")
   stopifnot(length(columns) == 1L, columns %in% 1:4)
-  shiny::tags$div(class = paste("rf-row", paste0("rf-row--", columns)),
+  shiny::tags$div(class = paste("rf-row", paste0("rf-row--", columns), if (actions) "rf-row--actions"),
                   lapply(list(...), function(x) shiny::tags$div(class = "rf-col", x)))
 }
 

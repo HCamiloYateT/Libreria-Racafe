@@ -29,7 +29,7 @@ TRUE o un mensaje; cada campo puede tener una lista de funciones.}
 \item{required}{Lista nombrada (o función que la devuelve) de lógicos o funciones
 function(values) para obligatoriedad condicional.}
 
-\item{mode}{inline, alert o both; las alertas usan racafeAlert existente.}
+\item{mode}{Se aceptan inline, alert y both por compatibilidad; todos muestran solo errores por campo, sin alertas.}
 
 \item{initial}{Mostrar validación inline antes de enviar; FALSE por defecto.}
 }
@@ -43,4 +43,6 @@ Vincular validación diferida y limpieza automática
 \details{
 Tras el primer validate, revalida al editar y limpia mensajes, sin repetir
 alertas ni mover el foco. Las acciones deben comprobar validate antes de negocio.
+Una sesión conserva una instancia por formulario; llamadas repetidas devuelven esa instancia.
+destroy libera su registro; registre una instancia nueva si cambia su configuración.
 }

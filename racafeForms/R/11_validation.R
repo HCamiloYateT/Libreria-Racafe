@@ -1,12 +1,13 @@
 # Esquema de campos y reglas de servidor ----
 .rf_text_content <- function(tag) {
+  if (inherits(tag, "shiny.tag") && identical(tag$attribs$class, "rf-required")) return("")
   if (inherits(tag, "shiny.tag")) return(paste(vapply(tag$children, .rf_text_content, character(1)), collapse = " "))
   if (is.list(tag)) return(paste(vapply(tag, .rf_text_content, character(1)), collapse = " "))
   if (is.character(tag)) return(trimws(gsub("<[^>]+>", "", paste(tag, collapse = " "))))
   ""
 }
 .rf_field_label <- function(tag) {
-  if (inherits(tag, "shiny.tag") && identical(tag$name, "label")) return(.rf_text_content(tag))
+  if (inherits(tag, "shiny.tag") && identical(tag$name, "label")) return(trimws(.rf_text_content(tag)))
   children <- if (inherits(tag, "shiny.tag")) tag$children else if (is.list(tag)) tag else list()
   for (child in children) {
     label <- .rf_field_label(child)
@@ -72,7 +73,7 @@
 #' @param required Lista nombrada (o función que la devuelve) de lógicos o funciones
 #'   function(values) para obligatoriedad condicional.
 #' @param ns Namespace; por defecto el de la sesión reactiva actual, si existe.
-#' @return Resultado rf_validation: valid, errors, pending, labels, ids, values y form_id.
+#' @return Resultado rf_validation: valid, errors, pending, labels, ids, values, form_id y required.
 #' @details Valida datos en R, no atributos HTML. FALSE y 0 son valores válidos; para
 #'   exigir aceptar una casilla declare una regla isTRUE. kind numeric/date/range/datetime
 #'   comprueba tipos, finitud y límites; range exige dos fechas ordenadas.
@@ -93,11 +94,13 @@ racafeValidateForm <- function(input, form, rules = list(), required = list(),
   values <- lapply(names(fields), function(id) input[[id]])
   names(values) <- names(fields)
   errors <- character()
+  mandatory_fields <- stats::setNames(rep(FALSE, length(fields)), names(fields))
   for (id in names(fields)) {
     field <- fields[[id]]; value <- values[[id]]
     mandatory <- if (id %in% names(required)) required[[id]] else field$required %||% FALSE
     if (is.function(mandatory)) mandatory <- mandatory(values)
     .rf_flag(mandatory, paste0("required$", id))
+    mandatory_fields[[id]] <- mandatory
     empty <- .rf_empty_value(value)
     if (empty) {
       if (mandatory) errors[[id]] <- "Complete este campo."
@@ -145,10 +148,13 @@ racafeValidateForm <- function(input, form, rules = list(), required = list(),
   }
   structure(list(valid = !length(errors), errors = errors, pending = names(errors), values = values,
     labels = vapply(fields, `[[`, character(1), "label"), ids = vapply(fields, `[[`, character(1), "id"),
-    form_id = schema$id), class = "rf_validation")
+    form_id = schema$id, required = mandatory_fields), class = "rf_validation")
 }
 .rf_validation_send <- function(session, result, inline, focus) {
-  session$sendCustomMessage("racafe-validation", list(form = result$form_id, fields = unname(result$ids),
+  session$sendCustomMessage("racafe-validation", list(form = result$form_id, fields = unname(as.list(result$ids)),
+    required = lapply(names(result$ids), function(id) {
+      list(id = result$ids[[id]], required = isTRUE(result$required[[id]]))
+    }),
     errors = lapply(result$pending, function(id) list(id = result$ids[[id]], label = result$labels[[id]],
       text = as.vector(result$errors[[id]], mode = "character"))), inline = inline, focus = focus))
 }
@@ -156,7 +162,7 @@ racafeValidateForm <- function(input, form, rules = list(), required = list(),
 #' Mostrar o limpiar el resultado de validación
 #' @param session Sesión Shiny.
 #' @param result Resultado de racafeValidateForm.
-#' @param mode inline, alert o both; las alertas usan racafeAlert existente.
+#' @param mode Se aceptan inline, alert y both por compatibilidad; todos muestran solo errores por campo, sin alertas.
 #' @param focus Llevar el foco al primer pendiente, incluso dentro de details.
 #' @return Resultado recibido, invisiblemente.
 #' @export
@@ -164,11 +170,7 @@ racafeShowValidation <- function(session, result, mode = c("inline", "alert", "b
   mode <- match.arg(mode)
   if (!inherits(result, "rf_validation")) stop("result debe proceder de racafeValidateForm.")
   .rf_flag(focus, "focus")
-  .rf_validation_send(session, result, mode != "alert", focus)
-  if (!result$valid && mode != "inline") {
-    text <- paste(paste0(result$labels[result$pending], ": ", result$errors), collapse = "\n")
-    racafeAlert(session, "Revise los campos pendientes", as.vector(text, mode = "character"), "warning")
-  }
+  .rf_validation_send(session, result, TRUE, focus)
   invisible(result)
 }
 
@@ -180,12 +182,19 @@ racafeShowValidation <- function(session, result, mode = c("inline", "alert", "b
 #'   result() y attempted() reactivos. Regístrelo una sola vez por formulario/sesión.
 #' @details Tras el primer validate, revalida al editar y limpia mensajes, sin repetir
 #'   alertas ni mover el foco. Las acciones deben comprobar validate antes de negocio.
+#'   Una sesión conserva una instancia por formulario; llamadas repetidas devuelven esa instancia.
+#'   destroy libera su registro; registre una instancia nueva si cambia su configuración.
 #' @export
 racafeFormValidation <- function(input, form, session = shiny::getDefaultReactiveDomain(), rules = list(),
                                  required = list(), mode = c("inline", "alert", "both"), initial = FALSE) {
   mode <- match.arg(mode)
   .rf_flag(initial, "initial")
   if (is.null(session)) stop("Se requiere una sesi\u00f3n Shiny activa.")
+  schema <- shiny::isolate(.rf_form_schema(form, session$ns))
+  key <- schema$id %||% paste(vapply(schema$fields, `[[`, character(1), "id"), collapse = "|")
+  if (is.null(session$userData$rf_validators)) session$userData$rf_validators <- new.env(parent = emptyenv())
+  cache <- session$userData$rf_validators
+  if (exists(key, envir = cache, inherits = FALSE)) return(get(key, envir = cache))
   attempted <- shiny::reactiveVal(initial)
   result <- shiny::reactiveVal(NULL)
   check <- function() racafeValidateForm(input, form, rules, required, ns = session$ns)
@@ -196,7 +205,7 @@ racafeFormValidation <- function(input, form, session = shiny::getDefaultReactiv
       return()
     }
     result(current)
-    .rf_validation_send(session, current, mode != "alert", FALSE)
+    .rf_validation_send(session, current, TRUE, FALSE)
   }, domain = session)
   validate <- function(show = TRUE) {
     .rf_flag(show, "show")
@@ -205,6 +214,11 @@ racafeFormValidation <- function(input, form, session = shiny::getDefaultReactiv
     if (show) racafeShowValidation(session, current, mode)
     current$valid
   }
-  list(validate = validate, check = function() shiny::isolate(check()), result = shiny::reactive(result()),
-       attempted = shiny::reactive(attempted()), destroy = function() observer$destroy())
+  object <- list(validate = validate, check = function() shiny::isolate(check()), result = shiny::reactive(result()),
+    attempted = shiny::reactive(attempted()), destroy = function() {
+      observer$destroy()
+      if (exists(key, envir = cache, inherits = FALSE)) rm(list = key, envir = cache)
+    })
+  assign(key, object, envir = cache)
+  object
 }

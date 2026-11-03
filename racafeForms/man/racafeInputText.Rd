@@ -32,7 +32,8 @@ racafeInputText(
 
 \item{type}{text, email, tel o password; se conserva el tipo HTML solicitado.}
 
-\item{required}{Indica obligatoriedad para accesibilidad (la validacion es del servidor).}
+\item{required}{Asterisco rojo y accesibilidad de campo obligatorio;
+compruebe su valor en el servidor con racafeFormValidation.}
 
 \item{help}{Ayuda debajo del control.}
 

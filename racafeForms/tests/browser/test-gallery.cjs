@@ -37,14 +37,15 @@ const { chromium } = require("playwright");
         await select("component", name);
         await page.waitForFunction(name => document.querySelector("#code").textContent.startsWith("# Ejemplo autocontenido: " + name + "\n"), name);
         await page.waitForFunction(() => !document.querySelector("#preview.recalculating"));
-        check(await page.locator("#preview .rf-form").count() === 1, `Demo montada: ${name}`);
+        check(name === "ListaDesplegableAgregable" ? await page.locator("#preview .rf-form").count() >= 1 :
+          await page.locator("#preview .rf-form").count() === 1, `Demo montada: ${name}`);
         check(await page.locator(".shiny-output-error").count() === 0, `Sin error R: ${name}`);
         const href = await page.locator("#help a").getAttribute("href");
         check((await page.request.get(new URL(href, url).href)).ok(), `Ayuda local: ${name}`);
         components.push(name);
       }
     }
-    check(components.length === 59, "58 funciones públicas y formulario completo inventariados");
+    check(components.length === 60, "58 funciones públicas, formulario completo y módulo agregable inventariados");
     async function navigate(categoryId, name) {
       await page.locator(`.nav-link[data-value="category${categoryId}"]`).click();
       await page.waitForFunction(name => !!document.querySelector('#component').selectize.options[name], name);

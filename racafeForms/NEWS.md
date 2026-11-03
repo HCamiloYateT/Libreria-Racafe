@@ -1,3 +1,12 @@
+# Validación inline y selectores agregables (sin publicar)
+
+- Añade asteriscos rojos en obligatorios y metadatos de obligatoriedad condicional.
+- Unifica los modos de validación heredados en un único error por campo, sin resumen ni SweetAlert.
+- Conserva una instancia de validación por formulario/sesión y permite liberarla con destroy.
+- Añade uppercase a selectores sin modificar etiquetas originales ni valores; admite actualizaciones.
+- Añade filas de campo/acción alineadas y excluye opciones de acción de Todos/conteos.
+- Integra opcionalmente ListaDesplegableAgregable de racafeModulos en la galería, sin dependencia obligatoria circular.
+
 # Galería y ampliación de componentes (sin publicar)
 
 - Añade racafeFormsGallery con inventario completo, configuración por componente,

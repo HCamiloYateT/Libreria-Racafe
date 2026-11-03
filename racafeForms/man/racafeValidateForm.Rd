@@ -29,7 +29,7 @@ function(values) para obligatoriedad condicional.}
 \item{ns}{Namespace; por defecto el de la sesión reactiva actual, si existe.}
 }
 \value{
-Resultado rf_validation: valid, errors, pending, labels, ids, values y form_id.
+Resultado rf_validation: valid, errors, pending, labels, ids, values, form_id y required.
 }
 \description{
 Validar un formulario en el servidor

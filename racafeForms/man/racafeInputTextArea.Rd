@@ -33,7 +33,8 @@ racafeInputTextArea(
 
 \item{maxlength}{Maximo de caracteres (NULL sin limite).}
 
-\item{required}{Indica obligatoriedad para accesibilidad (la validacion es del servidor).}
+\item{required}{Asterisco rojo y accesibilidad de campo obligatorio;
+compruebe su valor en el servidor con racafeFormValidation.}
 
 \item{help}{Ayuda debajo del control.}
 
