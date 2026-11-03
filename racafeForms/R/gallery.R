@@ -16,7 +16,7 @@ racafeFormsGallery <- function() {
 }
 
 # Inventario explícito y comprobable contra las exportaciones ----
-.rf_gallery_catalog <- function() {
+.rf_gallery_catalog <- function(include_modules = FALSE) {
   categories <- list(
     Formularios = c("racafeForm", "racafeFormGroup", "racafeFormRow", "racafeFormFooter"),
     Inputs = c("racafeInputText", "racafeInputTextArea", "racafeInputNumeric", "racafeInputSelect",
@@ -34,6 +34,7 @@ racafeFormsGallery <- function() {
       "racafeFormValidation", "racafeDownloadHandler", "racafeCopyButton", "racafeCopyText", "racafeCopyImage"),
     Recursos = c("racafeFormsDependencies", "racafeSharedAssets", "racafeFormsGallery"),
     `Formulario completo` = "Formulario completo")
+  if (include_modules) categories$Agregables <- "ListaDesplegableAgregable"
   data.frame(name = unlist(categories, use.names = FALSE),
              category = rep(names(categories), lengths(categories)), stringsAsFactors = FALSE)
 }
@@ -41,7 +42,7 @@ racafeFormsGallery <- function() {
   list(size = "compact", variant = "soft", required = FALSE, readonly = FALSE, disabled = FALSE,
        loading = FALSE, format = "number", decimals = 2L, value = 1234.56, min = -10000, max = 10000,
        thousand = ",", decimal = ".", multiple = FALSE, search = TRUE, empty = TRUE,
-       gender = "m", unique_choices = TRUE, list_size = 6L, message = "info", icon = FALSE)
+       gender = "m", uppercase = TRUE, unique_choices = TRUE, list_size = 6L, message = "info", icon = FALSE)
 }
 .rf_gallery_literal <- function(value) paste(capture.output(dput(value)), collapse = "\n")
 
@@ -64,7 +65,8 @@ racafeFormsGallery <- function() {
       '  choices = c("Caf\u00e9" = "cafe", "Cacao" = "cacao", "Caf\u00e9 repetido" = "cafe"),\n',
       '  multiple = ', flag("multiple"), ', search = ', flag("search"), ', empty = ', flag("empty"),
       ', gender = ', q(config$gender), ', size = ', q(config$list_size), ', unique_choices = ',
-      flag("unique_choices"), ', required = ', flag("required"), ', disabled = ', flag("disabled"), ', ns = ns)'),
+      flag("unique_choices"), ', uppercase = ', flag("uppercase"), ', required = ', flag("required"),
+      ', disabled = ', flag("disabled"), ', ns = ns)'),
     racafeInputDate = 'racafeForms::racafeInputDate("value", "Fecha", ns = ns)',
     racafeInputDateRange = 'racafeForms::racafeInputDateRange("value", "Periodo", ns = ns)',
     racafeInputDateTime = 'racafeForms::racafeInputDateTime("value", "Fecha y hora", tz = "America/Bogota", ns = ns)',
@@ -235,6 +237,23 @@ racafeFormsGallery <- function() {
   if (name == "racafeActionBar") control <- paste0('racafeForms::racafeActionBar(\n',
     '  left = racafeForms::racafeButtonCancel("cancel", ns = ns),\n',
     '  right = racafeForms::racafeButtonSave("value", ns = ns))')
+  if (name == "ListaDesplegableAgregable") {
+    available <- paste0('requireNamespace("racafeModulos", quietly = TRUE) && ',
+      '\"uppercase\" %in% names(formals(racafeModulos::ListaDesplegableAgregable))')
+    control <- paste0('if (', available, ') shiny::tagList(\n',
+      '  racafeModulos::ListaDesplegableAgregableUI(ns("simple")),\n',
+      '  racafeModulos::ListaDesplegableAgregableUI(ns("multiple"))) else\n',
+      '  racafeForms::racafeFormMessage(\n',
+      '    "Instale la revisi\u00f3n actualizada de racafeModulos para probar este ejemplo.")')
+    server <- paste0('if (', available, ') {\n',
+      '  simple <- racafeModulos::ListaDesplegableAgregable("simple", "Categor\u00eda",\n',
+      '    c("Caf\u00e9" = "cafe", "T\u00e9" = "te"), selected = "cafe", multiple = FALSE, fem = TRUE)\n',
+      '  multiple <- racafeModulos::ListaDesplegableAgregable("multiple", "Segmentos",\n',
+      '    c("Caf\u00e9", "Premium"), selected = "Premium", multiple = TRUE, confirm = FALSE)\n',
+      '  output$values <- shiny::renderPrint(list(simple = simple$seleccion(), multiple = multiple$seleccion(),\n',
+      '    catalogo_simple = simple$choices(), catalogo_multiple = multiple$choices()))\n',
+      '}')
+  }
   if (is.null(control)) control <- switch(name,
     racafeFormsDependencies = paste0('shiny::tagList(racafeForms::racafeFormsDependencies(), ',
                                     'shiny::p("Recursos base cargados"))'),
@@ -273,6 +292,9 @@ racafeFormsGallery <- function() {
     tools::Rd_db("racafeForms")
   }
   titles <- list()
+  if ("ListaDesplegableAgregable" %in% catalog$name && requireNamespace("racafeModulos", quietly = TRUE)) {
+    docs <- c(docs, tools::Rd_db("racafeModulos"))
+  }
   for (name in setdiff(catalog$name, "Formulario completo")) {
     matches <- vapply(docs, function(rd) any(vapply(rd, function(tag) {
       identical(attr(tag, "Rd_tag"), "\\alias") && identical(paste(unlist(tag), collapse = ""), name)
@@ -289,7 +311,7 @@ racafeFormsGallery <- function() {
   list(prefix = prefix, directory = directory, titles = titles)
 }
 .rf_gallery_app <- function() {
-  catalog <- .rf_gallery_catalog()
+  catalog <- .rf_gallery_catalog(include_modules = TRUE)
   defaults <- .rf_gallery_defaults()
   assets <- racafeSharedAssets(system.file("gallery-assets", package = "racafeForms", mustWork = TRUE),
                               global_css = FALSE)
@@ -337,6 +359,7 @@ racafeFormsGallery <- function() {
             shiny::checkboxInput("search", "B\u00fasqueda", TRUE),
             shiny::checkboxInput("empty", "Opci\u00f3n vac\u00eda", TRUE),
             shiny::selectInput("gender", "Etiqueta vac\u00eda", c("Ninguno" = "m", "Ninguna" = "f")),
+            shiny::checkboxInput("uppercase", "Etiquetas en may\u00fasculas", TRUE),
             shiny::checkboxInput("unique_choices", "Eliminar duplicados", TRUE),
             shiny::numericInput("list_size", "Opciones visibles", 6, 1, 20)),
           shiny::conditionalPanel("input.component === 'racafeFormMessage'",
@@ -404,6 +427,7 @@ racafeFormsGallery <- function() {
     output$code <- shiny::renderText(.rf_gallery_code(active(), config()))
     output$help <- shiny::renderUI({
       name <- if (active() == "Formulario completo") "racafeFormValidation" else active()
+      if (!file.exists(file.path(help$directory, paste0(name, ".html")))) name <- "racafeInputSelect"
       shiny::tags$a(href = paste0(help$prefix, "/", name, ".html"), target = "_blank", rel = "noopener",
                     "Abrir ayuda local")
     })

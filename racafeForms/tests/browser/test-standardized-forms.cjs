@@ -41,7 +41,7 @@ const { chromium } = require("playwright");
     check(await page.locator("#dos-form .rf-validation-error").count() === 0, "Formulario hermano sin errores cruzados");
     check(await page.evaluate(() => document.activeElement.id) === "uno-nombre", "Foco al primer pendiente");
     check(await page.locator("#uno-nombre").getAttribute("aria-invalid") === "true", "Error accesible");
-    check((await page.locator("#uno-form .rf-validation-summary").innerText()).includes("Categorías"), "Resumen con pendientes");
+    check(await page.locator("#uno-form .rf-validation-summary").count() === 0, "Sin resumen duplicado de pendientes");
     await page.locator("#uno-nombre").fill("Ana"); await page.locator("#uno-nombre").press("Tab");
     await page.locator("#uno-nombre_validation").waitFor({ state: "detached" }); check(true, "Texto corregido limpia error");
     const amount = page.locator("#uno-importe"); await amount.click(); await amount.press("ControlOrMeta+a");

@@ -66,6 +66,7 @@
     `data-rf-required` = tolower(as.character(required)), `data-rf-min` = bound(min), `data-rf-max` = bound(max),
     class = paste("rf-field", if (invalid) "rf-field--error",
                                                       if (disabled) "rf-field--disabled"))
+  if (required) tag <- .rf_required_label(tag)
   if (!is.null(help)) tag <- shiny::tagAppendChildren(tag,
     shiny::tags$small(id = paste0(id, "_help"), class = "rf-help", help))
   if (invalid) tag <- shiny::tagAppendChildren(tag,
@@ -104,4 +105,18 @@
     items[keep]
   }
   walk(choices)
+}
+
+# Asterisco visible sin modificar el texto ni HTML original de la etiqueta ----
+.rf_required_label <- function(tag) {
+  added <- FALSE
+  walk <- function(node) {
+    if (!inherits(node, "shiny.tag")) return(node)
+    if (node$name == "label" && !added) {
+      node$children <- c(node$children, list(shiny::tags$span(class = "rf-required", `aria-hidden` = "true", " *")))
+      added <<- TRUE
+    } else node$children <- lapply(node$children, walk)
+    node
+  }
+  walk(tag)
 }

@@ -22,7 +22,8 @@ racafeInputSelect(
   required = FALSE,
   help = NULL,
   error = NULL,
-  unique_choices = FALSE
+  unique_choices = FALSE,
+  uppercase = TRUE
 )
 }
 \arguments{
@@ -61,6 +62,9 @@ racafeInputSelect(
 \item{error}{Mensaje de validación opcional.}
 
 \item{unique_choices}{Eliminar valores repetidos conservando la primera etiqueta y los grupos.}
+
+\item{uppercase}{Mostrar etiquetas, búsqueda y acciones en mayúsculas mediante CSS;
+no cambia choices ni valores.}
 }
 \value{
 Componente de entrada Shiny para incluir en la UI; su valor está disponible en \code{input$id}.

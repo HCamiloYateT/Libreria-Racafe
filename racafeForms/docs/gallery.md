@@ -25,7 +25,8 @@ se comunica el resultado real, sin informar éxito anticipadamente. Use localhos
 ## Inventario, configuración y código
 
 El menú agrupa las 58 funciones públicas, incluidos actualizadores, validadores, archivos,
-portapapeles, notificaciones y recursos. Añade un formulario completo. La prueba de inventario
+portapapeles, notificaciones y recursos. Añade un formulario completo y una integración opcional con ListaDesplegableAgregable
+de racafeModulos (60 entradas en total). La prueba de inventario
 compara las exportaciones contra el catálogo: un componente nuevo exige una demostración.
 Las funciones privadas no se muestran como componentes.
 
@@ -185,3 +186,12 @@ Resultados de la revisión (3 de noviembre de 2026):
 
 Las comprobaciones de navegador no sustituyen pruebas en otros motores. No se ejecutó
 persistencia empresarial ni se modificaron permisos o reglas de negocio productivas.
+
+## Actualización de validación y listas agregables
+
+La validación ya no abre SweetAlert ni muestra resúmenes para errores de campo, aunque
+reciba mode = "alert" o "both". Solo se confirma una acción cuando sus campos son válidos.
+Los selectores ofrecen uppercase para cambiar únicamente su presentación. La categoría
+Agregables utiliza la revisión nueva de racafeModulos si está instalada; de lo contrario
+explica qué instalar sin impedir el uso de la galería. Es una integración opcional (Suggests),
+no una dependencia obligatoria de los controles ni una copia del módulo.

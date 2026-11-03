@@ -19,18 +19,16 @@ const { chromium } = require("playwright");
         `Instante UTC correcto en ${timezoneId}`);
       if (timezoneId === "UTC") {
         await page.locator("#uno-enviar").click();
-        const popup = page.locator(".swal2-popup:visible");
-        await popup.waitFor();
-        check((await popup.innerText()).includes("Nombre"), "SweetAlert enumera campos pendientes");
-        check(await page.locator("#uno-form .rf-validation-error").count() === 4, "Modo both muestra inline");
-        await popup.locator(".swal2-confirm").click();
+        await page.locator("#uno-nombre_validation").waitFor();
+        check(await page.locator(".swal2-popup").count() === 0, "Modo heredado both no abre SweetAlert");
+        check(await page.locator("#uno-form .rf-validation-error").count() === 4, "Solo errores inline");
         await page.waitForFunction(() => document.activeElement.id === "uno-nombre");
-        check(true, "Foco al primer campo tras cerrar alerta");
+        check(true, "Foco al primer campo sin modal");
         await page.locator("#uno-nombre").fill("Ana"); await page.locator("#uno-nombre").press("Tab");
         await page.waitForFunction(() => !document.querySelector("#uno-nombre").hasAttribute("aria-invalid") ||
           document.querySelector("#uno-nombre").getAttribute("aria-invalid") === "false");
         check(await page.locator("#uno-form .rf-validation-error").count() === 3, "Limpieza automática en both");
-        check(await popup.count() === 0, "Edición no repite alertas");
+        check(await page.locator(".swal2-popup").count() === 0, "Edición no abre alertas");
       }
       check(errors.length === 0, `Sin errores JavaScript en ${timezoneId}: ${errors.join("; ")}`);
       await context.close();

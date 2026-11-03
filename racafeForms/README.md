@@ -517,12 +517,13 @@ shiny::runApp(system.file("examples", "standardized-forms.R", package = "racafeF
 La demostración incluye dos módulos independientes, todos los tipos de entrada, campos
 dinámicos, validación condicional, fecha-hora, descarga CSV y modal con footer corporativo.
 Utiliza bs4Dash por defecto; `Sys.setenv(RACAFE_STANDARD_BS4DASH = "0")` permite probar Shiny
-sin dashboard. `RACAFE_STANDARD_MODE` admite `inline`, `alert` o `both`;
+sin dashboard. `RACAFE_STANDARD_MODE` acepta los valores heredados `inline`, `alert` y `both`,
+que ahora muestran únicamente errores junto al campo, sin alertas ni resumen;
 `RACAFE_SHARED_PATH` permite cargar los recursos locales existentes de Compartido.
 
 Declare `required = TRUE` en los campos, reutilice su UI como esquema y registre una sola
 instancia de `racafeFormValidation()` por formulario en el servidor. Antes de guardar,
-consulte `validation$validate()`. La validación ocurre en R, muestra pendientes y enfoca
+consulte `validation$validate()`. La validación ocurre en R, muestra errores por campo y enfoca
 el primero; no muestra errores antes del primer intento y los limpia al corregir.
 Las reglas condicionales reciben los valores locales del módulo; `session$ns` conserva
 el namespace completo, incluso en módulos anidados.
@@ -548,7 +549,8 @@ racafeFormsGallery()
 ```
 
 Requiere bs4Dash y una instalación de esta revisión; reinicie R y recargue sin caché.
-La galería local incluye 58 funciones públicas y un formulario completo, ayuda, código
+La galería local incluye 58 funciones públicas, un formulario completo y una integración
+opcional con ListaDesplegableAgregable de racafeModulos, además de ayuda y código
 ejecutable y copia al portapapeles. No necesita CRM ni una carpeta externa a la instalación.
 Permite probar variantes, densidades, selectores, validaciones, actualizadores y modales.
 Consulte la [guía de la galería y compatibilidad](docs/gallery.md) y la
@@ -558,3 +560,16 @@ Esta ampliación no incrementa la versión del paquete. Las aplicaciones conserv
 aspecto anterior mientras no especifiquen `variant`; las variantes explícitas tienen
 prioridad sobre `bordered` y `unstyled`. `racafeUpdateEnabled()` reemplaza el JavaScript
 local para habilitar controles, también cuando se crean con renderUI.
+
+## Validación por campo y selectores agregables
+
+Los obligatorios muestran un asterisco rojo. Los errores automáticos aparecen una sola vez
+bajo el campo después del primer intento y se limpian al corregir, también dentro de módulos
+y controles dinámicos. No se generan resúmenes duplicados, SweetAlert ni modales de error.
+`racafeConfirm()` continúa disponible para confirmar acciones válidas de negocio.
+
+`racafeInputSelect(..., uppercase = TRUE)` presenta opciones y acciones en mayúsculas
+mediante CSS; los valores y el catálogo permanecen intactos. FALSE conserva la presentación
+original. `racafeFormRow(..., actions = TRUE)` alinea un campo y su acción sin CSS local.
+La [guía de migración](docs/select-validation.md) explica estos cambios y la integración
+con `racafeModulos::ListaDesplegableAgregable()`.

@@ -25,7 +25,8 @@
     picker.options.selectedTextFormat = "count > 1";
     picker.options.countSelectedText = function () {
       var options = Array.from(select.options).filter(function (option) {
-        return option.value !== "" && !option.disabled && !$(option).parent("optgroup:disabled").length;
+        return option.value !== "" && option.value !== wrapper.dataset.rfActionValue &&
+          !option.disabled && !$(option).parent("optgroup:disabled").length;
       });
       var selected = options.filter(function (option) { return option.selected; }).length;
       if (selected === options.length && selected > 0) return feminine ? "Todas" : "Todos";
@@ -33,6 +34,24 @@
     };
     // render no emite change ni modifica los valores del select.
     picker.render();
+  }
+
+  // Las opciones de acción no participan en Todos ni en el conteo del catálogo.
+  if (!$.data(document, "rfActionOptions")) {
+    $.data(document, "rfActionOptions", true);
+    document.addEventListener("click", function (event) {
+      var button = event.target.closest && event.target.closest(".bs-select-all");
+      var field = button && button.closest(".rf-select[data-rf-action-value]");
+      if (!field) return;
+      var select = field.querySelector("select");
+      if (!select || select.disabled) return;
+      event.preventDefault(); event.stopImmediatePropagation();
+      var values = Array.from(select.options).filter(function (option) {
+        return option.value !== field.dataset.rfActionValue && option.value !== "" &&
+          !option.disabled && !$(option).parent("optgroup:disabled").length;
+      }).map(function (option) { return option.value; });
+      $(select).selectpicker("val", values);
+    }, true);
   }
 
   function apply_calendar_style(calendar, input) {
@@ -275,32 +294,38 @@
         }); error.remove();
       });
       field.classList.remove("rf-validation-invalid");
+      if (field.dataset.rfValidationOwned === "true") field.classList.remove("rf-field--error");
+      delete field.dataset.rfValidationOwned;
       field.querySelectorAll("input,select,textarea,button.dropdown-toggle").forEach(function (control) {
         control.setAttribute("aria-invalid", field.querySelector(".rf-field-error") ? "true" : "false");
       });
     });
-    var summary = form && form.querySelector(".rf-validation-summary");
-    if (form && !summary) {
-      summary = document.createElement("div"); summary.className = "rf-validation-summary";
-      summary.setAttribute("role", "alert"); form.prepend(summary);
-    }
-    if (summary) { summary.textContent = ""; summary.hidden = !params.inline || !params.errors.length; }
+    if (form) form.querySelectorAll(".rf-validation-summary").forEach(function (summary) { summary.remove(); });
+    (params.required || []).forEach(function (item) {
+      var field = wrapper(item.id); if (!field) return;
+      field.dataset.rfRequired = String(item.required);
+      var label = field.querySelector("label"), star = label && label.querySelector(".rf-required");
+      if (label && item.required && !star) {
+        star = document.createElement("span"); star.className = "rf-required";
+        star.setAttribute("aria-hidden", "true"); star.textContent = " *"; label.appendChild(star);
+      } else if (star && !item.required) star.remove();
+      field.querySelectorAll("input,select,textarea").forEach(function (control) {
+        control.setAttribute("aria-required", String(item.required));
+      });
+    });
     if (params.inline) params.errors.forEach(function (item) {
       var field = wrapper(item.id);
       if (!field) return;
-      var error = document.createElement("span"); error.id = item.id + "_validation";
-      error.className = "rf-validation-error"; error.setAttribute("role", "alert"); error.textContent = item.text;
+      var error = field.querySelector(".rf-field-error") || document.createElement("span");
+      if (error.classList.contains("rf-field-error")) field.dataset.rfValidationOwned = "true";
+      if (!error.id) error.id = item.id + "_validation";
+      error.classList.add("rf-validation-error"); error.setAttribute("role", "alert"); error.textContent = item.text;
       field.classList.add("rf-validation-invalid"); field.appendChild(error);
       field.querySelectorAll("input,select,textarea,button.dropdown-toggle").forEach(function (control) {
         var ids = (control.getAttribute("aria-describedby") || "").split(/\s+/).filter(Boolean);
         ids.push(error.id); control.setAttribute("aria-describedby", Array.from(new Set(ids)).join(" "));
         control.setAttribute("aria-invalid", "true");
       });
-      if (summary) {
-        var link = document.createElement("button"); link.type = "button";
-        link.textContent = item.label + ": " + item.text; link.addEventListener("click", function () { focusField(item.id); });
-        summary.appendChild(link);
-      }
     });
     if (params.focus && params.errors.length) {
       pendingFocus = params.errors[0].id; requestAnimationFrame(tryFocus);

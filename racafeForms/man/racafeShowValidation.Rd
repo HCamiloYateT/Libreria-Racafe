@@ -16,7 +16,7 @@ racafeShowValidation(
 
 \item{result}{Resultado de racafeValidateForm.}
 
-\item{mode}{inline, alert o both; las alertas usan racafeAlert existente.}
+\item{mode}{Se aceptan inline, alert y both por compatibilidad; todos muestran solo errores por campo, sin alertas.}
 
 \item{focus}{Llevar el foco al primer pendiente, incluso dentro de details.}
 }

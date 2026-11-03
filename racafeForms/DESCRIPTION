@@ -13,5 +13,5 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Depends: R (>= 4.1.0)
 Imports: shiny, shinyWidgets, htmltools
-Suggests: testthat (>= 3.0.0), devtools, roxygen2, reactable, bs4Dash
+Suggests: testthat (>= 3.0.0), devtools, roxygen2, reactable, bs4Dash, racafeModulos
 Config/testthat/edition: 3

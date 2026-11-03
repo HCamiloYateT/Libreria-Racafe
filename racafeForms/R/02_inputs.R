@@ -4,7 +4,8 @@
 #' @param value Valor inicial.
 #' @param placeholder Texto de ayuda dentro del campo.
 #' @param type text, email, tel o password; se conserva el tipo HTML solicitado.
-#' @param required Indica obligatoriedad para accesibilidad (la validacion es del servidor).
+#' @param required Asterisco rojo y accesibilidad de campo obligatorio;
+#'   compruebe su valor en el servidor con racafeFormValidation.
 #' @param help Ayuda debajo del control.
 #' @param width Ancho CSS.
 #' @param ns Funcion namespace de modulo.
@@ -91,6 +92,8 @@ racafeInputTextArea <- function(id, label, value = "", placeholder = NULL, rows 
 #' @param required Marcar el campo como obligatorio.
 #' @param help Ayuda opcional del campo.
 #' @param error Mensaje de validación opcional.
+#' @param uppercase Mostrar etiquetas, búsqueda y acciones en mayúsculas mediante CSS;
+#'   no cambia choices ni valores.
 #' @param unique_choices Eliminar valores repetidos conservando la primera etiqueta y los grupos.
 #' @examples
 #' racafeInputSelect("region", "Región", c("A" = "a", "Repetido" = "a"), unique_choices = TRUE)
@@ -98,7 +101,9 @@ racafeInputTextArea <- function(id, label, value = "", placeholder = NULL, rows 
 racafeInputSelect <- function(id, label = NULL, choices, selected = NULL, multiple = FALSE,
                               search = TRUE, empty = TRUE, empty_label = "Ninguno", size = 6,
                               dropup_auto = FALSE, width = "100%", ns = NULL, gender = c("m", "f"),
-                              disabled = FALSE, required = FALSE, help = NULL, error = NULL, unique_choices = FALSE) {
+                              disabled = FALSE, required = FALSE, help = NULL, error = NULL, unique_choices = FALSE,
+                              uppercase = TRUE) {
+  .rf_flag(uppercase, "uppercase")
   .rf_flag(unique_choices, "unique_choices")
   choices <- .rf_select_choices(choices, unique_choices)
   gender <- match.arg(gender)
@@ -120,8 +125,10 @@ racafeInputSelect <- function(id, label = NULL, choices, selected = NULL, multip
       selectedTextFormat = if (multiple) "count > 1" else "values"
     )
   )
-  tag <- shiny::tagAppendAttributes(tag, class = "rf-select", `data-rf-gender` = gender)
-  .rf_input_state(tag, .rf_id(id, ns), disabled = disabled, required = required, help = help, error = error, kind = "select")
+  tag <- shiny::tagAppendAttributes(tag, class = paste("rf-select", if (uppercase) "rf-select--uppercase"),
+                                      `data-rf-gender` = gender)
+  .rf_input_state(tag, .rf_id(id, ns), disabled = disabled, required = required,
+                  help = help, error = error, kind = "select")
 }
 
 #' Entrada numerica corporativa usando AutoNumeric
