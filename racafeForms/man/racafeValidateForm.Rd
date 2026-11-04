@@ -10,7 +10,8 @@ racafeValidateForm(
   rules = list(),
   required = list(),
   ns = if (!is.null(shiny::getDefaultReactiveDomain()))
-    shiny::getDefaultReactiveDomain()$ns else NULL
+    shiny::getDefaultReactiveDomain()$ns else NULL,
+  warnings = list()
 )
 }
 \arguments{
@@ -27,9 +28,11 @@ TRUE o un mensaje; cada campo puede tener una lista de funciones.}
 function(values) para obligatoriedad condicional.}
 
 \item{ns}{Namespace; por defecto el de la sesión reactiva actual, si existe.}
+
+\item{warnings}{Reglas informativas por campo, con el mismo contrato que rules; nunca bloquean el guardado.}
 }
 \value{
-Resultado rf_validation: valid, errors, pending, labels, ids, values, form_id y required.
+Resultado rf_validation: valid, errors, warnings, pending, labels, ids, values, form_id y required.
 }
 \description{
 Validar un formulario en el servidor

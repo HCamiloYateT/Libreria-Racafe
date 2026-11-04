@@ -637,3 +637,14 @@ node racafeForms/tests/browser/responsive-rows.cjs
 Se puede configurar `ROW_TEST_URL` y `CHROMIUM_PATH`. La prueba cubre las cuatro cantidades
 de columnas, tres densidades, tres anchos de ventana, seis anchos de contenedor, el diseño
 heredado y los bindings de selectores, numéricos y fechas dentro de un módulo Shiny.
+
+## Resúmenes y validación reiniciable (0.6.0)
+
+Use `racafeSummaryTable()`, `racafeMoneyTotal()`, `racafeStack()`, `racafeNoticeList()` y
+`racafeConfirmation()` para construir resúmenes sin CSS en las aplicaciones.
+`racafeFormValidation(..., warnings = list(...))` muestra avisos que no bloquean el guardado.
+Después de guardar, `racafeResetValidation(validation)` limpia los mensajes y vuelve al estado
+previo al primer intento, sin destruir el formulario ni cambiar sus valores.
+
+La [guía de componentes corporativos](docs/corporate-components.md) documenta la API, el ejemplo
+modular, los cambios de CSS, la sincronización de Compartido y las pruebas ejecutables.

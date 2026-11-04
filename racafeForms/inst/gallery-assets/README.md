@@ -15,3 +15,12 @@ La galería y sus ejemplos usan racafeSharedAssets(global_css = FALSE).
 
 Styles/racafe-modal-sizes.css también se distribuye, idéntico, en www/ para que
 racafeFormsDependencies lo precargue sin depender de rutas externas. No edite esa copia.
+
+Esta revisión de trabajo parte de Compartido main f6baef8 y agrega la fuente canónica
+Styles/racafe-controls.css para pickers y resúmenes. ASSETS_VERSION continúa en 1.1.0
+hasta una publicación autorizada. La fuente canónica se mantiene en el repositorio Compartido.
+Sincronización reproducible desde Libreria-Racafe:
+
+    Rscript racafeForms/tools/sync_shared.R /ruta/Compartido
+
+El script valida las fuentes y copia bytes idénticos, incluidos los recursos canónicos de www.

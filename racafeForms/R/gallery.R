@@ -24,14 +24,17 @@ racafeFormsGallery <- function() {
                "racafeInputFile", "racafeValidateInputFile"),
     "Selecci\u00f3n" = c("racafeInputSwitch", "racafeInputRadio", "racafeInputCheckbox"),
     Botones = c("racafeButton", "racafeButtonSave", "racafeButtonCancel", "racafeButtonDelete", "racafeButtonDownload"),
-    Contenedores = c("racafePanel", "racafeCard", "racafeMetric", "racafeMetricGrid"),
-    "Informaci\u00f3n" = c("racafeInfoItem", "racafeInfoGrid", "racafeFormMessage", "racafeStatusBadge"),
-    Modales = c("racafeModal", "racafeModalFooter"),
+    Contenedores = c("racafePanel", "racafeCard", "racafeMetric", "racafeMetricGrid", "racafeStack"),
+    "Informaci\u00f3n" = c("racafeInfoItem", "racafeInfoGrid", "racafeFormMessage", "racafeStatusBadge",
+      "racafeSummaryTable",
+      "racafeMoneyTotal", "racafeNoticeList"),
+    Modales = c("racafeModal", "racafeModalFooter", "racafeConfirmation"),
     Notificaciones = c("racafeAlert", "racafeConfirm", "racafeNotify", "racafeRemoveNotify"),
     Acciones = c("racafeActionBar", "racafeUpdateSelect", "racafeUpdateNumeric", "racafeUpdateDate",
       "racafeUpdateDateRange", "racafeUpdateSwitch", "racafeUpdateButton", "racafeEnable", "racafeDisable",
       "racafeToggle", "racafeUpdateEnabled", "racafeResetForm", "racafeValidateForm", "racafeShowValidation",
-      "racafeFormValidation", "racafeDownloadHandler", "racafeCopyButton", "racafeCopyText", "racafeCopyImage"),
+      "racafeFormValidation", "racafeResetValidation", "racafeDownloadHandler", "racafeCopyButton",
+      "racafeCopyText", "racafeCopyImage"),
     Recursos = c("racafeFormsDependencies", "racafeSharedAssets", "racafeFormsGallery"),
     `Formulario completo` = "Formulario completo")
   if (include_modules) categories$Agregables <- "ListaDesplegableAgregable"
@@ -87,6 +90,10 @@ racafeFormsGallery <- function() {
     racafeMetric = 'racafeForms::racafeMetric("1,234.56", "Ventas", detail = "Datos simulados", padding = "compact")',
     racafeMetricGrid = paste0('racafeForms::racafeMetricGrid(\n',
       '  racafeForms::racafeMetric(12, "Pedidos"), racafeForms::racafeMetric(4, "Clientes"), columns = 2)'),
+    racafeStack = 'racafeForms::racafeStack(racafeForms::racafeCard("Primera"), racafeForms::racafeCard("Segunda"))',
+    racafeSummaryTable = 'racafeForms::racafeSummaryTable(data.frame(Producto = "Caf\u00e9", Importe = 1234.56))',
+    racafeMoneyTotal = 'racafeForms::racafeMoneyTotal("Total", 1234.56)',
+    racafeNoticeList = 'racafeForms::racafeNoticeList(c("Coincidencia de cat\u00e1logo", "Revisar datos"), "warning")',
     racafeInfoItem = 'racafeForms::racafeInfoItem("Cuenta", "Cliente de demostraci\u00f3n")',
     racafeInfoGrid = paste0('racafeForms::racafeInfoGrid(racafeForms::racafeInfoItem("Cuenta", "Demo"),\n',
                             '  racafeForms::racafeInfoItem("Regi\u00f3n", "Bogot\u00e1"))'),
@@ -129,7 +136,8 @@ racafeFormsGallery <- function() {
     control <- .rf_gallery_rows_code(as.integer(config$row_columns), config$row_responsive)
   }
   forms <- c("racafeForm", "racafeFormGroup", "racafeFormFooter", "Formulario completo",
-             "racafeValidateForm", "racafeShowValidation", "racafeFormValidation", "racafeDownloadHandler")
+             "racafeValidateForm", "racafeShowValidation", "racafeFormValidation", "racafeResetValidation",
+             "racafeDownloadHandler")
   if (name %in% forms) {
     control <- paste0('shiny::tagList(\n',
       '  racafeForms::racafeFormGroup(title = "Informaci\u00f3n comercial", variant = ',
@@ -160,9 +168,11 @@ racafeFormsGallery <- function() {
       '})',
       'shiny::observeEvent(input$confirm, {',
       '  if (!isTRUE(input$confirm) || !validation$validate()) return()',
+      '  racafeForms::racafeResetValidation(validation)',
       '  output$result <- shiny::renderUI(racafeForms::racafeFormMessage("Guardado en memoria", "success"))',
       '}, ignoreInit = TRUE)',
-      'shiny::observeEvent(input$reset, { racafeForms::racafeResetForm(session, "form") })',
+      'shiny::observeEvent(input$reset, {',
+      '  racafeForms::racafeResetForm(session, "form"); racafeForms::racafeResetValidation(validation)', '})',
       'racafeForms::racafeDownloadHandler("file", validation, "formulario.csv",',
       '  content = function(file, values) {',
       '    utils::write.csv(data.frame(nombre = values$value, importe = values$number), file, row.names = FALSE)',
@@ -174,6 +184,16 @@ racafeFormsGallery <- function() {
       'shiny::observeEvent(input$date, {',
       '  result <- racafeForms::racafeValidateForm(input, example_ui(session$ns))',
       '  if (isTRUE(validation$attempted())) racafeForms::racafeShowValidation(session, result)', '})', sep = "\n")
+  }
+  if (name == "racafeConfirmation") {
+    control <- 'racafeForms::racafeButton("open", "Confirmar con resumen", ns = ns)'
+    server <- paste(server,
+      'shiny::observeEvent(input$open, {',
+      '  shiny::showModal(racafeForms::racafeConfirmation("confirm",',
+      '    list(Cliente = "Demo", Opcional = NULL, Nota = strrep("Texto extenso. ", 30)),',
+      '    racafeForms::racafeSummaryTable(data.frame(Producto = "Caf\u00e9", Cantidad = 2)),',
+      '    racafeForms::racafeNoticeList(c("Revisar", "Confirmar")), ns = session$ns))', '})',
+      'shiny::observeEvent(input$confirm, { shiny::removeModal() })', sep = "\n")
   }
   if (name %in% c("racafeModal", "racafeModalFooter", "racafeConfirm")) {
     control <- paste0('shiny::tagList(\n',
@@ -384,6 +404,7 @@ racafeFormsGallery <- function() {
   ui <- shiny::tagList(htmltools::suppressDependencies("googlefonts", "ionicons"), ui)
   server <- function(input, output, session) {
     .rf_gallery_bar_server("controlbar_demo")
+    .rf_gallery_corporate_server("corporate_demo")
     configs <- shiny::reactiveValues()
     active <- shiny::reactiveVal(catalog$name[[1]])
     config <- function(name = active()) configs[[name]] %||% defaults
@@ -500,7 +521,8 @@ racafeFormsGallery <- function() {
       shiny::selectInput(ns("row_responsive"), "Distribuci\u00f3n", c("auto", "stack", "fixed", "legacy"),
                          selected = "fixed"),
       shiny::selectInput(ns("row_density"), "Densidad", c("compact", "normal", "comfortable"))),
-    shiny::uiOutput(ns("row_ui")), shiny::verbatimTextOutput(ns("row_values")))
+    shiny::uiOutput(ns("row_ui")), shiny::verbatimTextOutput(ns("row_values")),
+    .rf_gallery_corporate_ui("corporate_demo"))
 }
 .rf_gallery_bar_server <- function(id) {
   shiny::moduleServer(id, function(input, output, session) {
@@ -546,4 +568,74 @@ racafeFormsGallery <- function() {
     'racafeForms::racafeInputDate("row_date", "Fecha", ns = ns),\n',
     'racafeForms::racafeInputDateTime("row_datetime", "Fecha y hora", ns = ns),\n',
     'racafeForms::racafeButton("row_button", "Consultar", ns = ns)))')
+}
+
+# Formulario dinámico, validación y resúmenes dentro del controlbar ----
+.rf_gallery_corporate_ui <- function(id) {
+  ns <- shiny::NS(id)
+  racafeForm(id = "form", ns = ns, variant = "plain",
+    shiny::h4("Validaci\u00f3n y res\u00famenes"),
+    racafeFormRow(columns = 2, responsive = "fixed",
+      racafeInputText("name", "Nombre", required = TRUE, ns = ns),
+      racafeInputSelect("region", "Regi\u00f3n", c("Andina" = "andina", "Caribe" = "caribe"), ns = ns)),
+    racafeInputSelect("city", "Ciudad dependiente", c("Bogot\u00e1" = "bogota", "Tunja" = "tunja"), ns = ns),
+    racafeInputDateRange("range", "Rango", ns = ns),
+    racafeInputCheckbox("dynamic", "Campo din\u00e1mico obligatorio", ns = ns),
+    shiny::uiOutput(ns("dynamic_ui")),
+    racafeButton("insert", "Insertar campo", ns = ns), shiny::tags$div(id = ns("insert_target")),
+    racafeFormFooter(racafeButton("save", "Revisar y guardar", ns = ns),
+      racafeButton("reset", "Reiniciar validaci\u00f3n", variant = "secondary", ns = ns)),
+    racafeStack(racafeSummaryTable(data.frame(Producto = "Caf\u00e9", Importe = 1234.56)),
+      racafeMoneyTotal("Total", 1234.56), racafeNoticeList("Advertencia informativa", "warning")),
+    shiny::verbatimTextOutput(ns("state")),
+    racafeForm(id = "form", ns = shiny::NS(ns("nested")), variant = "plain",
+      racafeInputText("child", "M\u00f3dulo anidado", required = TRUE, ns = shiny::NS(ns("nested"))),
+      racafeButton("check", "Validar m\u00f3dulo anidado", ns = shiny::NS(ns("nested")))))
+}
+.rf_gallery_corporate_server <- function(id) {
+  shiny::moduleServer(id, function(input, output, session) {
+    inserted <- shiny::reactiveVal(FALSE)
+    saved <- shiny::reactiveVal(FALSE)
+    shiny::moduleServer("nested", function(input, output, session) {
+      validator <- racafeFormValidation(input, list(child = list(required = TRUE)), session)
+      shiny::observeEvent(input$check, { validator$validate() })
+    })
+    schema <- shiny::reactive({
+      fields <- list(name = list(label = "Nombre", required = TRUE), region = list(kind = "select"),
+                     city = list(kind = "select"), range = list(kind = "range"), optional = list())
+      if (isTRUE(input$dynamic)) fields$dynamic_text <- list(required = TRUE)
+      if (inserted()) fields$inserted_text <- list(required = TRUE)
+      fields
+    })
+    validation <- racafeFormValidation(input, schema, session,
+      warnings = list(name = function(value, values) if (nchar(value) < 4) "Nombre corto; puede continuar." else TRUE))
+    output$dynamic_ui <- shiny::renderUI({
+      if (isTRUE(input$dynamic)) racafeInputText("dynamic_text", "Din\u00e1mico", required = TRUE, ns = session$ns)
+    })
+    shiny::observeEvent(input$insert, {
+      if (inserted()) return()
+      inserted(TRUE)
+      shiny::insertUI(paste0("#", session$ns("insert_target")), ui =
+        racafeInputText("inserted_text", "Insertado", required = TRUE, ns = session$ns), session = session)
+    })
+    shiny::observeEvent(input$region, {
+      choices <- if (input$region == "caribe") c("Cartagena" = "cartagena", "Santa Marta" = "santa_marta") else
+        c("Bogot\u00e1" = "bogota", "Tunja" = "tunja")
+      racafeUpdateSelect(session, "city", choices = choices)
+    })
+    shiny::observeEvent(input$save, {
+      if (!validation$validate()) return()
+      shiny::showModal(racafeConfirmation("confirm", list(Nombre = input$name, Opcional = NULL),
+        racafeSummaryTable(data.frame(Producto = "Caf\u00e9", Importe = 1234.56)),
+        racafeNoticeList(c("Revisar los datos", "Confirmar el guardado en memoria")), ns = session$ns))
+    })
+    shiny::observeEvent(input$confirm, {
+      if (!validation$validate()) return()
+      shiny::removeModal(); saved(TRUE); racafeResetValidation(validation)
+      racafeNotify(session, "Guardado en memoria", type = "success")
+    })
+    shiny::observeEvent(input$reset, { racafeResetValidation(validation) })
+    output$state <- shiny::renderPrint(list(attempted = validation$attempted(), saved = saved(),
+      region = input$region, city = input$city, dynamic = input$dynamic_text, inserted = input$inserted_text))
+  })
 }

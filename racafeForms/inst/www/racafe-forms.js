@@ -289,9 +289,9 @@
     if (!form && params.fields.length) {
       var first = wrapper(params.fields[0]); form = first && first.closest(".rf-form");
     }
-    var fields = form ? Array.from(form.querySelectorAll(".rf-field,.rf-validation-invalid")) : params.fields.map(wrapper).filter(Boolean);
+    var fields = params.fields.map(wrapper).filter(Boolean);
     fields.forEach(function (field) {
-      field.querySelectorAll(".rf-validation-error").forEach(function (error) {
+      field.querySelectorAll(".rf-validation-error,.rf-validation-warning").forEach(function (error) {
         field.querySelectorAll("[aria-describedby]").forEach(function (control) {
           var ids = control.getAttribute("aria-describedby").split(/\s+/).filter(function (id) { return id !== error.id; });
           if (ids.length) control.setAttribute("aria-describedby", ids.join(" ")); else control.removeAttribute("aria-describedby");
@@ -331,6 +331,17 @@
         control.setAttribute("aria-invalid", "true");
       });
     });
+    if (params.inline) (params.warnings || []).forEach(function (item) {
+      var field = wrapper(item.id);
+      if (!field || field.querySelector(".rf-validation-error,.rf-field-error")) return;
+      var notice = document.createElement("span");
+      notice.id = item.id + "_warning"; notice.className = "rf-validation-warning";
+      notice.setAttribute("role", "status"); notice.textContent = item.text; field.appendChild(notice);
+      field.querySelectorAll("input,select,textarea,button.dropdown-toggle").forEach(function (control) {
+        var ids = (control.getAttribute("aria-describedby") || "").split(/\s+/).filter(Boolean);
+        control.setAttribute("aria-describedby", Array.from(new Set(ids.concat(notice.id))).join(" "));
+      });
+    });
     if (params.focus && params.errors.length) {
       pendingFocus = params.errors[0].id; requestAnimationFrame(tryFocus);
     }
@@ -338,7 +349,13 @@
   Shiny.addCustomMessageHandler("racafe-validation", function (params) {
     var first = params.fields.length && wrapper(params.fields[0]);
     var form = (params.form && document.getElementById(params.form)) || (first && first.closest(".rf-form"));
-    validations.set(form || params.fields.join("|"), params); renderValidation(params);
+    if (!params.inline && pendingFocus && params.fields.includes(pendingFocus)) pendingFocus = null;
+    var key = form || params.fields.join("|"), previous = validations.get(key);
+    if (previous) {
+      var removed = previous.fields.filter(function (id) { return !params.fields.includes(id); });
+      if (removed.length) renderValidation({ fields: removed, errors: [], inline: false });
+    }
+    validations.set(key, params); renderValidation(params);
   });
   function buttonState(el, data) {
     if (typeof data.disabled === "boolean") el.dataset.rfInactive = String(data.disabled);
@@ -434,7 +451,71 @@
   "use strict";
   if ($.data(document, "rfControlbarPickers")) return;
   $.data(document, "rfControlbarPickers", true);
-  var menus = new WeakMap();
+  var owned = new WeakSet(), bars = new WeakSet(), sized = new WeakSet(), pins = new WeakMap();
+  var activeBar = null, activeAt = 0;
+  // Respeta el cierre nativo: protección local durante el clic de un componente propio.
+  function protect(event, sidebar) {
+    if (!sidebar || !sidebar.isConnected || !document.body.classList.contains("control-sidebar-slide-open")) return;
+    if (pins.has(sidebar)) return;
+    var previous = sidebar.getAttribute("data-pin");
+    pins.set(sidebar, previous);
+    sidebar.setAttribute("data-pin", "true");
+    setTimeout(function () {
+      if (previous === null) sidebar.removeAttribute("data-pin"); else sidebar.setAttribute("data-pin", previous);
+      pins.delete(sidebar);
+    }, 0);
+  }
+  function own(node, sidebar) {
+    if (!node || !sidebar || owned.has(node)) return;
+    owned.add(node);
+    node.addEventListener("click", function (event) { protect(event, sidebar); }, true);
+  }
+  function watchBar(sidebar) {
+    if (!sized.has(sidebar) && sidebar.querySelector(".rf-form")) {
+      sized.add(sidebar); sidebar.classList.add("rf-controlbar");
+      var tools = Array.from(sidebar.children).filter(function (child) {
+        return !child.classList.contains("control-sidebar-content");
+      });
+      var measure = function () {
+        var height = tools.reduce(function (sum, child) { return sum + child.getBoundingClientRect().height; }, 0);
+        sidebar.style.setProperty("--rf-controlbar-tools-height", height + "px");
+      };
+      measure();
+      if (window.ResizeObserver) {
+        var observer = new ResizeObserver(measure); tools.forEach(function (child) { observer.observe(child); });
+      }
+    }
+    if (bars.has(sidebar)) return;
+    bars.add(sidebar);
+    sidebar.addEventListener("click", function (event) {
+      activeBar = sidebar; activeAt = Date.now();
+      if (event.target.closest(".rf-field,.rf-btn")) protect(event, sidebar);
+    }, true);
+    sidebar.addEventListener("focusin", function (event) {
+      if (event.target.closest(".rf-field")) { activeBar = sidebar; activeAt = Date.now(); }
+    });
+  }
+  function discover(node) {
+    if (!(node instanceof Element)) return;
+    var parentBar = node.closest("aside.control-sidebar");
+    if (parentBar) watchBar(parentBar);
+    if (node.matches("aside.control-sidebar")) watchBar(node);
+    node.querySelectorAll("aside.control-sidebar").forEach(watchBar);
+    var popups = node.matches(".air-datepicker,.datepicker-dropdown,.rf-modal") ? [node] :
+      Array.from(node.querySelectorAll(".air-datepicker,.datepicker-dropdown,.rf-modal"));
+    popups.forEach(function (popup) {
+      var focused = document.activeElement, field = focused && focused.closest(".rf-field");
+      var sidebar = field && field.closest("aside.control-sidebar");
+      if (!sidebar && popup.matches(".rf-modal") && Date.now() - activeAt < 5000) sidebar = activeBar;
+      own(popup, sidebar);
+    });
+  }
+  $(function () {
+    discover(document.body);
+    new MutationObserver(function (records) {
+      records.forEach(function (record) { record.addedNodes.forEach(discover); });
+    }).observe(document.body, { childList: true, subtree: true });
+  });
   function remember(event) {
     var select = event.target, field = select.closest && select.closest(".rf-select");
     var sidebar = field && field.closest("aside.control-sidebar"), picker = $(select).data("selectpicker");
@@ -449,29 +530,15 @@
       "--rf-gray-300", "--rf-gray-900", "--rf-white"].forEach(function (name) {
       var value = style.getPropertyValue(name); if (value) menu.style.setProperty(name, value);
     });
-    if (sidebar) menus.set(menu, sidebar);
+    own(menu, sidebar);
+    own(field, sidebar);
   }
   $(document).on("loaded.bs.select.rfControlbar shown.bs.select.rfControlbar refreshed.bs.select.rfControlbar",
     ".rf-select select", remember);
   $(document).on("shiny:bound.rfControlbar", ".rf-select select", remember);
   $(document).on("shiny:unbound.rfControlbar", ".rf-select select", function () {
     var picker = $(this).data("selectpicker");
-    if (picker && picker.$menu) menus.delete(picker.$menu[0]);
     if (picker && picker.$bsContainer) picker.$bsContainer.remove();
   });
   $(function () { $(".control-sidebar .rf-select select").each(function () { remember({ target: this }); }); });
-  document.addEventListener("click", function (event) {
-    var path = event.composedPath ? event.composedPath() : [], field = null, sidebar = null;
-    path.forEach(function (node) {
-      if (!(node instanceof Element)) return;
-      if (node.matches(".rf-select")) field = node;
-      if (node.matches("aside.control-sidebar")) sidebar = node;
-      if (menus.has(node)) sidebar = menus.get(node);
-    });
-    if (!field && !sidebar) return;
-    if (!sidebar && field) sidebar = field.closest("aside.control-sidebar");
-    if (!sidebar || !sidebar.isConnected || (!field && !path.some(function (node) { return menus.has(node); }))) return;
-    // Solo se detiene la subida a window; Bootstrap mantiene sus handlers de document.
-    event.stopPropagation();
-  });
 }(window.jQuery));
