@@ -6,7 +6,7 @@
 racafeFormsDependencies <- function() {
   htmltools::htmlDependency("racafeForms", as.character(utils::packageVersion("racafeForms")),
                             src = c(file = "www"),
-                            stylesheet = c("racafe-forms.css", "racafe-modal-sizes.css"),
+                            stylesheet = c("racafe-forms.css", "racafe-modal-sizes.css", "racafe-controls.css"),
                             script = "racafe-forms.js", package = "racafeForms")
 }
 

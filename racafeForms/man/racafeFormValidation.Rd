@@ -11,7 +11,8 @@ racafeFormValidation(
   rules = list(),
   required = list(),
   mode = c("inline", "alert", "both"),
-  initial = FALSE
+  initial = FALSE,
+  warnings = list()
 )
 }
 \arguments{
@@ -32,9 +33,11 @@ function(values) para obligatoriedad condicional.}
 \item{mode}{Se aceptan inline, alert y both por compatibilidad; todos muestran solo errores por campo, sin alertas.}
 
 \item{initial}{Mostrar validación inline antes de enviar; FALSE por defecto.}
+
+\item{warnings}{Reglas informativas por campo, con el mismo contrato que rules; nunca bloquean el guardado.}
 }
 \value{
-Objeto con validate() (lógico, muestra errores), check() (resultado sin mostrar),
+Objeto con reset() (reinicia estado), validate() (lógico, muestra errores), check() (resultado sin mostrar),
 result() y attempted() reactivos. Regístrelo una sola vez por formulario/sesión.
 }
 \description{
@@ -44,5 +47,6 @@ Vincular validación diferida y limpieza automática
 Tras el primer validate, revalida al editar y limpia mensajes, sin repetir
 alertas ni mover el foco. Las acciones deben comprobar validate antes de negocio.
 Una sesión conserva una instancia por formulario; llamadas repetidas devuelven esa instancia.
+reset() limpia mensajes, resultado y estado de intento sin destruir el formulario ni sus valores.
 destroy libera su registro; registre una instancia nueva si cambia su configuración.
 }

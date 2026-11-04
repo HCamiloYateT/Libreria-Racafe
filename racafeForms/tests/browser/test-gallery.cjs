@@ -45,7 +45,7 @@ const { chromium } = require("playwright");
         components.push(name);
       }
     }
-    check(components.length === 60, "58 funciones públicas, formulario completo y módulo agregable inventariados");
+    check(components.length === 66, "64 funciones públicas, formulario completo y módulo agregable inventariados");
     async function navigate(categoryId, name) {
       await page.locator(`.nav-link[data-value="category${categoryId}"]`).click();
       await page.waitForFunction(name => !!document.querySelector('#component').selectize.options[name], name);
