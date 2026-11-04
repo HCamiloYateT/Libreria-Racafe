@@ -1,3 +1,7 @@
+# 0.7.0 — Navbar y detalle corporativo
+
+- Modal de detalle, badges etiqueta-valor, secciones, fechas y checklist de claves estables; galería y pruebas ampliadas.
+
 # 0.6.0 — Componentes corporativos (sin publicar)
 
 - Añade resúmenes con tablas, totales, separación vertical, avisos y confirmación con datos opcionales.

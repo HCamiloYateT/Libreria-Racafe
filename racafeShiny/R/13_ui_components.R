@@ -1,6 +1,6 @@
 # Componentes corporativos de detalle ----
 .rsh_ui_dependency <- function() {
-  htmltools::htmlDependency("racafe-shiny-ui", "1.2.0", src = c(file = system.file("ui", package = "racafeShiny")),
+  htmltools::htmlDependency("racafe-shiny-ui", "1.3.0", src = c(file = system.file("ui", package = "racafeShiny")),
                             stylesheet = "components.css", script = "components.js")
 }
 .rsh_ui_text <- function(value, name) {

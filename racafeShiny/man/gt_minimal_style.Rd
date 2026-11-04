@@ -4,10 +4,25 @@
 \alias{gt_minimal_style}
 \title{Aplicar estilo minimalista a tabla gt}
 \usage{
-gt_minimal_style(gt_table)
+gt_minimal_style(
+  gt_table,
+  compact = FALSE,
+  show_header = TRUE,
+  striped = FALSE,
+  bordered = FALSE,
+  transparent = TRUE,
+  font_size = 11,
+  row_padding = 2
+)
 }
 \arguments{
 \item{gt_table}{Objeto \code{gt_tbl}.}
+
+\item{compact}{FALSE conserva el estilo anterior; TRUE activa las opciones compactas.}
+
+\item{show_header, striped, bordered, transparent}{Opciones del modo compacto.}
+
+\item{font_size, row_padding}{Fuente y separación vertical del modo compacto, en píxeles.}
 }
 \value{
 Objeto \code{gt_tbl} con estilo aplicado.

@@ -357,3 +357,10 @@ La demo completa se distribuye en racafeModulos, `inst/examples/componentes-ui.R
 con TarjetaUI/Tarjeta. Las instrucciones, archivos modificados y límites de validación
 están en [Componentes UI de detalle](docs/ui-components.md). No se cambió la versión del
 paquete ni se publicó una versión: instale la copia de revisión para usar las APIs nuevas.
+
+## Componentes de navbar y detalle (1.3.0)
+
+Listas seleccionables, grupos, tablas compactas gt/HTML y overlay por contenedor; reutiliza estilos y loaders existentes.
+
+Consulta la [guía de instalación, compatibilidad y migración](../docs/navbar/README.md).
+La ayuda de cada función está disponible con `?nombreFuncion` en RStudio.

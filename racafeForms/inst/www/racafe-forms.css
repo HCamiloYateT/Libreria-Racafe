@@ -381,3 +381,13 @@
   .rf-row-container > .rf-row--actions > .rf-col:last-child {padding-top:0;}
 }
 .control-sidebar .rf-row-container > .rf-row--stack.rf-row--actions > .rf-col:last-child {padding-top:0;}
+
+/* DETALLE Y ACTIVIDADES ---- */
+.rf-modal-detail--scroll .modal-body {max-height:var(--rf-detail-height,75vh);overflow-y:auto;}
+.rf-detail-metadata {color:var(--rf-gray-700);font-size:var(--rf-font);overflow-wrap:anywhere;}
+.rf-date-label {font-size:inherit;color:inherit;}
+.rf-checklist {min-width:0;overflow-wrap:anywhere;}
+.rf-checklist .checkbox {margin:6px 0;}
+.rf-checklist label {font-size:var(--rf-font);}
+
+.rf-modal-detail .modal-title {min-width:0;overflow-wrap:anywhere;}
