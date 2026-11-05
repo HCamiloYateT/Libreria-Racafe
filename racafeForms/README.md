@@ -648,3 +648,10 @@ previo al primer intento, sin destruir el formulario ni cambiar sus valores.
 
 La [guía de componentes corporativos](docs/corporate-components.md) documenta la API, el ejemplo
 modular, los cambios de CSS, la sincronización de Compartido y las pruebas ejecutables.
+
+## Componentes de navbar y detalle (0.7.0)
+
+Modal de detalle, badges etiqueta-valor, secciones, fechas y checklist de claves estables; galería y pruebas ampliadas.
+
+Consulta la [guía de instalación, compatibilidad y migración](../docs/navbar/README.md).
+La ayuda de cada función está disponible con `?nombreFuncion` en RStudio.

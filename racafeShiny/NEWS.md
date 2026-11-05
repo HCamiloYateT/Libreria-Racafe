@@ -1,3 +1,7 @@
+# 1.3.0 — Navbar y detalle corporativo
+
+- Listas seleccionables, grupos, tablas compactas gt/HTML y overlay por contenedor; reutiliza estilos y loaders existentes.
+
 # Desarrollo (sin publicar)
 
 - Añade racafeCollapsible con details/summary, triángulo rojo, teclado y estado Shiny.

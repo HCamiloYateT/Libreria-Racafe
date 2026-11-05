@@ -246,8 +246,24 @@ FormatrearTexto <- FormatearTexto
 #'
 #' @param gt_table Objeto `gt_tbl`.
 #' @return Objeto `gt_tbl` con estilo aplicado.
+#' @param compact FALSE conserva el estilo anterior; TRUE activa las opciones compactas.
+#' @param show_header,striped,bordered,transparent Opciones del modo compacto.
+#' @param font_size,row_padding Fuente y separación vertical del modo compacto, en píxeles.
 #' @export
-gt_minimal_style <- function(gt_table) {
+gt_minimal_style <- function(gt_table, compact = FALSE, show_header = TRUE, striped = FALSE,
+                               bordered = FALSE, transparent = TRUE, font_size = 11, row_padding = 2) {
+  if (compact) {
+    options <- list(table.width = gt::pct(100), container.width = gt::pct(100),
+      table.font.size = gt::px(font_size), data_row.padding = gt::px(row_padding),
+      column_labels.hidden = !show_header, row.striping.include_table_body = striped,
+      row.striping.background_color = if (striped) "#f5f5f5" else "transparent",
+      table.background.color = if (transparent) "transparent" else "#ffffff",
+      column_labels.background.color = "transparent")
+    border_names <- grep("(hlines|vlines|border.*)[.]style$", names(formals(gt::tab_options)), value = TRUE)
+    for (name in border_names) options[[name]] <- if (bordered) "solid" else "none"
+    options <- options[names(options) %in% names(formals(gt::tab_options))]
+    return(do.call(gt::tab_options, c(list(data = gt_table), options)))
+  }
   gt_table |>
     gt::tab_options(
       table.font.size          = gt::px(13),

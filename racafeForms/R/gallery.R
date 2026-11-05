@@ -21,14 +21,14 @@ racafeFormsGallery <- function() {
     Formularios = c("racafeForm", "racafeFormGroup", "racafeFormRow", "racafeFormFooter"),
     Inputs = c("racafeInputText", "racafeInputTextArea", "racafeInputNumeric", "racafeInputSelect",
                "racafeInputDate", "racafeInputDateRange", "racafeInputDateTime", "racafeInputReadOnly",
-               "racafeInputFile", "racafeValidateInputFile"),
+               "racafeInputFile", "racafeValidateInputFile", "racafeChecklist"),
     "Selecci\u00f3n" = c("racafeInputSwitch", "racafeInputRadio", "racafeInputCheckbox"),
     Botones = c("racafeButton", "racafeButtonSave", "racafeButtonCancel", "racafeButtonDelete", "racafeButtonDownload"),
     Contenedores = c("racafePanel", "racafeCard", "racafeMetric", "racafeMetricGrid", "racafeStack"),
     "Informaci\u00f3n" = c("racafeInfoItem", "racafeInfoGrid", "racafeFormMessage", "racafeStatusBadge",
       "racafeSummaryTable",
-      "racafeMoneyTotal", "racafeNoticeList"),
-    Modales = c("racafeModal", "racafeModalFooter", "racafeConfirmation"),
+      "racafeMoneyTotal", "racafeNoticeList", "racafeDataBadge", "racafeDetailSection", "racafeDateLabel"),
+    Modales = c("racafeModal", "racafeModalFooter", "racafeConfirmation", "racafeModalDetail"),
     Notificaciones = c("racafeAlert", "racafeConfirm", "racafeNotify", "racafeRemoveNotify"),
     Acciones = c("racafeActionBar", "racafeUpdateSelect", "racafeUpdateNumeric", "racafeUpdateDate",
       "racafeUpdateDateRange", "racafeUpdateSwitch", "racafeUpdateButton", "racafeEnable", "racafeDisable",
@@ -90,6 +90,10 @@ racafeFormsGallery <- function() {
     racafeMetric = 'racafeForms::racafeMetric("1,234.56", "Ventas", detail = "Datos simulados", padding = "compact")',
     racafeMetricGrid = paste0('racafeForms::racafeMetricGrid(\n',
       '  racafeForms::racafeMetric(12, "Pedidos"), racafeForms::racafeMetric(4, "Clientes"), columns = 2)'),
+    racafeDataBadge = 'racafeForms::racafeDataBadge("Responsable", "Ana")',
+    racafeDetailSection = 'racafeForms::racafeDetailSection("Detalle", racafeForms::racafeInfoItem("Cliente", "Demo"))',
+    racafeDateLabel = 'racafeForms::racafeDateLabel(Sys.Date())',
+    racafeChecklist = 'racafeForms::racafeChecklist("value", c(a = "Revisar", b = "Confirmar"), ns = ns)',
     racafeStack = 'racafeForms::racafeStack(racafeForms::racafeCard("Primera"), racafeForms::racafeCard("Segunda"))',
     racafeSummaryTable = 'racafeForms::racafeSummaryTable(data.frame(Producto = "Caf\u00e9", Importe = 1234.56))',
     racafeMoneyTotal = 'racafeForms::racafeMoneyTotal("Total", 1234.56)',
@@ -185,7 +189,7 @@ racafeFormsGallery <- function() {
       '  result <- racafeForms::racafeValidateForm(input, example_ui(session$ns))',
       '  if (isTRUE(validation$attempted())) racafeForms::racafeShowValidation(session, result)', '})', sep = "\n")
   }
-  if (name == "racafeConfirmation") {
+  if (name %in% c("racafeConfirmation", "racafeModalDetail")) {
     control <- 'racafeForms::racafeButton("open", "Confirmar con resumen", ns = ns)'
     server <- paste(server,
       'shiny::observeEvent(input$open, {',
@@ -194,6 +198,14 @@ racafeFormsGallery <- function() {
       '    racafeForms::racafeSummaryTable(data.frame(Producto = "Caf\u00e9", Cantidad = 2)),',
       '    racafeForms::racafeNoticeList(c("Revisar", "Confirmar")), ns = session$ns))', '})',
       'shiny::observeEvent(input$confirm, { shiny::removeModal() })', sep = "\n")
+  }
+  if (name == "racafeModalDetail") {
+    server <- paste('output$values <- shiny::renderPrint(shiny::reactiveValuesToList(input))',
+      'shiny::observeEvent(input$open, {',
+      '  shiny::showModal(racafeForms::racafeModalDetail("Detalle",',
+      '    racafeForms::racafeInfoItem("Cliente", "Ejemplo"),',
+      '    racafeForms::racafeChecklist("activities", c(a = "Revisar", b = "Confirmar"), ns = session$ns)))',
+      '})', sep = "\n")
   }
   if (name %in% c("racafeModal", "racafeModalFooter", "racafeConfirm")) {
     control <- paste0('shiny::tagList(\n',
