@@ -1,3 +1,9 @@
+# 1.4.0 — Tablas Vancouver
+
+- Añade racafeTableVancouver sin cambiar las tablas anteriores: línea de encabezado, alineación y totales configurables.
+- Reutiliza racafeCompactTable y gt_minimal_style; los recursos y el ancho mínimo se acotan a cada tabla gt.
+- Incluye formato numérico con punto decimal/coma de miles, ayuda RStudio, ejemplos y pruebas.
+
 # 1.3.1 — Módulo CajaValor
 
 - Traslada la implementación UI/server a racafeModulos 0.3.0.
