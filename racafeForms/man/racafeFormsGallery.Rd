@@ -14,8 +14,8 @@ Galería interactiva de componentes corporativos
 }
 \details{
 Requiere bs4Dash (Suggests). Incluye recursos versionados de Compartido,
-sin CRM, bases de datos ni servicios externos. El código se puede copiar y ejecutar
-en una sesión nueva; los ejemplos de servidor utilizan moduleServer y namespaces.
+sin CRM, bases de datos ni servicios externos. Los ejemplos muestran únicamente
+UI y server para una aplicación con los recursos ya cargados.
 }
 \examples{
 \dontrun{

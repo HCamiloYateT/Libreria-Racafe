@@ -20,6 +20,19 @@ const { chromium } = require("playwright");
     });
     await page.goto(url);
     await page.locator("#example1-value").waitFor();
+    await page.mouse.move(900, 150);
+    await page.waitForFunction(() => document.querySelector('.content-wrapper').getBoundingClientRect().left >=
+      document.querySelector('.main-sidebar').getBoundingClientRect().right);
+    check(await page.locator('.brand-link img').evaluate(img => img.complete && img.naturalWidth > 0),
+      "Logo corporativo local cargado");
+    const layout = await page.locator('.rf-gallery-columns').evaluate(el => {
+      const left = el.querySelector('.rf-gallery-workbench').getBoundingClientRect();
+      const right = el.querySelector('.rf-gallery-code').getBoundingClientRect();
+      return left.right <= right.left && Math.abs(left.top - right.top) <= 3 &&
+        el.querySelector('.rf-gallery-workbench').contains(document.querySelector('#apply'));
+    });
+    check(layout, "Interfaz y variaciones a la izquierda, código a la derecha");
+    await page.screenshot({ path: "gallery-branding-desktop.png", animations: "disabled" });
     const categories = await page.locator(".nav-sidebar .nav-link[data-value]").evaluateAll(nodes =>
       nodes.map(node => ({ id: node.dataset.value, text: node.textContent.trim() })));
     const components = [];
@@ -35,8 +48,16 @@ const { chromium } = require("playwright");
       const names = await page.locator("#component").evaluate(el => Object.keys(el.selectize.options));
       for (const name of names) {
         await select("component", name);
-        await page.waitForFunction(name => document.querySelector("#code").textContent.startsWith("# Ejemplo autocontenido: " + name + "\n"), name);
+        await page.waitForFunction(name => document.querySelector("#code").textContent.startsWith("# " + name + "\n"), name);
         await page.waitForFunction(() => !document.querySelector("#preview.recalculating"));
+        const code = await page.locator('#code').innerText();
+        check(code.includes('# UI ----') && code.includes('# Server ----') &&
+          !/shinyApp|moduleServer|system.file|assets <-/.test(code), `Fragmento mínimo de UI y server: ${name}`);
+        if (['racafeFormsDependencies', 'racafeSharedAssets', 'racafeFormsGallery'].includes(name)) {
+          check((await page.locator('#description').innerText()).includes('Recurso auxiliar'),
+            `Recurso auxiliar descrito: ${name}`);
+          check(!await page.locator('#apply').isVisible(), `Sin variaciones ficticias: ${name}`);
+        }
         check(name === "ListaDesplegableAgregable" ? await page.locator("#preview .rf-form").count() >= 1 :
           await page.locator("#preview .rf-form").count() === 1, `Demo montada: ${name}`);
         check(await page.locator(".shiny-output-error").count() === 0, `Sin error R: ${name}`);
@@ -50,8 +71,20 @@ const { chromium } = require("playwright");
       await page.locator(`.nav-link[data-value="category${categoryId}"]`).click();
       await page.waitForFunction(name => !!document.querySelector('#component').selectize.options[name], name);
       await select("component", name);
-      await page.waitForFunction(name => document.querySelector("#code").textContent.startsWith("# Ejemplo autocontenido: " + name + "\n"), name);
+      await page.waitForFunction(name => document.querySelector("#code").textContent.startsWith("# " + name + "\n"), name);
     }
+    await navigate(4, 'racafeButton');
+    await select('button_variant', 'warning'); await select('button_size', 'lg');
+    await page.locator('#apply').click();
+    await page.locator('#preview .rf-btn--warning.rf-btn--lg').waitFor();
+    check((await page.locator('#code').innerText()).includes('variant = "warning"'),
+      'Estilo y tamaño del botón coinciden con el código');
+    await navigate(6, 'racafeStatusBadge');
+    await select('badge_variant', 'danger'); await select('badge_size', 'md');
+    await page.locator('#apply').click();
+    await page.locator('#preview .rf-status-badge--danger.rf-status-badge--md').waitFor();
+    check((await page.locator('#code').innerText()).includes('variant = "danger"'),
+      'Estado y tamaño del badge coinciden con el código');
     await navigate(2, "racafeInputNumeric");
     const numeric = page.locator("#preview input[id$='-value']");
     await select("format", "currency"); await page.locator("#decimals").fill("3");
@@ -145,7 +178,18 @@ const { chromium } = require("playwright");
     }
     await page.setViewportSize({ width: 390, height: 844 });
     await page.waitForTimeout(400);
+    await page.locator('[data-widget="control-sidebar"]').first().click();
+    await page.waitForFunction(() => document.querySelector('.control-sidebar').getBoundingClientRect().left >= innerWidth);
+    const mobileLayout = await page.locator('.rf-gallery-columns').evaluate(el => {
+      const left = el.querySelector('.rf-gallery-workbench').getBoundingClientRect();
+      const right = el.querySelector('.rf-gallery-code').getBoundingClientRect();
+      return right.top >= left.bottom && Math.abs(right.left - left.left) <= 1;
+    });
+    check(mobileLayout, "Columnas apiladas en móvil");
     check(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), "Sin desbordamiento móvil");
+    await page.reload();
+    await page.locator('#example1-value').waitFor();
+    await page.screenshot({ path: "gallery-branding-mobile.png", animations: "disabled" });
     check(errors.length === 0, `Sin errores JavaScript: ${errors.join("; ")}`);
     check(external.length === 0, `Sin recursos externos: ${external.join("; ")}`);
     console.log(`${checks} comprobaciones de galería superadas (${components.length} ejemplos).`);

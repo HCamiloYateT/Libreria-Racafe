@@ -1,11 +1,50 @@
-.rf-gallery {max-width:1500px;margin:auto;padding:16px;min-width:0;}
-.rf-gallery h1 {font-size:23px;color:var(--rf-gray-900);}
-.rf-gallery h2 {font-size:16px;}
-.rf-gallery-config,.rf-gallery-code {padding:16px;border:1px solid var(--rf-gray-300);border-radius:12px;
- background:#fff;margin:12px 0;min-width:0;}
-.rf-gallery pre {max-height:540px;overflow:auto;font-size:12px;white-space:pre-wrap;overflow-wrap:anywhere;}
-.rf-gallery .rf-gallery-config .shiny-input-container {width:100%;}
-.rf-gallery-code > a {margin-left:12px;}
-.rf-gallery .rf-form {margin:12px 0;}
-.main-sidebar .nav-sidebar>.nav-item>.nav-link.active {background-color:#DA291C;}
-@media(max-width:767px) {.rf-gallery {padding:8px;}.rf-gallery-code > a {display:block;margin:8px 0;}}
+.rf-gallery {max-width:1680px;margin:auto;padding:28px;min-width:0;color:var(--color-gray-930);}
+.rf-gallery-heading {border-left:4px solid var(--color-red-primary);padding-left:18px;margin-bottom:24px;}
+.rf-gallery-eyebrow {font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--color-red-primary);}
+.rf-gallery h1 {font-size:28px;font-weight:700;margin:6px 0 8px;}
+.rf-gallery h2 {font-size:17px;font-weight:600;margin:0 0 14px;overflow-wrap:anywhere;}
+.rf-gallery p {color:var(--color-gray-800);font-size:14px;line-height:1.6;}
+.rf-gallery-columns {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;align-items:start;}
+.rf-gallery-workbench {min-width:0;}
+.rf-gallery-selection,.rf-gallery-preview,.rf-gallery-config,.rf-gallery-code {
+ padding:22px;border:1px solid var(--color-gray-300);border-radius:10px;background:#fff;min-width:0;}
+.rf-gallery-selection,.rf-gallery-preview {margin-bottom:18px;}
+.rf-gallery-kind {display:inline-block;margin:4px 0 12px;padding:3px 9px;border-radius:4px;
+ background:var(--color-red-surface);color:var(--color-red-dark);font-size:11px;font-weight:600;}
+.rf-gallery-config .shiny-input-container,.rf-gallery-selection .shiny-input-container {width:100%;}
+.rf-gallery-config > .form-group {margin-bottom:14px;}
+.rf-gallery-code {position:sticky;top:18px;border-top:3px solid var(--color-red-primary);}
+.rf-gallery-code-heading {display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;}
+.rf-gallery-code-heading h2 {margin:0;}
+.rf-gallery-code-note {padding-bottom:14px;border-bottom:1px solid var(--color-gray-300);}
+.rf-gallery-code #help {margin-bottom:14px;}
+.rf-gallery-code a {color:var(--color-red-dark);text-decoration:underline;}
+.rf-gallery pre {max-height:calc(100vh - 290px);min-height:160px;overflow:auto;font-size:12px;line-height:1.7;
+ padding:18px;background:var(--color-gray-50);border:1px solid var(--color-gray-300);border-radius:6px;
+ white-space:pre-wrap;overflow-wrap:anywhere;tab-size:2;}
+.rf-gallery .rf-form {margin:0;}
+.rf-gallery-values {margin-top:16px;font-size:12px;color:var(--color-gray-800);}
+.rf-gallery-values summary {cursor:pointer;}
+.rf-gallery #copy_status {font-size:12px;color:var(--color-gray-800);margin-top:10px;}
+.brand-link {background:#fff!important;border-bottom:1px solid var(--color-gray-300)!important;}
+.brand-link .brand-image {max-height:34px;opacity:1;box-shadow:none!important;}
+.brand-link .brand-text {color:var(--color-gray-930);font-weight:600!important;}
+.main-sidebar {background:#fff;}
+.main-sidebar .nav-sidebar>.nav-item>.nav-link {color:var(--color-gray-930);border-radius:5px;}
+.main-sidebar .nav-sidebar>.nav-item>.nav-link:hover {background:var(--color-gray-100);}
+.main-sidebar .nav-sidebar>.nav-item>.nav-link.active {background:var(--color-red-primary);color:#fff;box-shadow:none;}
+.content-wrapper {background:var(--color-gray-100);}
+.main-footer {font-size:12px;color:var(--color-gray-800);}
+@media(max-width:1100px) {
+ .rf-gallery {padding:20px;}
+ .rf-gallery-columns {gap:16px;}
+ .rf-gallery-selection,.rf-gallery-preview,.rf-gallery-config,.rf-gallery-code {padding:16px;}
+}
+@media(max-width:767px) {
+ .rf-gallery {padding:16px 10px;}
+ .rf-gallery h1 {font-size:23px;}
+ .rf-gallery-columns {grid-template-columns:minmax(0,1fr);}
+ .rf-gallery-code {position:static;}
+ .rf-gallery pre {max-height:520px;}
+ .rf-gallery-code-heading {flex-wrap:wrap;}
+}
