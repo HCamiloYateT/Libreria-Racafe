@@ -3,8 +3,8 @@
 #' Galería interactiva de componentes corporativos
 #' @return Aplicación shiny.appobj creada mediante shinyAppDir. Al imprimirla se inicia la galería.
 #' @details Requiere bs4Dash (Suggests). Incluye recursos versionados de Compartido,
-#'   sin CRM, bases de datos ni servicios externos. El código se puede copiar y ejecutar
-#'   en una sesión nueva; los ejemplos de servidor utilizan moduleServer y namespaces.
+#'   sin CRM, bases de datos ni servicios externos. Los ejemplos muestran únicamente
+#'   UI y server para una aplicación con los recursos ya cargados.
 #' @export
 #' @examples
 #' \dontrun{
@@ -46,7 +46,9 @@ racafeFormsGallery <- function() {
        row_columns = "2", row_responsive = "auto", loading = FALSE, format = "number",
        decimals = 2L, value = 1234.56, min = -10000, max = 10000,
        thousand = ",", decimal = ".", multiple = FALSE, search = TRUE, empty = TRUE,
-       gender = "m", uppercase = TRUE, unique_choices = TRUE, list_size = 6L, message = "info", icon = FALSE)
+       gender = "m", uppercase = TRUE, unique_choices = TRUE, list_size = 6L, message = "info", icon = FALSE,
+       button_variant = "default", button_size = "sm", surface = "default", badge_variant = "success",
+       badge_size = "sm", date_view = "day", rows = 4L, inline = TRUE, checked = FALSE)
 }
 .rf_gallery_literal <- function(value) paste(capture.output(dput(value)), collapse = "\n")
 
@@ -139,7 +141,12 @@ racafeFormsGallery <- function() {
   if (name == "racafeFormRow") {
     control <- .rf_gallery_rows_code(as.integer(config$row_columns), config$row_responsive)
   }
-  forms <- c("racafeForm", "racafeFormGroup", "racafeFormFooter", "Formulario completo",
+  if (name == "racafeForm") control <- field
+  if (name == "racafeFormGroup") control <- paste0(
+    'racafeForms::racafeFormGroup(title = "Información comercial", variant = ', q(config$variant), ',\n  ', field, ')')
+  if (name == "racafeFormFooter") control <- paste0('racafeForms::racafeFormFooter(\n',
+    '  racafeForms::racafeButtonSave("save", ns = ns), racafeForms::racafeButtonCancel("cancel", ns = ns))')
+  forms <- c("Formulario completo",
              "racafeValidateForm", "racafeShowValidation", "racafeFormValidation", "racafeResetValidation",
              "racafeDownloadHandler")
   if (name %in% forms) {
@@ -303,24 +310,21 @@ racafeFormsGallery <- function() {
     racafeFormsGallery = paste0('shiny::p("Esta aplicaci\u00f3n es racafeFormsGallery(). ',
                                'Ejecute la funci\u00f3n en una nueva sesi\u00f3n de R.")'),
     stop("Componente sin demostraci\u00f3n: ", name))
+  control <- .rf_gallery_control_options(name, control, config)
+  values <- if (.rf_gallery_details(name)$resource) "" else paste0(
+    ',\n  shiny::tags$details(class = "rf-gallery-values", shiny::tags$summary("Valores en el servidor"),',
+    '\n    shiny::verbatimTextOutput(ns("values")))')
   ui <- paste0('racafeForms::racafeForm(id = "form", ns = ns, size = ', q(config$size),
     ', variant = ', q(if (name == "racafeFormGroup") "plain" else config$variant), ',\n', control,
-    ',\n  shiny::verbatimTextOutput(ns("values")))')
-  list(ui = ui, server = server)
+    values, ')')
+  list(ui = ui, server = server, control = control)
 }
 .rf_gallery_ui <- function(name, config, ns, assets) {
   eval(parse(text = .rf_gallery_parts(name, config)$ui), envir = environment())
 }
 .rf_gallery_code <- function(name, config) {
-  parts <- .rf_gallery_parts(name, config)
-  code <- paste0('# Ejemplo autocontenido: ', name, '\n',
-    'assets <- racafeForms::racafeSharedAssets(\n',
-    '  system.file("gallery-assets", package = "racafeForms"), global_css = FALSE)\n',
-    'example_ui <- function(ns) {\n', parts$ui, '\n}\n',
-    'example_server <- function(id) {\n  shiny::moduleServer(id, function(input, output, session) {\n',
-    parts$server, '\n  })\n}\n',
-    'shiny::shinyApp(shiny::fluidPage(assets, example_ui(shiny::NS("demo"))),\n',
-    '  function(input, output, session) example_server("demo"))\n')
+  parts <- .rf_gallery_example(name, config)
+  code <- paste0('# ', name, '\n\n# UI ----\n', parts$ui, '\n\n# Server ----\n', parts$server)
   paste(unlist(lapply(strsplit(code, "\n", fixed = TRUE)[[1]], .rf_gallery_wrap)), collapse = "\n")
 }
 
@@ -359,7 +363,9 @@ racafeFormsGallery <- function() {
   help <- .rf_gallery_help(catalog)
   categories <- unique(catalog$category)
   ui <- bs4Dash::dashboardPage(
-    header = bs4Dash::dashboardHeader(title = "Racaf\u00e9 \u00b7 Componentes"),
+    header = bs4Dash::dashboardHeader(status = "white", border = FALSE,
+      title = bs4Dash::dashboardBrand(title = "Racafé", href = "#",
+        image = paste0(attr(assets, "image_url"), "/logo.png"))),
     sidebar = bs4Dash::dashboardSidebar(
       bs4Dash::sidebarMenu(id = "category", .list = lapply(seq_along(categories), function(i) {
         bs4Dash::menuItem(categories[[i]], tabName = paste0("category", i), icon = shiny::icon("layer-group"))
@@ -367,50 +373,81 @@ racafeFormsGallery <- function() {
     body = bs4Dash::dashboardBody(racafeFormsDependencies(), assets,
       shiny::tags$link(rel = "stylesheet", href = "gallery.css"),
       shiny::tags$main(class = "rf-gallery",
-        shiny::h1("Galer\u00eda de componentes"),
-        shiny::p("Configure, pruebe y copie ejemplos locales. Todos los datos son simulados."),
-        shiny::fluidRow(shiny::column(8,
-          shiny::selectInput("component", "Componente", choices = catalog$name[catalog$category == categories[[1]]]),
-          shiny::uiOutput("description"), shiny::uiOutput("preview"),
-          shiny::tags$section(class = "rf-gallery-code",
-            shiny::h2("C\u00f3digo ejecutable"),
-            racafeCopyButton("copy", "Copiar c\u00f3digo", target = "code"),
-            shiny::uiOutput("help"), shiny::verbatimTextOutput("code")),
-          shiny::textOutput("copy_status")),
-        shiny::column(4, shiny::tags$section(class = "rf-gallery-config",
-          shiny::h2("Configuraci\u00f3n"),
-          shiny::selectInput("density", "Densidad", c("compact", "normal", "comfortable")),
-          shiny::selectInput("variant", "Superficie", c("plain", "soft", "bordered"), selected = "soft"),
-          shiny::conditionalPanel("/^racafeInput(Text|TextArea|Numeric|Select)$/.test(input.component)",
-            shiny::checkboxInput("required", "Obligatorio")),
-          shiny::conditionalPanel("/^racafeInput(Text|Numeric)$/.test(input.component)",
-            shiny::checkboxInput("readonly", "Solo lectura")),
-          shiny::conditionalPanel("/^racafe(Input(Text|TextArea|Numeric|Select)|Button.*)$/.test(input.component)",
-            shiny::checkboxInput("disabled", "Deshabilitado")),
-          shiny::conditionalPanel("/^racafeButton/.test(input.component)",
-                                  shiny::checkboxInput("loading", "Procesando")),
-          shiny::conditionalPanel("input.component === 'racafeFormRow'",
-            shiny::selectInput("row_columns", "Columnas", as.character(1:4), selected = "2"),
-            shiny::selectInput("row_responsive", "Distribuci\u00f3n", c("auto", "stack", "fixed", "legacy"))),
-          shiny::conditionalPanel("input.component === 'racafeInputNumeric'",
-            shiny::selectInput("format", "Formato", c("integer", "number", "currency", "percent"), selected = "number"),
-            shiny::numericInput("value", "Valor inicial", 1234.56),
-            shiny::numericInput("decimals", "Decimales", 2, 0, 6),
-            shiny::numericInput("min", "M\u00ednimo", -10000), shiny::numericInput("max", "M\u00e1ximo", 10000),
-            shiny::selectInput("separators", "Miles / decimal", c("1,234.56" = "standard", "1.234,56" = "alternate"))),
-          shiny::conditionalPanel("input.component === 'racafeInputSelect'",
-            shiny::checkboxInput("multiple", "Selecci\u00f3n m\u00faltiple"),
-            shiny::checkboxInput("search", "B\u00fasqueda", TRUE),
-            shiny::checkboxInput("empty", "Opci\u00f3n vac\u00eda", TRUE),
-            shiny::selectInput("gender", "Etiqueta vac\u00eda", c("Ninguno" = "m", "Ninguna" = "f")),
-            shiny::checkboxInput("uppercase", "Etiquetas en may\u00fasculas", TRUE),
-            shiny::checkboxInput("unique_choices", "Eliminar duplicados", TRUE),
-            shiny::numericInput("list_size", "Opciones visibles", 6, 1, 20)),
-          shiny::conditionalPanel("input.component === 'racafeFormMessage'",
-            shiny::selectInput("message", "Estado",
-                               c("info", "success", "warning", "error", "muted", "loading", "empty")),
-            shiny::checkboxInput("icon", "Mostrar icono")),
-          racafeButton("apply", "Aplicar configuraci\u00f3n")))))),
+        shiny::tags$header(class = "rf-gallery-heading",
+          shiny::tags$span(class = "rf-gallery-eyebrow", "RACAFÉ · BIBLIOTECA DE COMPONENTES"),
+          shiny::h1("Galería de formularios"),
+          shiny::p("Explore las funciones, ajuste sus variantes y copie solo lo que necesita.")),
+        shiny::tags$div(class = "rf-gallery-columns",
+          shiny::tags$section(class = "rf-gallery-workbench", `aria-label` = "Interfaz y variaciones",
+            shiny::tags$div(class = "rf-gallery-selection",
+              shiny::selectInput("component", "Función", choices = catalog$name[catalog$category == categories[[1]]]),
+              shiny::uiOutput("description")),
+            shiny::tags$section(class = "rf-gallery-preview", shiny::h2("Vista previa"), shiny::uiOutput("preview")),
+            shiny::conditionalPanel(
+              "!['racafeFormsDependencies', 'racafeSharedAssets', 'racafeFormsGallery'].includes(input.component)",
+              class = "rf-gallery-config", shiny::h2("Variaciones"),
+              shiny::selectInput("density", "Densidad", c("compact", "normal", "comfortable")),
+              shiny::selectInput("variant", "Superficie", c("plain", "soft", "bordered"), selected = "soft"),
+              shiny::conditionalPanel(paste0("/^racafeInput(Text|TextArea|Numeric|Select|Date|DateRange|DateTime|",
+                  "Radio|Checkbox|Switch)$/.test(input.component)"),
+                shiny::checkboxInput("required", "Obligatorio")),
+              shiny::conditionalPanel("/^racafeInput(Text|TextArea|Numeric)$/.test(input.component)",
+                shiny::checkboxInput("readonly", "Solo lectura")),
+              shiny::conditionalPanel(paste0("/^racafe(Input(Text|TextArea|Numeric|Select|Date|DateRange|DateTime|",
+                  "Radio|Checkbox|Switch|File)|Button.*)$/.test(input.component)"),
+                shiny::checkboxInput("disabled", "Deshabilitado")),
+              shiny::conditionalPanel("/^racafeButton/.test(input.component)",
+                shiny::checkboxInput("loading", "Procesando"),
+                shiny::selectInput("button_variant", "Estilo del botón",
+                  c("Predeterminado" = "default", "primary", "secondary", "success", "warning", "danger", "ghost")),
+                shiny::selectInput("button_size", "Tamaño del botón", c("xxs", "xs", "sm", "md", "lg"),
+                  selected = "sm")),
+              shiny::conditionalPanel("['racafePanel', 'racafeCard', 'racafeMetric'].includes(input.component)",
+                shiny::selectInput("surface", "Estilo del componente", c("default", "muted", "highlighted"))),
+              shiny::conditionalPanel("input.component === 'racafeStatusBadge'",
+                shiny::selectInput("badge_variant", "Estado", c("success", "warning", "danger", "info", "neutral")),
+                shiny::selectInput("badge_size", "Tamaño", c("sm", "xs", "md"))),
+              shiny::conditionalPanel("input.component === 'racafeInputDate'",
+                shiny::selectInput("date_view", "Vista del calendario", c("day", "month", "year"))),
+              shiny::conditionalPanel("input.component === 'racafeInputTextArea'",
+                shiny::numericInput("rows", "Filas de texto", 4, min = 1, max = 12)),
+              shiny::conditionalPanel("input.component === 'racafeInputRadio'",
+                shiny::checkboxInput("inline", "Opciones en línea", TRUE)),
+              shiny::conditionalPanel("['racafeInputSwitch', 'racafeInputCheckbox'].includes(input.component)",
+                shiny::checkboxInput("checked", "Activo inicialmente")),
+              shiny::conditionalPanel("input.component === 'racafeFormRow'",
+                shiny::selectInput("row_columns", "Columnas", as.character(1:4), selected = "2"),
+                shiny::selectInput("row_responsive", "Distribución", c("auto", "stack", "fixed", "legacy"))),
+              shiny::conditionalPanel("input.component === 'racafeInputNumeric'",
+                shiny::selectInput("format", "Formato", c("integer", "number", "currency", "percent"),
+                  selected = "number"),
+                shiny::numericInput("value", "Valor inicial", 1234.56),
+                shiny::numericInput("decimals", "Decimales", 2, 0, 6),
+                shiny::numericInput("min", "M\u00ednimo", -10000), shiny::numericInput("max", "M\u00e1ximo", 10000),
+                shiny::selectInput("separators", "Miles / decimal",
+                  c("1,234.56" = "standard", "1.234,56" = "alternate"))),
+              shiny::conditionalPanel("input.component === 'racafeInputSelect'",
+                shiny::checkboxInput("multiple", "Selecci\u00f3n m\u00faltiple"),
+                shiny::checkboxInput("search", "B\u00fasqueda", TRUE),
+                shiny::checkboxInput("empty", "Opci\u00f3n vac\u00eda", TRUE),
+                shiny::selectInput("gender", "Etiqueta vac\u00eda", c("Ninguno" = "m", "Ninguna" = "f")),
+                shiny::checkboxInput("uppercase", "Etiquetas en may\u00fasculas", TRUE),
+                shiny::checkboxInput("unique_choices", "Eliminar duplicados", TRUE),
+                shiny::numericInput("list_size", "Opciones visibles", 6, 1, 20)),
+              shiny::conditionalPanel("input.component === 'racafeFormMessage'",
+                shiny::selectInput("message", "Estado",
+                                   c("info", "success", "warning", "error", "muted", "loading", "empty")),
+                shiny::checkboxInput("icon", "Mostrar icono")),
+              racafeButton("apply", "Aplicar variaciones"))),
+          shiny::tags$section(class = "rf-gallery-code", `aria-label` = "Código UI y server",
+            shiny::tags$div(class = "rf-gallery-code-heading", shiny::h2("UI y server"),
+              racafeCopyButton("copy", "Copiar código", target = "code")),
+            shiny::p(class = "rf-gallery-code-note",
+              "Pegue cada parte en la UI o el server de su app. Los estilos y recursos ya están cargados.",
+              " En módulos, aplique ns a los IDs de la UI y conserve los IDs locales en el server."),
+            shiny::uiOutput("help"), shiny::verbatimTextOutput("code"),
+            shiny::textOutput("copy_status"))))),
+    footer = bs4Dash::dashboardFooter(left = "Racafé · Analítica", right = "racafeForms"),
     controlbar = bs4Dash::dashboardControlbar(.rf_gallery_bar_ui("controlbar_demo"),
       id = "gallery_controlbar", width = 440, pinned = FALSE))
   ui <- shiny::tagList(htmltools::suppressDependencies("googlefonts", "ionicons"), ui)
@@ -469,8 +506,14 @@ racafeFormsGallery <- function() {
     output$description <- shiny::renderUI({
       name <- active()
       category <- catalog$category[match(name, catalog$name)]
-      description <- help$titles[[name]] %||% "Formulario comercial con validaci\u00f3n y confirmaci\u00f3n en memoria."
-      racafeFormMessage(paste(category, "\u00b7", name, "\u00b7", description), "muted")
+      details <- .rf_gallery_details(name)
+      description <- if (!is.na(details$description)) details$description else
+        help$titles[[name]] %||% "Formulario comercial con validación y confirmación en memoria."
+      shiny::tagList(
+        shiny::tags$span(class = "rf-gallery-kind", details$kind),
+        shiny::h2(name), shiny::p(paste(category, "·", description)),
+        if (details$resource) shiny::p(class = "rf-gallery-helper-note",
+          "Es una función auxiliar: no necesita una vista previa interactiva ni volver a cargar recursos."))
     })
     output$code <- shiny::renderText(.rf_gallery_code(active(), config()))
     output$help <- shiny::renderUI({

@@ -549,9 +549,11 @@ racafeFormsGallery()
 ```
 
 Requiere bs4Dash y una instalación de esta revisión; reinicie R y recargue sin caché.
-La galería local incluye 58 funciones públicas, un formulario completo y una integración
-opcional con ListaDesplegableAgregable de racafeModulos, además de ayuda y código
-ejecutable y copia al portapapeles. No necesita CRM ni una carpeta externa a la instalación.
+La galería local incluye 69 funciones públicas, un formulario completo y una integración
+opcional con ListaDesplegableAgregable de racafeModulos, además de ayuda local y copia al portapapeles.
+Usa el logo y la identidad Racafé; organiza la interfaz y sus variaciones a la izquierda,
+y los fragmentos mínimos de UI/server a la derecha. Los recursos ya se consideran cargados
+en la aplicación de destino y las funciones auxiliares incluyen una explicación de su uso. No necesita CRM ni una carpeta externa a la instalación.
 Permite probar variantes, densidades, selectores, validaciones, actualizadores y modales.
 Consulte la [guía de la galería y compatibilidad](docs/gallery.md) y la
 [propuesta para IndFormularioUI](docs/ind-formulario-proposal.md).

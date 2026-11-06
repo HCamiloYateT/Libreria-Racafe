@@ -1,3 +1,11 @@
+## Galería con identidad Racafé (sin publicar)
+
+- Añade logo local, colores corporativos y layout de dos columnas adaptable a móvil.
+- Reúne vista previa y variaciones a la izquierda; muestra UI/server y copia a la derecha.
+- Simplifica los ejemplos para aplicaciones con recursos precargados y describe los auxiliares.
+- Conserva las 69 funciones públicas, el formulario completo y la integración opcional con racafeModulos.
+- Amplía las variaciones de botones, tarjetas, badges, calendarios y controles de selección.
+
 # 0.7.0 — Navbar y detalle corporativo
 
 - Modal de detalle, badges etiqueta-valor, secciones, fechas y checklist de claves estables; galería y pruebas ampliadas.

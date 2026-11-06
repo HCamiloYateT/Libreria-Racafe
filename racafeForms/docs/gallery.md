@@ -24,9 +24,9 @@ se comunica el resultado real, sin informar éxito anticipadamente. Use localhos
 
 ## Inventario, configuración y código
 
-El menú agrupa las 58 funciones públicas, incluidos actualizadores, validadores, archivos,
+El menú agrupa las 69 funciones públicas, incluidos actualizadores, validadores, archivos,
 portapapeles, notificaciones y recursos. Añade un formulario completo y una integración opcional con ListaDesplegableAgregable
-de racafeModulos (60 entradas en total). La prueba de inventario
+de racafeModulos (71 entradas en total). La prueba de inventario
 compara las exportaciones contra el catálogo: un componente nuevo exige una demostración.
 Las funciones privadas no se muestran como componentes.
 
@@ -43,11 +43,26 @@ permiten selección múltiple, búsqueda, vacío, género, tamaño, deduplicaci�
 El formulario completo incluye dos grupos, campos obligatorios, correo condicional,
 habilitación mediante switch, confirmación, mensaje de resultado y descarga validada.
 
-El código copiable y la previsualización provienen de la misma definición; cada ejemplo
-incluye UI, moduleServer y shinyApp. Ejecute el bloque completo en una sesión nueva. Las
-acciones de servidor y permisos de portapapeles conservan las restricciones del navegador.
-La demostración de la propia función Gallery es la aplicación activa; su tarjeta explica
-cómo abrir otra instancia desde una sesión independiente.
+La galería usa el logo local de Racafé, el rojo corporativo y los tokens de Compartido.
+En escritorio muestra dos columnas: la izquierda reúne la función, su descripción, la
+vista previa y sus variaciones; la derecha contiene el código copiable y la ayuda local.
+En móvil las columnas se apilan para mantener legibles los controles y el código.
+
+Los fragmentos contienen únicamente **UI** y **Server** para integrarlos en una aplicación
+existente. No incluyen `shinyApp()`, carga de paquetes, assets, estilos ni un módulo contenedor.
+Los controles simples indican que no necesitan lógica adicional de servidor; los auxiliares
+explican su propósito y muestran el control mínimo necesario para ilustrar la acción.
+La vista previa conserva escenarios más amplios para probar interacciones, validación y módulos.
+El formulario completo es el ejemplo de integración de esos comportamientos.
+
+Use cada fragmento dentro de la UI o el server de su aplicación, con `input`, `output` y
+`session` disponibles en el servidor. En módulos, aplique `ns()` a los IDs de la UI y conserve
+los IDs locales al llamar a los helpers de servidor. Para `racafeCopyImage()`, sustituya
+`/img/logo.png` por la URL pública de la imagen de su aplicación.
+
+Las funciones de recursos se describen como auxiliares: no vuelven a cargarse en los ejemplos
+ni muestran controles de variación que no les corresponden. La demostración de Gallery es
+la aplicación activa; abra otra instancia solo desde una sesión independiente de R.
 
 ## Cambios y compatibilidad
 
