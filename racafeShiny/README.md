@@ -372,12 +372,12 @@ La ayuda de cada función está disponible con `?nombreFuncion` en RStudio.
 ## Tabla Vancouver (1.4.0)
 
 `racafeTableVancouver()` devuelve un `gt_tbl` con fondo neutro, sin cuadrícula y con una línea roja
-inferior de encabezado de 2px. Texto a la izquierda y cifras a la derecha. Reconoce Total en la primera
+inferior de encabezado de 1px. Texto a la izquierda y cifras a la derecha. Reconoce Total en la primera
 celda o en el encabezado visible de columna, sin calcular ni añadir totales.
 
 ```r
 datos <- data.frame(Producto = c("Café", "Total"), Cantidad = c(2, 2), Total = c(1234.56, 1234.56))
-racafeShiny::racafeTableVancouver(datos, header_color = "#DA291C", header_width = 2,
+racafeShiny::racafeTableVancouver(datos, header_color = "#DA291C", header_width = 1,
   align = c(Cantidad = "center"), min_width = "600px")
 ```
 

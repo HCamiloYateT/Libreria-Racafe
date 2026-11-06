@@ -7,7 +7,7 @@
 racafeTableVancouver(
   data,
   header_color = "#DA291C",
-  header_width = 2,
+  header_width = 1,
   background = "#FFFFFF",
   total_background = "#F5F6F7",
   total_border_color = "#DDE1E6",
@@ -35,7 +35,7 @@ racafeTableVancouver(
 
 \item{header_color}{Color de la única línea inferior del encabezado.}
 
-\item{header_width}{Grosor de esa línea en píxeles, por defecto 2.}
+\item{header_width}{Grosor de esa línea en píxeles, por defecto 1.}
 
 \item{background}{Fondo neutro de la tabla.}
 
