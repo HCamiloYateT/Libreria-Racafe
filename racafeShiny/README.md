@@ -368,3 +368,20 @@ Listas seleccionables, grupos, tablas compactas gt/HTML y overlay por contenedor
 
 Consulta la [guía de instalación, compatibilidad y migración](../docs/navbar/README.md).
 La ayuda de cada función está disponible con `?nombreFuncion` en RStudio.
+
+## Tabla Vancouver (1.4.0)
+
+`racafeTableVancouver()` devuelve un `gt_tbl` con fondo neutro, sin cuadrícula y con una línea roja
+inferior de encabezado de 2px. Texto a la izquierda y cifras a la derecha. Reconoce Total en la primera
+celda o en el encabezado visible de columna, sin calcular ni añadir totales.
+
+```r
+datos <- data.frame(Producto = c("Café", "Total"), Cantidad = c(2, 2), Total = c(1234.56, 1234.56))
+racafeShiny::racafeTableVancouver(datos, header_color = "#DA291C", header_width = 2,
+  align = c(Cantidad = "center"), min_width = "600px")
+```
+
+Se pueden configurar fondo, sombreado/borde de totales, etiquetas, alineación por columna, espaciado,
+decimales, anchos, altura y notas. `decimals = NULL` conserva la presentación recibida; los textos se escapan.
+La tabla ocupa el contenedor y el ancho mínimo habilita scroll horizontal en Shiny. No modifica estilos
+ni resultados de funciones anteriores. [Guía y ejemplos](../docs/tables/vancouver.md).
