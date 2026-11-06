@@ -22,3 +22,6 @@ cajaValor_ui(id, icono = "chart-line", texto = "", mostrar_boton = TRUE)
 Genera la estructura HTML del indicador. Toda la logica numerica
 vive en el servidor del modulo (\code{cajaValor_server}).
 }
+\details{
+Alias de compatibilidad: utilice racafeModulos::cajaValor_ui. Requiere racafeModulos >= 0.3.0.
+}

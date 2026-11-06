@@ -1,3 +1,9 @@
+# 1.3.1 — Módulo CajaValor
+
+- Traslada la implementación UI/server a racafeModulos 0.3.0.
+- Conserva nombres y argumentos anteriores como alias; racafeModulos es una dependencia opcional para esos alias.
+- Mantiene el formato numérico en racafeShiny y añade pruebas de compatibilidad/reactividad.
+
 # 1.3.0 — Navbar y detalle corporativo
 
 - Listas seleccionables, grupos, tablas compactas gt/HTML y overlay por contenedor; reutiliza estilos y loaders existentes.

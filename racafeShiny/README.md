@@ -117,17 +117,17 @@ BotonDescarga(
 ## Cajas de valor y módulo KPI
 
 `CajaValor()` crea un componente estático. Para valores reactivos use el par
-`cajaValor_ui()` / `cajaValor_server()`:
+`racafeModulos::cajaValor_ui()` / `racafeModulos::cajaValor_server()` (racafeModulos >= 0.3.0):
 
 ```r
 ui <- shiny::fluidPage(
-  cajaValor_ui("kpi_ventas", icono = "dollar-sign", texto = "Ventas")
+  racafeModulos::cajaValor_ui("kpi_ventas", icono = "dollar-sign", texto = "Ventas")
 )
 
 server <- function(input, output, session) {
   ventas <- shiny::reactive(1250000)
 
-  modulo <- cajaValor_server(
+  modulo <- racafeModulos::cajaValor_server(
     id = "kpi_ventas",
     valor_r = ventas,
     formato = "dinero",
@@ -145,6 +145,10 @@ server <- function(input, output, session) {
 
 shiny::shinyApp(ui, server)
 ```
+
+Los nombres anteriores en `racafeShiny` siguen exportados como alias de compatibilidad.
+La implementación del módulo vive en `racafeModulos`; no hay un import obligatorio inverso.
+Instale `racafeModulos >= 0.3.0` antes de utilizar estos alias.
 
 ## Otras utilidades
 

@@ -22,6 +22,9 @@ Lista con \code{click_detalle}: reactivo del boton de detalle.
 Recibe un reactivo con el valor y aplica formato. Exporta el
 evento del boton de detalle para el modulo padre.
 }
+\details{
+Alias de compatibilidad: utilice racafeModulos::cajaValor_server. Requiere racafeModulos >= 0.3.0.
+}
 \examples{
 \dontrun{
   # En UI del modulo padre:
