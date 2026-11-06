@@ -10,7 +10,7 @@ transformándose con gt. No calcula totales ni cambia datos, tipos, orden o núm
 
 | Parámetros | Uso |
 | --- | --- |
-| header_color, header_width | Línea inferior del encabezado, #DA291C y 2px por defecto |
+| header_color, header_width | Línea inferior del encabezado, #DA291C y 1px por defecto |
 | background | Fondo neutro de la tabla |
 | total_background | Gris uniforme de fila/columna Total, incluida la intersección |
 | total_border_color, total_border_width | Línea superior de fila Total, 1px gris claro por defecto |

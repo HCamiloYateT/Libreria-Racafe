@@ -3,7 +3,7 @@
 #' Tabla gt sobria con encabezado corporativo y totales
 #' @param data data.frame; texto escapado y columnas numéricas conservadas.
 #' @param header_color Color de la única línea inferior del encabezado.
-#' @param header_width Grosor de esa línea en píxeles, por defecto 2.
+#' @param header_width Grosor de esa línea en píxeles, por defecto 1.
 #' @param background Fondo neutro de la tabla.
 #' @param total_background Fondo de fila/columna Total; no se acumula en su intersección.
 #' @param total_border_color,total_border_width Color y grosor de la línea superior de la fila Total.
@@ -30,7 +30,7 @@
 #' racafeTableVancouver(tabla, header_color = "#8B1E15", header_width = 3,
 #'   align = c(Producto = "left", Cantidad = "center"), min_width = "600px")
 #' @export
-racafeTableVancouver <- function(data, header_color = "#DA291C", header_width = 2, background = "#FFFFFF",
+racafeTableVancouver <- function(data, header_color = "#DA291C", header_width = 1, background = "#FFFFFF",
                                   total_background = "#F5F6F7", total_border_color = "#DDE1E6", total_border_width = 1,
                                   total_label = "Total", total_rows = TRUE, total_columns = TRUE, align = NULL,
                                   labels = NULL, font_size = 12, row_padding = 6, column_padding = 8, width = "100%",

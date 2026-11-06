@@ -1,3 +1,7 @@
+# 1.4.1 — Encabezado fino
+
+- Ajusta a 1px el grosor predeterminado del encabezado Vancouver; continúa siendo parametrizable.
+
 # 1.4.0 — Tablas Vancouver
 
 - Añade racafeTableVancouver sin cambiar las tablas anteriores: línea de encabezado, alineación y totales configurables.
