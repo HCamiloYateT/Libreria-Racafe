@@ -200,46 +200,11 @@ CajaValor <- function(
 #' @param texto Etiqueta descriptiva del indicador.
 #' @param mostrar_boton Logico. Mostrar boton de detalle.
 #' @return `tagList` con la UI del modulo.
+#' @details Alias de compatibilidad: utilice racafeModulos::cajaValor_ui. Requiere racafeModulos >= 0.3.0.
 #' @export
 cajaValor_ui <- function(id, icono = "chart-line", texto = "",
                          mostrar_boton = TRUE) {
-  ns <- shiny::NS(id)
-
-  shiny::div(
-    class = "racafe-caja-valor",
-    style = paste(
-      "background:white;border-radius:8px;padding:16px;",
-      "box-shadow:0 1px 4px rgba(0,0,0,0.08);",
-      "display:flex;flex-direction:column;gap:8px;"
-    ),
-    shiny::div(
-      style = "display:flex;align-items:center;justify-content:space-between;",
-      shiny::div(
-        style = "display:flex;align-items:center;gap:10px;",
-        shiny::div(
-          style = "color:#28B78D;font-size:1.6em;",
-          shiny::icon(icono)
-        ),
-        shiny::div(
-          style = "font-size:0.85em;color:#666;font-weight:500;",
-          texto
-        )
-      ),
-      if (mostrar_boton) {
-        shiny::actionButton(
-          inputId = ns("detalle"),
-          label   = NULL,
-          icon    = shiny::icon("magnifying-glass"),
-          class   = "btn btn-xs btn-outline-secondary",
-          style   = "padding:2px 6px;border-radius:4px;"
-        )
-      }
-    ),
-    shiny::div(
-      style = "font-size:1.5em;font-weight:700;",
-      shiny::uiOutput(ns("valor_display"))
-    )
-  )
+  .rsh_caja_valor_module("cajaValor_ui")(id, icono, texto, mostrar_boton)
 }
 
 
@@ -253,6 +218,7 @@ cajaValor_ui <- function(id, icono = "chart-line", texto = "",
 #' @param formato Nombre del formato registrado en `DefinirFormato`.
 #' @param meta Valor de meta para colorear condicionalmente. `NA` desactiva.
 #' @return Lista con `click_detalle`: reactivo del boton de detalle.
+#' @details Alias de compatibilidad: utilice racafeModulos::cajaValor_server. Requiere racafeModulos >= 0.3.0.
 #' @export
 #' @examples
 #' \dontrun{
@@ -267,15 +233,14 @@ cajaValor_ui <- function(id, icono = "chart-line", texto = "",
 #'   observeEvent(modulo$click_detalle(), { ... })
 #' }
 cajaValor_server <- function(id, valor_r, formato, meta = NA) {
-  shiny::moduleServer(id, function(input, output, session) {
+  .rsh_caja_valor_module("cajaValor_server")(id, valor_r, formato, meta)
+}
 
-    output$valor_display <- shiny::renderUI({
-      shiny::req(valor_r())
-      FormatearNumero(valor_r(), formato, meta = meta)
-    })
-
-    list(
-      click_detalle = shiny::reactive(input$detalle)
-    )
-  })
+# COMPATIBILIDAD DEL MODULO REUBICADO ----
+.rsh_caja_valor_module <- function(name) {
+  if (!requireNamespace("racafeModulos", quietly = TRUE) ||
+      utils::packageVersion("racafeModulos") < "0.3.0") {
+    stop("Instale racafeModulos >= 0.3.0 para utilizar el módulo cajaValor.", call. = FALSE)
+  }
+  getExportedValue("racafeModulos", name)
 }
