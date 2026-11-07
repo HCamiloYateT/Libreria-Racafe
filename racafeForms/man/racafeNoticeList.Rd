@@ -7,7 +7,10 @@
 racafeNoticeList(
   items = character(),
   type = c("info", "warning", "success"),
-  title = NULL
+  title = NULL,
+  font_size = NULL,
+  text_color = NULL,
+  accent_color = NULL
 )
 }
 \arguments{
@@ -16,6 +19,10 @@ racafeNoticeList(
 \item{type}{info, warning o success; no establece errores de validación.}
 
 \item{title}{Título opcional.}
+
+\item{font_size}{Tamaño positivo en píxeles; NULL conserva el tema.}
+
+\item{text_color, accent_color}{Colores CSS opcionales del texto y borde.}
 }
 \value{
 Sección informativa; los textos se escapan y los componentes HTML explícitos se conservan.
@@ -23,3 +30,4 @@ Sección informativa; los textos se escapan y los componentes HTML explícitos s
 \description{
 Lista informativa de coincidencias, advertencias o actividades
 }
+

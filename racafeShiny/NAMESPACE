@@ -71,3 +71,6 @@ importFrom(htmltools,as.tags)
 
 S3method(as.tags,rsh_vancouver_gt)
 export(racafeTableVancouver)
+
+
+export(racafeTableNote)
