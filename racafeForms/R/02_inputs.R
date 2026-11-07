@@ -252,7 +252,7 @@ racafeInputSwitch <- function(id, label, value = FALSE,
                               ns = NULL, required = FALSE, help = NULL, disabled = FALSE, error = NULL) {
   variant <- match.arg(variant)
   status <- switch(variant, primary = "danger", success = "success", warning = "warning",
-                   danger = "danger", neutral = "secondary")
+                   danger = "danger", neutral = "default")
   tag <- shinyWidgets::materialSwitch(.rf_id(id, ns), label = label, value = value,
                                      status = status, right = TRUE, width = "100%")
   .rf_input_state(tag, .rf_id(id, ns), disabled = disabled, required = required, help = help, error = error,
