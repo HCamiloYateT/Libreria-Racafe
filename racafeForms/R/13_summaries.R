@@ -65,13 +65,30 @@ racafeStack <- function(..., spacing = c("normal", "compact", "comfortable")) {
 #' @param items Vector de textos o lista de componentes Shiny; NULL omite los elementos.
 #' @param type info, warning o success; no establece errores de validación.
 #' @param title Título opcional.
+#' @param font_size Tamaño positivo en píxeles; NULL conserva el tema.
+#' @param text_color,accent_color Colores CSS opcionales del texto y borde.
 #' @return Sección informativa; los textos se escapan y los componentes HTML explícitos se conservan.
 #' @export
-racafeNoticeList <- function(items = character(), type = c("info", "warning", "success"), title = NULL) {
+racafeNoticeList <- function(items = character(), type = c("info", "warning", "success"), title = NULL,
+                              font_size = NULL, text_color = NULL, accent_color = NULL) {
   type <- match.arg(type)
   if (!is.list(items) && !is.character(items)) stop("items debe ser texto o una lista.", call. = FALSE)
+  if (!is.null(font_size) && (!is.numeric(font_size) || length(font_size) != 1L ||
+      !is.finite(font_size) || font_size <= 0)) stop("font_size debe ser positivo.", call. = FALSE)
+  .color <- function(value, name) {
+    if (is.null(value)) return(NULL)
+    value <- .rf_scalar(value, name)
+    if (grepl("[;{}<>]", value)) stop("Color CSS inválido.", call. = FALSE)
+    value
+  }
+  text_color <- .color(text_color, "text_color")
+  accent_color <- .color(accent_color, "accent_color")
+  style <- paste0(if (!is.null(font_size)) paste0("font-size:", font_size, "px;"),
+    if (!is.null(text_color)) paste0("color:", text_color, ";"),
+    if (!is.null(accent_color)) paste0("--rf-notice-color:", accent_color, ";"), collapse = "")
   .rf_attach(shiny::tags$section(class = paste("rf-notice-list", paste0("rf-notice-list--", type)),
-    role = "status", if (!is.null(title)) .rf_heading(title, "rf-notice-title", "h4"),
+    style = if (nzchar(style)) style, role = "status",
+    if (!is.null(title)) .rf_heading(title, "rf-notice-title", "h4"),
     shiny::tags$ul(lapply(items, function(item) if (!is.null(item)) shiny::tags$li(item)))))
 }
 
@@ -106,3 +123,4 @@ racafeConfirmation <- function(id, fields = list(), ..., title = "Confirmar", co
     footer = racafeModalFooter(cancel,
       racafeButton(id, confirm_label, variant = "primary", ns = ns)))
 }
+

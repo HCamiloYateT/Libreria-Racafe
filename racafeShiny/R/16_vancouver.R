@@ -103,7 +103,7 @@ racafeTableVancouver <- function(data, header_color = "#DA291C", header_width = 
   }
   if (!is.null(title) || !is.null(subtitle)) table <- gt::tab_header(table,
     title = if (!is.null(title)) .rsh_plain(title), subtitle = if (!is.null(subtitle)) .rsh_plain(subtitle))
-  if (!is.null(source_note)) table <- gt::tab_source_note(table, source_note = .rsh_plain(source_note))
+  attr(table, "rsh_vancouver_note") <- source_note
   attr(table, "rsh_vancouver_min_width") <- min_width
   class(table) <- unique(c("rsh_vancouver_gt", class(table)))
   table
@@ -127,5 +127,7 @@ as.tags.rsh_vancouver_gt <- function(x, ...) {
     tag$children <- c(tag$children, list(shiny::tags$style(htmltools::HTML(paste0(
       "#", tag$attribs$id, " .gt_table {min-width:", minimum, ";}")))))
   }
-  tag
+  note <- attr(x, "rsh_vancouver_note")
+  if (is.null(note)) tag else shiny::tagList(tag, racafeTableNote(note))
 }
+
