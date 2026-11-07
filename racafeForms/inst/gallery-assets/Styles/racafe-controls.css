@@ -77,3 +77,13 @@
 .control-sidebar.rf-controlbar > .control-sidebar-content {
  max-height:calc(100% - var(--rf-controlbar-tools-height,0px));
 }
+
+
+/* Selección corporativa en formularios, radios y checklist. */
+:is(.rf-field,.rf-checklist) input:is([type="radio"],[type="checkbox"]) {
+ accent-color:var(--rf-red,#DA291C);
+}
+.rf-field .shiny-input-radiogroup {text-align:left;}
+.rf-field .shiny-input-radiogroup .shiny-options-group {text-align:left;}
+.rf-field .shiny-input-radiogroup :is(.radio,.radio-inline) {text-align:left;}
+.rf-field .shiny-input-radiogroup :is(.radio,.radio-inline) label {text-align:left;}
