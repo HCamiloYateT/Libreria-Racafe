@@ -2,12 +2,14 @@
   "use strict";
   if (window.racafeShinyLoaders) return;
   window.racafeShinyLoaders = true;
-  var host, active = false, startupDone = false;
+  var host, active = false, startupDone = false, busy = false;
   function configs() { return Array.from(document.querySelectorAll(".rsh-loader-config")); }
   function first(flag) { return configs().find(function (config) { return config.dataset[flag] === "true"; }); }
   function otherWaiters() {
     return Array.from(document.querySelectorAll(".waiter-overlay")).filter(function (overlay) {
-      return !overlay.closest(".rsh-loader-host");
+      var style = window.getComputedStyle(overlay);
+      return !overlay.closest(".rsh-loader-host") && !overlay.hidden &&
+        style.display !== "none" && style.visibility !== "hidden" && overlay.getClientRects().length > 0;
     });
   }
   function reconcile() {
@@ -19,6 +21,7 @@
       seen.set(overlay.parentElement, overlay);
     });
     if (otherWaiters().length) hide();
+    else if (busy) show(first("busy"), "calculando");
   }
   function show(config, type) {
     if (!config || !window.waiter || otherWaiters().length) return;
@@ -52,9 +55,10 @@
       });
     });
   }, true);
-  $(document).on("shiny:busy.rshLoaders", function () { show(first("busy"), "calculando"); });
-  $(document).on("shiny:idle.rshLoaders", function () { startupDone = true; hide(); });
+  $(document).on("shiny:busy.rshLoaders", function () { busy = true; show(first("busy"), "calculando"); });
+  $(document).on("shiny:idle.rshLoaders", function () { busy = false; startupDone = true; hide(); });
   $(document).on("shiny:disconnected.rshLoaders shiny:connectionfailed.rshLoaders", function () {
+    busy = false;
     hide();
     otherWaiters().forEach(function (overlay) {
       if (overlay.querySelector(".rsh-loader-card")) overlay.remove();
@@ -70,7 +74,12 @@
     } else image.hidden = true;
   }, true);
   $(function () {
-    new MutationObserver(reconcile).observe(document.body, { childList: true, subtree: true });
-    if (!startupDone) show(first("startup"), "inicio");
+    new MutationObserver(reconcile).observe(document.body, {
+      childList: true, subtree: true, attributes: true, attributeFilter: ["style", "class", "hidden"]
+    });
+    busy = busy || document.documentElement.classList.contains("shiny-busy");
+    if (busy) reconcile();
+    else if (!startupDone) show(first("startup"), "inicio");
   });
 }(window.jQuery));
+
