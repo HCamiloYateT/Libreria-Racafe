@@ -4,7 +4,7 @@
 \title{Selector corporativo de año y mes}
 \usage{
 racafeInputMonth(id, label = "Año y mes", value = Sys.Date(), min = NULL,
-  max = NULL, ns = NULL, width = "100%", disabled = FALSE,
+  max = NULL, ns = NULL, width = "100\%", disabled = FALSE,
   required = FALSE, help = NULL, error = NULL)
 racafeUpdateMonth(session, id, value = NULL, min = NULL, max = NULL)
 }
