@@ -11,3 +11,6 @@ export(ImprimeSankey)
 
 importFrom(racafeCore, "%||%")
 importFrom(rlang, ".data")
+
+export(tema_racafe_ggplot)
+export(aplicar_tipografia_plotly)

@@ -134,3 +134,22 @@ EdadCumplida <- function(from, to) {
   to   <- as.Date(to)
   as.integer(lubridate::interval(from, to) / lubridate::years(1))
 }
+
+# Operaciones que conservan faltantes e identificadores ----
+#' SumaEstricta: componente reutilizable del ecosistema Racafé
+#' @export
+SumaEstricta <- function(x) if (anyNA(x)) NA_real_ else sum(x)
+
+#' ValorOCero: componente reutilizable del ecosistema Racafé
+#' @export
+ValorOCero <- function(x) if (is.null(x) || is.na(x)) 0 else x
+
+#' IdentificadorTexto: componente reutilizable del ecosistema Racafé
+#' @export
+IdentificadorTexto <- function(x) {
+  valor <- if (is.numeric(x)) {
+    format(x, scientific = FALSE, trim = TRUE, digits = 22, big.mark = "")
+  } else as.character(x)
+  valor[is.na(x)] <- NA_character_
+  valor
+}

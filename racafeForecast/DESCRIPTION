@@ -1,7 +1,7 @@
 Package: racafeForecast
 Type: Package
 Title: Pronosticos de Series de Tiempo para Racafe
-Version: 1.0.0
+Version: 1.0.1
 Authors@R: person("H. Camilo", "Yate T.", email = "camilo.yate@racafe.com",
     role = c("aut", "cre"))
 Description: Motor de pronosticos del ecosistema Racafe. Ajusta multiples

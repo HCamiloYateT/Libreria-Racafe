@@ -98,11 +98,12 @@ racafeInputTextArea <- function(id, label, value = "", placeholder = NULL, rows 
 #' @examples
 #' racafeInputSelect("region", "Región", c("A" = "a", "Repetido" = "a"), unique_choices = TRUE)
 #' @export
+#' @param placeholder Texto de ausencia de selección sin agregar una opción ficticia.
 racafeInputSelect <- function(id, label = NULL, choices, selected = NULL, multiple = FALSE,
                               search = TRUE, empty = TRUE, empty_label = "Ninguno", size = 6,
                               dropup_auto = FALSE, width = "100%", ns = NULL, gender = c("m", "f"),
                               disabled = FALSE, required = FALSE, help = NULL, error = NULL, unique_choices = FALSE,
-                              uppercase = TRUE) {
+                              uppercase = TRUE, placeholder = NULL) {
   .rf_flag(uppercase, "uppercase")
   .rf_flag(unique_choices, "unique_choices")
   choices <- .rf_select_choices(choices, unique_choices)
@@ -110,6 +111,10 @@ racafeInputSelect <- function(id, label = NULL, choices, selected = NULL, multip
   if (missing(empty_label)) empty_label <- if (gender == "f") "Ninguna" else "Ninguno"
   if (!multiple && empty && !"" %in% as.character(.rf_choice_values(choices))) {
     choices <- c(stats::setNames("", empty_label), choices)
+  }
+  if (!is.null(placeholder)) {
+    placeholder <- .rf_scalar(placeholder, "placeholder")
+    if (is.null(selected)) selected <- character()
   }
   if (is.null(selected)) selected <- if (multiple) character(0) else {
     if (empty) "" else .rf_choice_values(choices)[1]
@@ -125,6 +130,9 @@ racafeInputSelect <- function(id, label = NULL, choices, selected = NULL, multip
       selectedTextFormat = if (multiple) "count > 1" else "values"
     )
   )
+  if (!is.null(placeholder)) {
+    tag <- htmltools::tagQuery(tag)$find("select")$addAttrs(title = placeholder)$allTags()
+  }
   tag <- shiny::tagAppendAttributes(tag, class = paste("rf-select", if (uppercase) "rf-select--uppercase"),
                                       `data-rf-gender` = gender)
   .rf_input_state(tag, .rf_id(id, ns), disabled = disabled, required = required,

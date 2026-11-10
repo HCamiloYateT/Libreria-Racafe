@@ -84,14 +84,24 @@ racafePreloader <- function(type = "inicio", text = NULL, logo = NULL, show_logo
 #' @examples
 #' racafeLoaderUI(triggers = c(actualizar = "recargar", calculando = "procesar"))
 #' @export
+#' @param input_scope Selector CSS optativo de controles que activan el loader antes del envío.
+#' @param confirm_input Input con observador R que confirma el ciclo del loader anticipado.
 racafeLoaderUI <- function(startup = TRUE, busy = TRUE, triggers = NULL, ns = NULL, logo = NULL,
-                            show_logo = TRUE) {
+                            show_logo = TRUE, input_scope = NULL, confirm_input = NULL) {
   .rsh_loader_flag(startup, "startup")
   .rsh_loader_flag(busy, "busy")
   .rsh_loader_flag(show_logo, "show_logo")
   if (!is.null(ns) && !is.function(ns)) stop("ns debe ser una función.", call. = FALSE)
   if (!is.null(triggers) && (!is.character(triggers) || anyNA(triggers) || any(!nzchar(triggers)))) {
     stop("triggers debe contener IDs de botones.", call. = FALSE)
+  }
+  if (!is.null(input_scope)) input_scope <- .rsh_loader_scalar(input_scope, "input_scope")
+  if (!is.null(confirm_input)) {
+    confirm_input <- .rsh_loader_scalar(confirm_input, "confirm_input")
+    if (!is.null(ns) && !startsWith(confirm_input, ns(""))) confirm_input <- ns(confirm_input)
+  }
+  if (!is.null(input_scope) && is.null(confirm_input)) {
+    stop("input_scope requiere confirm_input con un observador de servidor.", call. = FALSE)
   }
   types <- names(triggers)
   if (is.null(types)) types <- rep("calculando", length(triggers))
@@ -102,6 +112,7 @@ racafeLoaderUI <- function(startup = TRUE, busy = TRUE, triggers = NULL, ns = NU
     if (startsWith(id, ns(""))) id else ns(id)
   }, character(1))
   config <- shiny::tags$div(class = "rsh-loader-config", hidden = "hidden",
+    `data-input-scope` = input_scope, `data-confirm-input` = confirm_input,
     `data-startup` = tolower(as.character(startup)), `data-busy` = tolower(as.character(busy)),
     lapply(.rsh_loader_types(), function(type) {
       shiny::tags$template(`data-rsh-type` = type, racafePreloader(type, logo = logo, show_logo = show_logo)$html)

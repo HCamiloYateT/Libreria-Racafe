@@ -3,6 +3,9 @@
 \title{Pestañas corporativas para módulos Shiny}
 \usage{racafeTabs(..., id = NULL, selected = NULL, type = c("tabs", "pills"), ns = NULL)}
 \arguments{
+\item{engine}{Constructor shiny o bs4dash.}
+\item{styled}{Envolver con la clase visual rf-tabs.}
+
 \item{...}{Paneles shiny::tabPanel.}
 \item{id}{ID local opcional.}
 \item{selected}{Valor del panel seleccionado.}

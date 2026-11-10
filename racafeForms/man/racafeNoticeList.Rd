@@ -4,16 +4,15 @@
 \alias{racafeNoticeList}
 \title{Lista informativa de coincidencias, advertencias o actividades}
 \usage{
-racafeNoticeList(
-  items = character(),
-  type = c("info", "warning", "success"),
-  title = NULL,
-  font_size = NULL,
-  text_color = NULL,
-  accent_color = NULL
-)
+racafeNoticeList(items = character(), type = c("info", "warning", "success"), title = NULL,
+                              font_size = NULL, text_color = NULL, accent_color = NULL,
+                              variant = c("default", "footnote"), swatches = NULL, inline = FALSE)
 }
 \arguments{
+\item{variant}{default conserva el panel; footnote usa una nota compacta externa.}
+\item{swatches}{Un color CSS por elemento de la nota.}
+\item{inline}{Mostrar los elementos en una fila adaptable.}
+
 \item{items}{Vector de textos o lista de componentes Shiny; NULL omite los elementos.}
 
 \item{type}{info, warning o success; no establece errores de validación.}

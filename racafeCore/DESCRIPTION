@@ -1,7 +1,7 @@
 Package: racafeCore
 Type: Package
 Title: Utilidades Base para el Ecosistema Racafe
-Version: 1.0.0
+Version: 1.0.1
 Authors@R: person("H. Camilo", "Yate T.", email = "camilo.yate@racafe.com",
     role = c("aut", "cre"))
 Description: Nucleo del ecosistema Racafe. Incluye funciones de limpieza

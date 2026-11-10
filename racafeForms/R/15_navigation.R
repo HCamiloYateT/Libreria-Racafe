@@ -30,12 +30,17 @@ racafeDisclosure <- function(title, ..., open = FALSE) {
 #' @param ... Paneles de shiny::tabPanel, conservando sus valores y contenido.
 #' @return Contenedor de pestañas con colores corporativos y eventos Shiny nativos.
 #' @export
-racafeTabs <- function(..., id = NULL, selected = NULL, type = c("tabs", "pills"), ns = NULL) {
-  .rf_attach(shiny::tags$div(class = "rf-tabs",
-    shiny::tabsetPanel(..., id = if (!is.null(id)) .rf_id(id, ns), selected = selected, type = match.arg(type)),
-    shiny::tags$style(".rf-tabs>.tabbable>.nav .nav-link{color:#495057;}
-      .rf-tabs>.tabbable>.nav .nav-link.active{color:#DA291C;border-bottom:2px solid #DA291C;}
-      .rf-tabs>.tabbable>.tab-content{padding-top:14px;}")))
+#' @param engine Constructor shiny o bs4dash; no cambia el valor de las pestañas.
+#' @param styled Envolver el contenido con la clase corporativa de pestañas.
+racafeTabs <- function(..., id = NULL, selected = NULL, type = c("tabs", "pills"), ns = NULL,
+                       engine = c("shiny", "bs4dash"), styled = TRUE) {
+  engine <- match.arg(engine)
+  .rf_flag(styled, "styled")
+  constructor <- if (engine == "bs4dash") getExportedValue("bs4Dash", "tabsetPanel") else shiny::tabsetPanel
+  paneles <- Filter(Negate(is.null), list(...))
+  contenido <- do.call(constructor, c(paneles, list(id = if (!is.null(id)) .rf_id(id, ns),
+    selected = selected, type = match.arg(type))))
+  .rf_attach(if (styled) shiny::tags$div(class = "rf-tabs", contenido) else contenido)
 }
 #' Actualizar un selector mensual
 #' @param session Sesión Shiny del módulo.

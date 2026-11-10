@@ -94,3 +94,18 @@ racafeResetForm <- function(session, id, clear = FALSE) {
   session$sendCustomMessage("rf-form-reset", list(id = session$ns(.rf_id(id)), clear = clear))
   invisible(NULL)
 }
+
+# Selección persistente: todas, parcial y vacía ----
+#' racafeSelectSelection: componente reutilizable del ecosistema Racafé
+#' @export
+racafeSelectSelection <- function(input, session, id, choices) {
+  clave <- session$ns(id)
+  if (is.null(session$userData$rf_selecciones)) session$userData$rf_selecciones <- new.env(parent = emptyenv())
+  estado <- session$userData$rf_selecciones
+  anterior <- estado[[clave]]
+  actual <- shiny::isolate(input[[id]])
+  disponibles <- unname(choices)
+  seleccion <- if (is.null(anterior) || setequal(actual, anterior)) disponibles else intersect(actual, disponibles)
+  estado[[clave]] <- disponibles
+  seleccion
+}
