@@ -49,3 +49,6 @@
 .rsh-compact-table:not(.rsh-table--transparent) {background:var(--rf-white,#fff);}
 
 .rsh-list-group--normal > .rsh-list-item {padding:12px;gap:10px;}
+
+.rsh-collapsible > .rsh-collapsible-summary--badge {flex-wrap:wrap;}
+.rsh-collapsible-header-badge {display:inline-flex;align-items:center;flex-wrap:wrap;gap:4px;min-width:0;}

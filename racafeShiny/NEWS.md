@@ -1,3 +1,7 @@
+# racafeShiny 1.4.4
+
+- `racafeCollapsible()` admite `header_badge` para contadores reactivos junto al título sin recrear el control.
+
 # 1.4.1 — Encabezado fino
 
 - Ajusta a 1px el grosor predeterminado del encabezado Vancouver; continúa siendo parametrizable.

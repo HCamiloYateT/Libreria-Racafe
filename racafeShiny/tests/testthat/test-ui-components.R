@@ -42,3 +42,21 @@ test_that("el footer reutiliza botones nativos y no modifica sus IDs", {
   expect_match(as.character(racafeModalFooter(texto_cerrar = "Cancelar")), "Cancelar", fixed = TRUE)
   expect_error(racafeModalFooter(cerrar = NA))
 })
+
+
+test_that("el badge es hermano del título, conserva outputs y no interpreta HTML del título", {
+  tag <- racafeCollapsible("padre-lista", "<b>Cuentas</b>", open = TRUE, shiny::p("Detalle"),
+    header_badge = shiny::uiOutput("padre-conteo", inline = TRUE))
+  summary <- tag$children[[1]]
+  html <- as.character(summary)
+  expect_match(html, "&lt;b&gt;Cuentas&lt;/b&gt;", fixed = TRUE)
+  expect_match(html, 'class="rsh-collapsible-header-badge"', fixed = TRUE)
+  expect_match(html, 'id="padre-conteo"', fixed = TRUE)
+  expect_match(html, 'aria-controls="padre-lista_content"', fixed = TRUE)
+  expect_match(html, 'aria-expanded="true"', fixed = TRUE)
+  expect_false(grepl("Detalle", html, fixed = TRUE))
+  expect_equal(tail(names(formals(racafeCollapsible)), 1L), "header_badge")
+  legacy <- as.character(racafeCollapsible("antes", "Título", TRUE, shiny::p("Detalle")))
+  expect_false(grepl("rsh-collapsible-header-badge", legacy, fixed = TRUE))
+  expect_match(legacy, "Detalle", fixed = TRUE)
+})

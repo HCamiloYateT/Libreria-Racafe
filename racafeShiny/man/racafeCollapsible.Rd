@@ -11,7 +11,8 @@ racafeCollapsible(
   ...,
   icon = NULL,
   color = "#DA291C",
-  class = NULL
+  class = NULL,
+  header_badge = NULL
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ racafeCollapsible(
 \item{color}{Color del triángulo, hexadecimal o nombre reconocido por R.}
 
 \item{class}{Clases CSS adicionales del contenedor.}
+
+\item{header_badge}{Contenido informativo opcional junto al título; admite un output Shiny.}
 }
 \value{
 Etiqueta details. input$id contiene TRUE/FALSE al estar enlazada a Shiny.
