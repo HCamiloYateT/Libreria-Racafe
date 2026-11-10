@@ -140,3 +140,13 @@ RACAFE_TEST_URL=http://127.0.0.1:3940 node tests/browser/test-componentes-ui.cjs
 
 El test admite CHROMIUM_PATH, NODE_PATH y CI=1 para contenedores. No usa correos, APIs
 ni bases de datos. Los cambios se entregan para revisión, sin publicación de versiones de paquetes.
+
+
+### Contador reactivo en el encabezado
+
+`racafeCollapsible(..., header_badge = NULL)` admite contenido informativo junto al título. Por ejemplo,
+`header_badge = shiny::uiOutput(ns("conteo"), inline = TRUE)` permite actualizar un contador sin recrear el
+`details`. El título continúa siendo texto plano escapado. El badge es un elemento hermano del título dentro
+de `summary`; no debe contener botones ni controles interactivos. Los IDs, el binding, Enter/Espacio y
+`racafeUpdateCollapsible()` conservan su comportamiento. El argumento opcional está al final de la firma.
+El color configura el triángulo; un borde exterior específico de una app se aplica mediante `class` y CSS local.

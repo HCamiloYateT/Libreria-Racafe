@@ -1,6 +1,6 @@
 # Componentes corporativos de detalle ----
 .rsh_ui_dependency <- function() {
-  htmltools::htmlDependency("racafe-shiny-ui", "1.3.0", src = c(file = system.file("ui", package = "racafeShiny")),
+  htmltools::htmlDependency("racafe-shiny-ui", "1.3.1", src = c(file = system.file("ui", package = "racafeShiny")),
                             stylesheet = "components.css", script = "components.js")
 }
 .rsh_ui_text <- function(value, name) {
@@ -21,6 +21,7 @@
 #' @param icon Icono Font Awesome opcional (nombre o etiqueta).
 #' @param color Color del triángulo, hexadecimal o nombre reconocido por R.
 #' @param class Clases CSS adicionales del contenedor.
+#' @param header_badge Contenido informativo opcional junto al título; admite un output Shiny.
 #' @return Etiqueta details. input$id contiene TRUE/FALSE al estar enlazada a Shiny.
 #' @details Usa details/summary nativos y teclado del navegador. El binding propio solo
 #'   sincroniza el estado con Shiny y permite actualizaciones; no añade librerías JS.
@@ -28,7 +29,8 @@
 #' @examples
 #' racafeCollapsible("detalle", "Detalle de pedidos", open = TRUE, shiny::p("Contenido"))
 #' @export
-racafeCollapsible <- function(id, title, open = FALSE, ..., icon = NULL, color = "#DA291C", class = NULL) {
+racafeCollapsible <- function(id, title, open = FALSE, ..., icon = NULL, color = "#DA291C", class = NULL,
+                               header_badge = NULL) {
   id <- .rsh_ui_text(id, "id")
   title <- .rsh_ui_text(title, "title")
   .rsh_ui_flag(open, "open")
@@ -42,7 +44,9 @@ racafeCollapsible <- function(id, title, open = FALSE, ..., icon = NULL, color =
   tag <- shiny::tags$details(id = id, class = paste(c("rsh-collapsible", class), collapse = " "),
     open = if (open) "open", style = paste0("--rsh-collapse-color:", color, ";"),
     shiny::tags$summary(`aria-controls` = paste0(id, "_content"), `aria-expanded` = tolower(as.character(open)),
-      icon, shiny::tags$span(title)),
+      class = if (!is.null(header_badge)) "rsh-collapsible-summary--badge",
+      icon, shiny::tags$span(title),
+      if (!is.null(header_badge)) shiny::tags$span(class = "rsh-collapsible-header-badge", header_badge)),
     shiny::tags$div(id = paste0(id, "_content"), class = "rsh-collapsible-content", ...))
   htmltools::attachDependencies(tag, .rsh_ui_dependency())
 }
