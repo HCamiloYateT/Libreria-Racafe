@@ -4,29 +4,15 @@
 \alias{racafeInputSelect}
 \title{ListaDesplegable corporativa basada en pickerInput}
 \usage{
-racafeInputSelect(
-  id,
-  label = NULL,
-  choices,
-  selected = NULL,
-  multiple = FALSE,
-  search = TRUE,
-  empty = TRUE,
-  empty_label = "Ninguno",
-  size = 6,
-  dropup_auto = FALSE,
-  width = "100\%",
-  ns = NULL,
-  gender = c("m", "f"),
-  disabled = FALSE,
-  required = FALSE,
-  help = NULL,
-  error = NULL,
-  unique_choices = FALSE,
-  uppercase = TRUE
-)
+racafeInputSelect(id, label = NULL, choices, selected = NULL, multiple = FALSE,
+                              search = TRUE, empty = TRUE, empty_label = "Ninguno", size = 6,
+                              dropup_auto = FALSE, width = "100\%", ns = NULL, gender = c("m", "f"),
+                              disabled = FALSE, required = FALSE, help = NULL, error = NULL, unique_choices = FALSE,
+                              uppercase = TRUE, placeholder = NULL)
 }
 \arguments{
+\item{placeholder}{Texto de ausencia de selección; no agrega opciones al catálogo.}
+
 \item{id}{ID local del campo.}
 
 \item{label}{Etiqueta, o NULL.}

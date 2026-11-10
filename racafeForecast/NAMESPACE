@@ -12,3 +12,10 @@ export(PronPatronMes)
 
 importFrom(racafeCore, "%||%")
 importFrom(rlang, ".data")
+
+export(AjustarBGNBD)
+export(PredecirBGNBD)
+export(ConjuntosFrecuentes)
+export(MetricasAsociacion)
+export(ReglasAsociacion)
+export(ValidarReglasAsociacion)

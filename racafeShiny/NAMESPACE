@@ -74,3 +74,8 @@ export(racafeTableVancouver)
 
 
 export(racafeTableNote)
+
+export(racafeEvaluateOutput)
+export(racafeRenderUI)
+export(racafeRenderPlot)
+export(racafeRenderPlotly)

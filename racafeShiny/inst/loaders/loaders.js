@@ -55,6 +55,22 @@
       });
     });
   }, true);
+  // Activación temprana optativa, confirmada por el ciclo busy/idle del servidor.
+  var inputSequence = 0, inputValues = Object.create(null);
+  $(document).on("shiny:inputchanged.rshLoaders", function (event) {
+    var el = event.el || document.getElementById(event.name.split(":")[0]);
+    if (!el || !window.Shiny || !Shiny.shinyapp || !Shiny.shinyapp.isConnected()) return;
+    var config = configs().find(function (item) {
+      return item.dataset.inputScope && el.closest(item.dataset.inputScope);
+    });
+    if (!config || !config.dataset.confirmInput) return;
+    var signature = JSON.stringify(event.value);
+    if (Object.prototype.hasOwnProperty.call(inputValues, event.name) &&
+        inputValues[event.name] === signature) return;
+    inputValues[event.name] = signature;
+    show(config, "calculando");
+    Shiny.setInputValue(config.dataset.confirmInput, ++inputSequence, {priority: "deferred"});
+  });
   $(document).on("shiny:busy.rshLoaders", function () { busy = true; show(first("busy"), "calculando"); });
   $(document).on("shiny:idle.rshLoaders", function () { busy = false; startupDone = true; hide(); });
   $(document).on("shiny:disconnected.rshLoaders shiny:connectionfailed.rshLoaders", function () {

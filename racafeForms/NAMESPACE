@@ -73,3 +73,5 @@ export(racafeInputMonth)
 export(racafeUpdateMonth)
 export(racafeTabs)
 export(racafeDisclosure)
+
+export(racafeSelectSelection)

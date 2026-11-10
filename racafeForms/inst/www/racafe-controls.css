@@ -78,7 +78,6 @@
  max-height:calc(100% - var(--rf-controlbar-tools-height,0px));
 }
 
-
 /* Selección corporativa en formularios, radios y checklist. */
 :is(.rf-field,.rf-checklist) input:is([type="radio"],[type="checkbox"]) {
  accent-color:var(--rf-red,#DA291C);
@@ -87,3 +86,21 @@
 .rf-field .shiny-input-radiogroup .shiny-options-group {text-align:left;}
 .rf-field .shiny-input-radiogroup :is(.radio,.radio-inline) {text-align:left;}
 .rf-field .shiny-input-radiogroup :is(.radio,.radio-inline) label {text-align:left;}
+
+/* Notas externas y navegación corporativa: variantes optativas. */
+.rf-notice-list--footnote {background:transparent;border:0;padding:0;margin:4px 0 10px;
+ color:#495057;line-height:1.45;}
+.rf-notice-list--footnote .rf-notice-title {font-size:11px;margin:0 0 3px;}
+.rf-notice-list--footnote > ul {list-style:none;margin:0;padding:0;}
+.rf-notice-list--footnote li {margin:0;padding:0;}
+.rf-notice-swatch {display:inline-block;width:11px;height:11px;border:1px solid #6C757D;margin-right:6px;}
+.rf-notice-list--inline > ul {display:flex;flex-wrap:wrap;gap:6px 18px;}
+.rf-disclosure {border:1px solid #dee2e6;border-radius:6px;margin-bottom:14px;}
+.rf-disclosure-title {padding:12px 16px;color:#343a40;font-weight:600;cursor:pointer;}
+.rf-disclosure-body {padding:0 16px 14px;}
+.rf-tabs>.tabbable>.nav .nav-link {color:#495057;}
+.rf-tabs>.tabbable>.nav .nav-link.active {color:#DA291C;border-bottom:2px solid #DA291C;}
+.rf-tabs>.tabbable>.tab-content {padding-top:14px;}
+.rf-select-tooltip {position:fixed;z-index:30000;max-width:min(320px,calc(100vw - 24px));padding:7px 10px;
+ background:#E9ECEF;color:#343A40;border:1px solid #ADB5BD;border-radius:4px;font-size:12px;line-height:1.4;
+ pointer-events:none;overflow-wrap:anywhere;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.1);}

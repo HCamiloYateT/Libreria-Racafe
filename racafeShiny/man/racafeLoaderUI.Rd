@@ -4,16 +4,13 @@
 \alias{racafeLoaderUI}
 \title{Instalar loaders de inicio y actividad en el navegador}
 \usage{
-racafeLoaderUI(
-  startup = TRUE,
-  busy = TRUE,
-  triggers = NULL,
-  ns = NULL,
-  logo = NULL,
-  show_logo = TRUE
-)
+racafeLoaderUI(startup = TRUE, busy = TRUE, triggers = NULL, ns = NULL, logo = NULL,
+                            show_logo = TRUE, input_scope = NULL, confirm_input = NULL)
 }
 \arguments{
+\item{input_scope}{Selector CSS optativo que activa el loader antes del envío de un input.}
+\item{confirm_input}{Input con observador R que confirma el ciclo busy/idle del loader anticipado.}
+
 \item{startup}{Mostrar el loader hasta el primer evento idle de Shiny.}
 
 \item{busy}{Mostrarlo durante los ciclos busy/idle de Shiny.}

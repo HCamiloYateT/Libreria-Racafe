@@ -45,3 +45,7 @@ export(Obligatorio)
 
 importFrom(dplyr, "%>%")
 importFrom(rlang, ".data")
+
+export(SumaEstricta)
+export(ValorOCero)
+export(IdentificadorTexto)

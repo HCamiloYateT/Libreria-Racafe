@@ -1,7 +1,7 @@
 Package: racafeGraph
 Type: Package
 Title: Visualizacion Corporativa con Plotly para Racafe
-Version: 1.0.0
+Version: 1.0.1
 Authors@R: person("H. Camilo", "Yate T.", email = "camilo.yate@racafe.com",
     role = c("aut", "cre"))
 Description: Capa de visualizacion del ecosistema Racafe. Paletas
@@ -17,6 +17,7 @@ Depends:
 Imports:
     racafeCore,
     plotly,
+    ggplot2,
     dplyr,
     purrr
 Suggests:

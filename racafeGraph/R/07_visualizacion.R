@@ -406,3 +406,43 @@ ImprimeSankey <- function(data, vars, fun, var = NULL, colores) {
     valor   = enlaces$valor
   )
 }
+
+# Tipografía corporativa de dashboards ----
+#' tema_racafe_ggplot: componente reutilizable del ecosistema Racafé
+#' @export
+tema_racafe_ggplot <- function() {
+  ggplot2::theme_minimal(base_size = 12) + ggplot2::theme(
+    plot.title = ggplot2::element_text(size = 14, face = "bold"),
+    axis.title = ggplot2::element_text(size = 12), axis.text = ggplot2::element_text(size = 11),
+    legend.title = ggplot2::element_text(size = 11), legend.text = ggplot2::element_text(size = 11),
+    strip.text = ggplot2::element_text(size = 12), plot.margin = ggplot2::margin(10, 12, 10, 8))
+}
+
+#' aplicar_tipografia_plotly: componente reutilizable del ecosistema Racafé
+#' @export
+aplicar_tipografia_plotly <- function(figura) {
+  eje <- list(title = list(font = list(size = 12)), tickfont = list(size = 11), automargin = TRUE)
+  estilo <- list(font = list(family = "Arial, sans-serif", size = 12, color = "#343A40"),
+    title = list(font = list(size = 16)), xaxis = eje, yaxis = eje,
+    legend = list(font = list(size = 11)), hoverlabel = list(font = list(size = 12)))
+  # Los ejes de subgráficos reciben los mismos tamaños sin cambiar rangos ni unidades.
+  for (nombre in grep("^[xy]axis[0-9]+$", names(figura$x$layout), value = TRUE)) estilo[[nombre]] <- eje
+  for (nombre in c("title", grep("^[xy]axis[0-9]*$", names(figura$x$layout), value = TRUE))) {
+    titulo <- if (nombre == "title") figura$x$layout$title else figura$x$layout[[nombre]]$title
+    if (is.character(titulo)) {
+      if (nombre == "title") figura$x$layout$title <- list(text = titulo) else {
+        figura$x$layout[[nombre]]$title <- list(text = titulo)
+      }
+    }
+  }
+  for (i in seq_along(figura$x$data)) {
+    tamano <- figura$x$data[[i]]$textfont$size
+    if (is.numeric(tamano)) figura$x$data[[i]]$textfont$size <- pmax(11, tamano)
+  }
+  for (i in seq_along(figura$x$layout$annotations)) {
+    tamano <- figura$x$layout$annotations[[i]]$font$size
+    if (is.null(tamano) || is.numeric(tamano)) figura$x$layout$annotations[[i]]$font$size <- max(11, tamano)
+  }
+  figura$x$layout <- utils::modifyList(figura$x$layout, estilo)
+  figura
+}
