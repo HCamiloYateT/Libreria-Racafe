@@ -81,6 +81,20 @@
     "<p>{{mensaje}}</p>",
     "<p>Cordialmente,</p></div>",
     sep = "\n"),
+  asignacion_crm = paste(
+    '<p style="margin:0 0 6px;font-size:13px;color:{{color}};font-weight:bold">{{tipo}}</p>',
+    '<h1 style="margin:0 0 18px;font-size:24px;line-height:1.2">{{titulo}}</h1>',
+    '<table role="presentation" width="100%" cellpadding="12" cellspacing="0"',
+    'style="background:#f6f7f9;border:1px solid #e3e6ea;table-layout:fixed">',
+    '<tr><td width="50%"><small>CREADO POR</small><br><strong>{{creador}}</strong></td>',
+    '<td><small>FECHA DE CREACIÓN</small><br><strong>{{fecha}}</strong></td></tr>',
+    '<tr><td><small>ASIGNADO A</small><br><strong>{{responsable}}</strong></td>',
+    '<td><small>PRIORIDAD</small><br><strong>{{prioridad}}</strong></td></tr>',
+    '<tr><td colspan="2"><small>VENCIMIENTO</small><br><strong>{{vencimiento}}</strong></td></tr></table>',
+    '<p style="margin:20px 0 6px;color:#505864;font-size:12px;font-weight:bold">DESCRIPCIÓN</p>',
+    '<div style="white-space:pre-wrap;overflow-wrap:anywhere">{{descripcion}}</div>',
+    '<p style="margin:20px 0 0;font-size:13px;color:#505864">Disponible en CRM Diferenciados · Notas y tareas.</p>',
+    sep = "\n"),
   confirmacion = paste(
     paste0(
       "<div style=\"font-family:Arial,sans-serif;color:{{color_texto}};f",
