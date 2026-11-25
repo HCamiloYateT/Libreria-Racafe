@@ -17,7 +17,7 @@
 #' @param pie Texto del pie, escapado al renderizar; NULL conserva el incluido.
 #' @param version Versión exacta requerida; NULL acepta la instalada o el contrato externo compatible.
 #' @param config Objeto creado por racafeMailConfig().
-#' @param plantilla invitacion, otp, notificacion o confirmacion.
+#' @param plantilla invitacion, otp, notificacion, confirmacion o asignacion_crm.
 #' @param datos Lista nombrada de escalares no NA. Solo nombre admite texto vacío; no se acepta HTML crudo.
 #' @param archivo Archivo de preview. No debe reemplazar recursos del paquete ni credenciales.
 #' @param overwrite Permitir reemplazar un preview existente, FALSE por defecto.
@@ -241,16 +241,20 @@ racafeMailFirma <- function(config = racafeMailConfig()) {
 
 #' @rdname racafeMail
 #' @export
-racafeMailRender <- function(plantilla = c("invitacion", "otp", "notificacion", "confirmacion"),
+racafeMailRender <- function(plantilla = c("invitacion", "otp", "notificacion", "confirmacion", "asignacion_crm"),
                              datos = list(), config = racafeMailConfig()) {
   if (missing(plantilla)) plantilla <- "invitacion"
   if (!is.character(plantilla) || length(plantilla) != 1L || is.na(plantilla) ||
-      !plantilla %in% c("invitacion", "otp", "notificacion", "confirmacion")) .rmail_stop("Plantilla no permitida.")
+      !plantilla %in% c("invitacion", "otp", "notificacion", "confirmacion", "asignacion_crm")) {
+    .rmail_stop("Plantilla no permitida.")
+  }
   config <- .rmail_config(config)
   datos <- .rmail_named(datos)
   required <- switch(plantilla, invitacion = c("nombre", "enlace", "vencimiento"),
                      otp = c("nombre", "codigo", "vigencia_minutos"), notificacion = c("nombre", "mensaje"),
-                     confirmacion = c("nombre", "detalle", "fecha"))
+                     confirmacion = c("nombre", "detalle", "fecha"),
+                     asignacion_crm = c("tipo", "titulo", "creador", "fecha", "responsable", "vencimiento",
+                                        "prioridad", "descripcion"))
   if (length(setdiff(required, names(datos)))) .rmail_stop("Faltan variables requeridas para la plantilla.")
   if (length(setdiff(names(datos), required))) .rmail_stop("Variables adicionales no permitidas para la plantilla.")
   if (plantilla == "otp" && !is.character(datos$codigo)) .rmail_stop("El codigo OTP debe ser texto de seis digitos.")
@@ -261,16 +265,23 @@ racafeMailRender <- function(plantilla = c("invitacion", "otp", "notificacion", 
     minutes <- datos$vigencia_minutos
     if (!grepl("^[1-9][0-9]*$", minutes) || !is.finite(as.numeric(minutes))) .rmail_stop("Vigencia no valida.")
   }
+  if (plantilla == "asignacion_crm" && !datos$tipo %in% c("Nueva tarea", "Nueva nota")) {
+    .rmail_stop("Tipo de asignacion CRM no valido.")
+  }
   if (plantilla == "invitacion") datos$enlace <- .rmail_url(datos$enlace)
   texts <- switch(plantilla,
     invitacion = c("Racaf\u00e9 | Autorizaci\u00f3n para el tratamiento de datos personales",
                    "Autorizaci\u00f3n de datos personales"),
     otp = c("Racaf\u00e9 | C\u00f3digo de verificaci\u00f3n de correo electr\u00f3nico", "Verificaci\u00f3n de correo"),
     notificacion = c("Racaf\u00e9 | Notificaci\u00f3n", "Notificaci\u00f3n"),
-    confirmacion = c("Racaf\u00e9 | Confirmaci\u00f3n de solicitud", "Confirmaci\u00f3n"))
+    confirmacion = c("Racaf\u00e9 | Confirmaci\u00f3n de solicitud", "Confirmaci\u00f3n"),
+    asignacion_crm = c(paste("CRM Diferenciados", datos$tipo, sep = " | "), "CRM Diferenciados"))
   # El cuerpo y la firma se rellenan una vez; la base los recibe como fragmentos confiables.
   values <- .rmail_values(c(datos, .rmail_brand(config)))
-  body <- .rmail_fill(.rmail_archivo(config, "templates", plantilla), values)
+  plantilla_body <- if (plantilla == "asignacion_crm") .rmail_templates[[plantilla]] else {
+    .rmail_archivo(config, "templates", plantilla)
+  }
+  body <- .rmail_fill(plantilla_body, values)
   headers <- list(asunto = texts[[1]], preencabezado = texts[[2]], categoria = texts[[2]])
   values <- .rmail_values(c(headers, .rmail_brand(config)))
   values[["[[CONTENIDO_INTERNO]]"]] <- body
