@@ -1,7 +1,7 @@
 Package: racafeMail
 Type: Package
 Title: Correos Corporativos Racafe Autocontenidos
-Version: 0.2.1
+Version: 0.2.2
 Authors@R: person("H. Camilo", "Yate T.", email = "camilo.yate@racafe.com", role = c("aut", "cre"))
 Description: Configuracion R, renderizado seguro y envio explicito de correos
     corporativos con 'blastula'. Incluye las cuatro plantillas, la configuracion

@@ -250,11 +250,12 @@ racafeMailRender <- function(plantilla = c("invitacion", "otp", "notificacion", 
   }
   config <- .rmail_config(config)
   datos <- .rmail_named(datos)
+  if (plantilla == "asignacion_crm" && is.null(datos$aplicacion)) datos$aplicacion <- "CRM Diferenciados"
   required <- switch(plantilla, invitacion = c("nombre", "enlace", "vencimiento"),
                      otp = c("nombre", "codigo", "vigencia_minutos"), notificacion = c("nombre", "mensaje"),
                      confirmacion = c("nombre", "detalle", "fecha"),
                      asignacion_crm = c("tipo", "titulo", "creador", "fecha", "responsable", "vencimiento",
-                                        "prioridad", "descripcion"))
+                                        "prioridad", "descripcion", "aplicacion"))
   if (length(setdiff(required, names(datos)))) .rmail_stop("Faltan variables requeridas para la plantilla.")
   if (length(setdiff(names(datos), required))) .rmail_stop("Variables adicionales no permitidas para la plantilla.")
   if (plantilla == "otp" && !is.character(datos$codigo)) .rmail_stop("El codigo OTP debe ser texto de seis digitos.")
@@ -265,8 +266,10 @@ racafeMailRender <- function(plantilla = c("invitacion", "otp", "notificacion", 
     minutes <- datos$vigencia_minutos
     if (!grepl("^[1-9][0-9]*$", minutes) || !is.finite(as.numeric(minutes))) .rmail_stop("Vigencia no valida.")
   }
-  if (plantilla == "asignacion_crm" && !datos$tipo %in% c("Nueva tarea", "Nueva nota")) {
-    .rmail_stop("Tipo de asignacion CRM no valido.")
+  if (plantilla == "asignacion_crm" &&
+      (!datos$tipo %in% c("Nueva tarea", "Nueva nota") ||
+       !datos$aplicacion %in% c("CRM Diferenciados", "CRM Nacional"))) {
+    .rmail_stop("Tipo de asignacion o CRM no valido.")
   }
   if (plantilla == "invitacion") datos$enlace <- .rmail_url(datos$enlace)
   texts <- switch(plantilla,
@@ -275,7 +278,7 @@ racafeMailRender <- function(plantilla = c("invitacion", "otp", "notificacion", 
     otp = c("Racaf\u00e9 | C\u00f3digo de verificaci\u00f3n de correo electr\u00f3nico", "Verificaci\u00f3n de correo"),
     notificacion = c("Racaf\u00e9 | Notificaci\u00f3n", "Notificaci\u00f3n"),
     confirmacion = c("Racaf\u00e9 | Confirmaci\u00f3n de solicitud", "Confirmaci\u00f3n"),
-    asignacion_crm = c(paste("CRM Diferenciados", datos$tipo, sep = " | "), "CRM Diferenciados"))
+    asignacion_crm = c(paste(datos$aplicacion, datos$tipo, sep = " | "), datos$aplicacion))
   # El cuerpo y la firma se rellenan una vez; la base los recibe como fragmentos confiables.
   values <- .rmail_values(c(datos, .rmail_brand(config)))
   plantilla_body <- if (plantilla == "asignacion_crm") .rmail_templates[[plantilla]] else {

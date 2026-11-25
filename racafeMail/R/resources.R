@@ -93,7 +93,7 @@
     '<tr><td colspan="2"><small>VENCIMIENTO</small><br><strong>{{vencimiento}}</strong></td></tr></table>',
     '<p style="margin:20px 0 6px;color:#505864;font-size:12px;font-weight:bold">DESCRIPCIÓN</p>',
     '<div style="white-space:pre-wrap;overflow-wrap:anywhere">{{descripcion}}</div>',
-    '<p style="margin:20px 0 0;font-size:13px;color:#505864">Disponible en CRM Diferenciados · Notas y tareas.</p>',
+    '<p style="margin:20px 0 0;font-size:13px;color:#505864">Disponible en {{aplicacion}} · Notas y tareas.</p>',
     sep = "\n"),
   confirmacion = paste(
     paste0(
