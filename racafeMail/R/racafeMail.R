@@ -27,6 +27,7 @@
 #' @param minutos Vigencia entera positiva del OTP, en minutos; no verifica expiración real.
 #' @param enlace URL HTTPS personal; no consume ni verifica el token remoto.
 #' @param vencimiento Texto legible de vigencia del enlace.
+#' @param documentos Vector de documentos que debe diligenciar o adjuntar el destinatario.
 #' @param detalle Descripción de confirmación, como texto plano.
 #' @param fecha Fecha legible de confirmación.
 #' @param mensaje Notificación como texto plano.
@@ -162,6 +163,25 @@ NULL
 }
 .rmail_values <- function(values) stats::setNames(lapply(values, .rmail_escape), paste0("{{", names(values), "}}"))
 
+.rmail_documentos <- function(documentos) {
+  if (!is.character(documentos) || !length(documentos) || anyNA(documentos) ||
+      any(!nzchar(trimws(documentos)))) {
+    .rmail_stop("documentos debe ser un vector de textos no vacíos.")
+  }
+  items <- paste0(
+    '<li style="margin:0 0 6px 0;">',
+    vapply(trimws(documentos), .rmail_escape, character(1)),
+    "</li>",
+    collapse = ""
+  )
+  paste0(
+    '<p style="font-family:Arial,sans-serif;font-size:14px;line-height:1.5;margin:20px 0 8px 0;">',
+    "Para completar la solicitud, diligencie o adjunte los siguientes documentos:</p>",
+    '<ul style="font-family:Arial,sans-serif;font-size:14px;line-height:1.5;margin:0 0 20px 20px;padding:0;">',
+    items, "</ul>"
+  )
+}
+
 .rmail_brand <- function(config) {
   config[c("empresa", "web", "logo_url", "firma_url", "color", "color_fondo", "color_texto", "pie")]
 }
@@ -256,8 +276,13 @@ racafeMailRender <- function(plantilla = c("invitacion", "otp", "notificacion", 
                      confirmacion = c("nombre", "detalle", "fecha"),
                      asignacion_crm = c("tipo", "titulo", "creador", "fecha", "responsable", "vencimiento",
                                         "prioridad", "descripcion", "aplicacion"))
+  optional <- if (plantilla == "invitacion") "documentos" else character()
   if (length(setdiff(required, names(datos)))) .rmail_stop("Faltan variables requeridas para la plantilla.")
-  if (length(setdiff(names(datos), required))) .rmail_stop("Variables adicionales no permitidas para la plantilla.")
+  if (length(setdiff(names(datos), c(required, optional)))) {
+    .rmail_stop("Variables adicionales no permitidas para la plantilla.")
+  }
+  documentos <- if (plantilla == "invitacion") datos$documentos else NULL
+  datos$documentos <- NULL
   if (plantilla == "otp" && !is.character(datos$codigo)) .rmail_stop("El codigo OTP debe ser texto de seis digitos.")
   for (key in required) datos[[key]] <- .rmail_scalar(datos[[key]], empty = key == "nombre")
   if (plantilla == "otp") {
@@ -285,6 +310,9 @@ racafeMailRender <- function(plantilla = c("invitacion", "otp", "notificacion", 
     .rmail_archivo(config, "templates", plantilla)
   }
   body <- .rmail_fill(plantilla_body, values)
+  if (plantilla == "invitacion" && !is.null(documentos)) {
+    body <- paste0(body, .rmail_documentos(documentos))
+  }
   headers <- list(asunto = texts[[1]], preencabezado = texts[[2]], categoria = texts[[2]])
   values <- .rmail_values(c(headers, .rmail_brand(config)))
   values[["[[CONTENIDO_INTERNO]]"]] <- body
@@ -370,8 +398,11 @@ racafeMailOTP <- function(para, codigo, nombre = "", minutos = 5L, config = raca
 
 #' @rdname racafeMail
 #' @export
-racafeMailInvitacion <- function(para, nombre, enlace, vencimiento, config = racafeMailConfig()) {
-  racafeMailEnviar(para, "invitacion", list(nombre = nombre, enlace = enlace, vencimiento = vencimiento), config)
+racafeMailInvitacion <- function(para, nombre, enlace, vencimiento, config = racafeMailConfig(),
+                                  documentos = NULL) {
+  datos <- list(nombre = nombre, enlace = enlace, vencimiento = vencimiento)
+  if (!is.null(documentos)) datos$documentos <- documentos
+  racafeMailEnviar(para, "invitacion", datos, config)
 }
 
 #' @rdname racafeMail
