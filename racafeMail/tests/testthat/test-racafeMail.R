@@ -120,6 +120,39 @@ test_that("las cuatro plantillas usan la misma firma y se renderizan sin SMTP", 
   expect_match(racafeMailRender("otp", .mail_data()$otp, cfg)$html, "Este proceso", fixed = TRUE)
 })
 
+test_that("cuerpos personalizados conservan identidad, orden y escape seguro", {
+  cfg <- racafeMailConfig(.mail_fixture())
+  datos <- list(
+    asunto = "Racafé | Solicitud de documentos",
+    preencabezado = "Documentación para terceros",
+    categoria = "Creación de terceros",
+    bloques = list(
+      list(tipo = "saludo", nombre = "Ana <script>"),
+      list(tipo = "parrafo", texto = "Complete la información solicitada."),
+      list(tipo = "boton", etiqueta = "Abrir solicitud", enlace = "https://example.org/?a=1&b=2"),
+      list(tipo = "lista", titulo = "Documentos requeridos:", items = c("RUT", "Certificado <vigente>")),
+      list(tipo = "destacado", texto = "Vigencia: hoy")
+    )
+  )
+  mail <- racafeMailRender("personalizado", datos, cfg)
+  expect_identical(mail$asunto, datos$asunto)
+  expect_match(mail$html, racafeMailFirma(cfg), fixed = TRUE)
+  expect_match(mail$html, "Ana &lt;script&gt;", fixed = TRUE)
+  expect_match(mail$html, "Certificado &lt;vigente&gt;", fixed = TRUE)
+  expect_match(mail$html, "a=1&amp;b=2", fixed = TRUE)
+  expect_lt(regexpr("Complete la información", mail$html, fixed = TRUE),
+            regexpr("Abrir solicitud", mail$html, fixed = TRUE))
+  expect_lt(regexpr("Abrir solicitud", mail$html, fixed = TRUE),
+            regexpr("Documentos requeridos", mail$html, fixed = TRUE))
+  expect_false(grepl("<script>", mail$html, fixed = TRUE))
+  datos$asunto <- "Asunto\nBcc: x@example.org"
+  expect_error(racafeMailRender("personalizado", datos, cfg), "cabeceras")
+  datos$asunto <- "Asunto"
+  datos$bloques[[3]]$enlace <- "javascript:alert(1)"
+  expect_error(racafeMailRender("personalizado", datos, cfg), "HTTPS")
+})
+
+
 test_that("HTML, atributos, Unicode y marcadores del usuario se escapan sin reinterpretación", {
   cfg <- racafeMailConfig(.mail_fixture())
   datos <- .mail_data()$notificacion

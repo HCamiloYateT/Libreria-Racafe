@@ -10,7 +10,8 @@ racafeInputReadOnly(
   value = "",
   copyable = FALSE,
   multiline = FALSE,
-  ns = NULL
+  ns = NULL,
+  notify = TRUE
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ racafeInputReadOnly(
 La aplicación controla qué información expone.}
 
 \item{copyable}{Agregar un botón de copia directa.}
+
+\item{notify}{Mostrar la notificación automática del resultado de la copia.}
 
 \item{multiline}{Mostrar varias líneas.}
 

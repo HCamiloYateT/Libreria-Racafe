@@ -307,14 +307,17 @@ racafeInputCheckbox <- function(id, label, value = FALSE, ns = NULL, required = 
 #' @param value Valor escalar a mostrar como texto; NULL, NA o vacío se muestran en blanco.
 #'   La aplicación controla qué información expone.
 #' @param copyable Agregar un botón de copia directa.
+#' @param notify Mostrar la notificación automática del resultado de la copia.
 #' @param multiline Mostrar varias líneas.
 #' @param ns Función namespace del módulo.
 #' @return Campo readonly, seleccionable y enfocable. La copia informa su resultado
 #'   en `input$<id>_copy_copy_result`. Requiere racafeSharedAssets.
 #' @export
-racafeInputReadOnly <- function(id, label, value = "", copyable = FALSE, multiline = FALSE, ns = NULL) {
+racafeInputReadOnly <- function(id, label, value = "", copyable = FALSE, multiline = FALSE,
+                                    ns = NULL, notify = TRUE) {
   .rf_flag(copyable, "copyable")
   .rf_flag(multiline, "multiline")
+  .rf_flag(notify, "notify")
   if (is.null(value) || length(value) == 0L) value <- ""
   if (is.atomic(value) && length(value) == 1L) value <- if (is.na(value)) "" else as.character(value)
   .rf_scalar(value, "value", empty = TRUE)
@@ -322,7 +325,7 @@ racafeInputReadOnly <- function(id, label, value = "", copyable = FALSE, multili
     shiny::textInput(.rf_id(id, ns), label, value, width = "100%")
   }
   tag <- shiny::tags$div(class = "rf-readonly", shiny::tags$div(class = "rf-readonly-control", input,
-    if (copyable) racafeCopyButton(paste0(id, "_copy"), target = id, ns = ns)),
+    if (copyable) racafeCopyButton(paste0(id, "_copy"), target = id, ns = ns, notify = notify)),
     shiny::tags$small(class = "rf-readonly-label", "Solo lectura"))
   .rf_input_state(tag, .rf_id(id, ns), readonly = TRUE)
 }
