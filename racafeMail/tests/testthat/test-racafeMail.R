@@ -132,7 +132,12 @@ test_that("HTML, atributos, Unicode y marcadores del usuario se escapan sin rein
   expect_false(grepl('<script>', mail$html, fixed = TRUE))
   datos <- .mail_data()$invitacion
   datos$enlace <- 'https://example.org/?a="x"&b=2'
-  expect_match(racafeMailRender("invitacion", datos, cfg)$html, 'a=&quot;x&quot;&amp;b=2', fixed = TRUE)
+  datos$documentos <- c("RUT", "Certificado <vigente>")
+  invitacion <- racafeMailRender("invitacion", datos, cfg)$html
+  expect_match(invitacion, 'a=&quot;x&quot;&amp;b=2', fixed = TRUE)
+  expect_match(invitacion, "RUT", fixed = TRUE)
+  expect_match(invitacion, "Certificado &lt;vigente&gt;", fixed = TRUE)
+  expect_false(grepl("Certificado <vigente>", invitacion, fixed = TRUE))
   cfg$empresa <- 'Empresa " onclick="robo & <x>'
   expect_match(racafeMailFirma(cfg), '&quot; onclick=&quot;robo &amp; &lt;x&gt;', fixed = TRUE)
   cfg$logo_url <- "javascript:alert(1)"
@@ -236,7 +241,8 @@ test_that("atajos conservan destino, código y nombre y delegan las cuatro plant
     invisible(TRUE)
   })
   expect_true(racafeMailOTP("destino@example.org", "012345", "Ana", config = cfg))
-  expect_true(racafeMailInvitacion("destino@example.org", "Ana", "https://example.org/?token=ficticio", "Hoy", cfg))
+  expect_true(racafeMailInvitacion("destino@example.org", "Ana", "https://example.org/?token=ficticio",
+                                     "Hoy", cfg, documentos = c("RUT", "Autorización de datos")))
   expect_true(racafeMailConfirmacion("destino@example.org", "Ana", "Detalle", "Hoy", cfg))
   expect_true(racafeMailNotificacion("destino@example.org", "Ana", "Mensaje", cfg))
   expect_length(received, 4L)
@@ -244,6 +250,7 @@ test_that("atajos conservan destino, código y nombre y delegan las cuatro plant
   expect_match(received[[1]]$content$html, "012345", fixed = TRUE)
   expect_match(received[[1]]$content$html, "Ana", fixed = TRUE)
   expect_match(received[[2]]$content$html, "token=ficticio", fixed = TRUE)
+  expect_match(received[[2]]$content$html, "Autorización de datos", fixed = TRUE)
 })
 
 test_that("errores SMTP y salida del proveedor nunca revelan datos sensibles", {
