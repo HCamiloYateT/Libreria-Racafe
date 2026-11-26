@@ -17,8 +17,9 @@
 #' @param pie Texto del pie, escapado al renderizar; NULL conserva el incluido.
 #' @param version Versión exacta requerida; NULL acepta la instalada o el contrato externo compatible.
 #' @param config Objeto creado por racafeMailConfig().
-#' @param plantilla invitacion, otp, notificacion, confirmacion o asignacion_crm.
-#' @param datos Lista nombrada de escalares no NA. Solo nombre admite texto vacío; no se acepta HTML crudo.
+#' @param plantilla invitacion, otp, notificacion, confirmacion, asignacion_crm o personalizado.
+#' @param datos Lista nombrada. La plantilla personalizado recibe asunto, preencabezado,
+#'   categoría opcional y una lista ordenada de bloques seguros; no se acepta HTML crudo.
 #' @param archivo Archivo de preview. No debe reemplazar recursos del paquete ni credenciales.
 #' @param overwrite Permitir reemplazar un preview existente, FALSE por defecto.
 #' @param para Una dirección de destinatario, sin listas ni cabeceras.
@@ -162,6 +163,11 @@ NULL
   template
 }
 .rmail_values <- function(values) stats::setNames(lapply(values, .rmail_escape), paste0("{{", names(values), "}}"))
+.rmail_header <- function(x) {
+  value <- .rmail_string(x)
+  if (grepl("[\r\n]", value)) .rmail_stop("Las cabeceras no admiten saltos de línea.")
+  value
+}
 
 .rmail_documentos <- function(documentos) {
   if (!is.character(documentos) || !length(documentos) || anyNA(documentos) ||
@@ -180,6 +186,60 @@ NULL
     '<ul style="font-family:Arial,sans-serif;font-size:14px;line-height:1.5;margin:0 0 20px 20px;padding:0;">',
     items, "</ul>"
   )
+}
+
+.rmail_bloques <- function(bloques, config) {
+  if (!is.list(bloques) || !length(bloques)) .rmail_stop("bloques debe ser una lista no vacía.")
+  paste0(vapply(bloques, function(bloque) {
+    bloque <- .rmail_named(bloque, empty = FALSE)
+    if (is.null(bloque$tipo)) .rmail_stop("Cada bloque requiere tipo.")
+    tipo <- .rmail_string(bloque$tipo)
+    requeridos <- switch(
+      tipo,
+      saludo = "nombre", parrafo = "texto", boton = c("etiqueta", "enlace"),
+      lista = c("titulo", "items"), destacado = "texto",
+      .rmail_stop("Tipo de bloque no permitido.")
+    )
+    opcionales <- if (tipo == "saludo") "texto" else character()
+    permitidos <- c("tipo", requeridos, opcionales)
+    if (length(setdiff(requeridos, names(bloque))) || length(setdiff(names(bloque), permitidos))) {
+      .rmail_stop("Campos inválidos para el bloque de correo.")
+    }
+    if (tipo == "saludo") {
+      texto <- .rmail_escape(bloque$texto %||% "Cordial saludo,")
+      nombre <- .rmail_escape(bloque$nombre)
+      return(paste0('<p style="font-family:Arial,sans-serif;font-size:14px;line-height:1.5;">',
+                    texto, " <strong>", nombre, "</strong>:</p>"))
+    }
+    if (tipo == "parrafo") {
+      return(paste0('<p style="font-family:Arial,sans-serif;font-size:14px;line-height:1.5;">',
+                    .rmail_escape(bloque$texto), "</p>"))
+    }
+    if (tipo == "boton") {
+      return(paste0('<p style="font-family:Arial,sans-serif;margin:20px 0;">',
+                    '<a href="', .rmail_escape(.rmail_url(bloque$enlace)),
+                    '" style="display:inline-block;padding:12px 18px;border-radius:4px;color:#fff;',
+                    'text-decoration:none;font-weight:700;background:', config$color, ';">',
+                    .rmail_escape(bloque$etiqueta), "</a></p>"))
+    }
+    if (tipo == "lista") {
+      items <- .rmail_vector(bloque$items, "items")
+      contenido <- paste0('<li style="margin:0 0 6px 0;">',
+                          vapply(items, .rmail_escape, character(1)), "</li>", collapse = "")
+      return(paste0('<p style="font-family:Arial,sans-serif;font-size:14px;line-height:1.5;margin-bottom:8px;">',
+                    .rmail_escape(bloque$titulo), '</p><ul style="font-family:Arial,sans-serif;font-size:14px;',
+                    'line-height:1.5;margin:0 0 20px 20px;padding:0;">', contenido, "</ul>"))
+    }
+    paste0('<p style="font-family:Arial,sans-serif;font-size:14px;line-height:1.5;font-weight:700;">',
+           .rmail_escape(bloque$texto), "</p>")
+  }, character(1)), collapse = "")
+}
+
+.rmail_vector <- function(x, nombre) {
+  if (!is.character(x) || !length(x) || anyNA(x) || any(!nzchar(trimws(x)))) {
+    .rmail_stop(paste0(nombre, " debe ser un vector de textos no vacíos."))
+  }
+  trimws(x)
 }
 
 .rmail_brand <- function(config) {
@@ -261,11 +321,13 @@ racafeMailFirma <- function(config = racafeMailConfig()) {
 
 #' @rdname racafeMail
 #' @export
-racafeMailRender <- function(plantilla = c("invitacion", "otp", "notificacion", "confirmacion", "asignacion_crm"),
+racafeMailRender <- function(plantilla = c("invitacion", "otp", "notificacion", "confirmacion",
+                                              "asignacion_crm", "personalizado"),
                              datos = list(), config = racafeMailConfig()) {
   if (missing(plantilla)) plantilla <- "invitacion"
   if (!is.character(plantilla) || length(plantilla) != 1L || is.na(plantilla) ||
-      !plantilla %in% c("invitacion", "otp", "notificacion", "confirmacion", "asignacion_crm")) {
+      !plantilla %in% c("invitacion", "otp", "notificacion", "confirmacion",
+                           "asignacion_crm", "personalizado")) {
     .rmail_stop("Plantilla no permitida.")
   }
   config <- .rmail_config(config)
@@ -275,16 +337,28 @@ racafeMailRender <- function(plantilla = c("invitacion", "otp", "notificacion", 
                      otp = c("nombre", "codigo", "vigencia_minutos"), notificacion = c("nombre", "mensaje"),
                      confirmacion = c("nombre", "detalle", "fecha"),
                      asignacion_crm = c("tipo", "titulo", "creador", "fecha", "responsable", "vencimiento",
-                                        "prioridad", "descripcion", "aplicacion"))
-  optional <- if (plantilla == "invitacion") "documentos" else character()
+                                        "prioridad", "descripcion", "aplicacion"),
+                     personalizado = c("asunto", "preencabezado", "bloques"))
+  optional <- switch(plantilla, invitacion = "documentos", personalizado = "categoria", character())
   if (length(setdiff(required, names(datos)))) .rmail_stop("Faltan variables requeridas para la plantilla.")
   if (length(setdiff(names(datos), c(required, optional)))) {
     .rmail_stop("Variables adicionales no permitidas para la plantilla.")
   }
   documentos <- if (plantilla == "invitacion") datos$documentos else NULL
+  bloques <- if (plantilla == "personalizado") datos$bloques else NULL
+  categoria <- if (plantilla == "personalizado") datos$categoria else NULL
   datos$documentos <- NULL
+  datos$bloques <- NULL
+  datos$categoria <- NULL
   if (plantilla == "otp" && !is.character(datos$codigo)) .rmail_stop("El codigo OTP debe ser texto de seis digitos.")
-  for (key in required) datos[[key]] <- .rmail_scalar(datos[[key]], empty = key == "nombre")
+  for (key in setdiff(required, "bloques")) {
+    datos[[key]] <- .rmail_scalar(datos[[key]], empty = key == "nombre")
+  }
+  if (plantilla == "personalizado") {
+    datos$asunto <- .rmail_header(datos$asunto)
+    datos$preencabezado <- .rmail_header(datos$preencabezado)
+    if (!is.null(categoria)) categoria <- .rmail_header(categoria)
+  }
   if (plantilla == "otp") {
     # Exigir texto conserva los ceros iniciales y evita conversiones silenciosas.
     if (!grepl("^[0-9]{6}$", datos$codigo)) .rmail_stop("El codigo OTP debe contener seis digitos.")
@@ -303,17 +377,23 @@ racafeMailRender <- function(plantilla = c("invitacion", "otp", "notificacion", 
     otp = c("Racaf\u00e9 | C\u00f3digo de verificaci\u00f3n de correo electr\u00f3nico", "Verificaci\u00f3n de correo"),
     notificacion = c("Racaf\u00e9 | Notificaci\u00f3n", "Notificaci\u00f3n"),
     confirmacion = c("Racaf\u00e9 | Confirmaci\u00f3n de solicitud", "Confirmaci\u00f3n"),
-    asignacion_crm = c(paste(datos$aplicacion, datos$tipo, sep = " | "), datos$aplicacion))
+    asignacion_crm = c(paste(datos$aplicacion, datos$tipo, sep = " | "), datos$aplicacion),
+    personalizado = c(datos$asunto, datos$preencabezado))
   # El cuerpo y la firma se rellenan una vez; la base los recibe como fragmentos confiables.
   values <- .rmail_values(c(datos, .rmail_brand(config)))
   plantilla_body <- if (plantilla == "asignacion_crm") .rmail_templates[[plantilla]] else {
     .rmail_archivo(config, "templates", plantilla)
   }
-  body <- .rmail_fill(plantilla_body, values)
+  body <- if (plantilla == "personalizado") .rmail_bloques(bloques, config) else {
+    .rmail_fill(plantilla_body, values)
+  }
   if (plantilla == "invitacion" && !is.null(documentos)) {
     body <- paste0(body, .rmail_documentos(documentos))
   }
-  headers <- list(asunto = texts[[1]], preencabezado = texts[[2]], categoria = texts[[2]])
+  headers <- list(
+    asunto = texts[[1]], preencabezado = texts[[2]],
+    categoria = if (plantilla == "personalizado" && !is.null(categoria)) categoria else texts[[2]]
+  )
   values <- .rmail_values(c(headers, .rmail_brand(config)))
   values[["[[CONTENIDO_INTERNO]]"]] <- body
   values[["[[FIRMA_INTERNA]]"]] <- racafeMailFirma(config)
