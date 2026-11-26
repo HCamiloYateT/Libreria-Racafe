@@ -206,7 +206,7 @@ NULL
       .rmail_stop("Campos inválidos para el bloque de correo.")
     }
     if (tipo == "saludo") {
-      texto <- .rmail_escape(bloque$texto %||% "Cordial saludo,")
+      texto <- .rmail_escape(if (is.null(bloque$texto)) "Cordial saludo," else bloque$texto)
       nombre <- .rmail_escape(bloque$nombre)
       return(paste0('<p style="font-family:Arial,sans-serif;font-size:14px;line-height:1.5;">',
                     texto, " <strong>", nombre, "</strong>:</p>"))
@@ -381,7 +381,9 @@ racafeMailRender <- function(plantilla = c("invitacion", "otp", "notificacion", 
     personalizado = c(datos$asunto, datos$preencabezado))
   # El cuerpo y la firma se rellenan una vez; la base los recibe como fragmentos confiables.
   values <- .rmail_values(c(datos, .rmail_brand(config)))
-  plantilla_body <- if (plantilla == "asignacion_crm") .rmail_templates[[plantilla]] else {
+  plantilla_body <- if (plantilla == "personalizado") "" else if (plantilla == "asignacion_crm") {
+    .rmail_templates[[plantilla]]
+  } else {
     .rmail_archivo(config, "templates", plantilla)
   }
   body <- if (plantilla == "personalizado") .rmail_bloques(bloques, config) else {
