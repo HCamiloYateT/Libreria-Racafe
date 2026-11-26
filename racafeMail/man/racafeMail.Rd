@@ -99,7 +99,7 @@ Un logo explícito se usa también como firma salvo firma_url explícita.}
 
 \item{plantilla}{invitacion, otp, notificacion o confirmacion.}
 
-\item{datos}{Lista nombrada de escalares no NA. Solo nombre admite texto vacío; no se acepta HTML crudo.}
+\item{datos}{Lista nombrada. personalizado recibe asunto, preencabezado, categoría opcional y bloques seguros.}
 
 \item{archivo}{Archivo de preview. No debe reemplazar recursos del paquete ni credenciales.}
 
