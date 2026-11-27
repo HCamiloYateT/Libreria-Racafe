@@ -56,7 +56,7 @@
     ),
     "<p>Cordial saludo, <strong>{{nombre}}</strong>:</p>",
     paste0(
-      "<p>Hemos recibido una solicitud para verificar su correo electr\\u00f3nico",
+      "<p>Hemos recibido una solicitud para verificar su correo electr\u00f3nico",
       " y continuar con el proceso documental solicitado por {{empresa}}.</p>"
     ),
     "<p>Ingrese el siguiente c\u00f3digo en el formulario:</p>",
