@@ -56,10 +56,9 @@
     ),
     "<p>Cordial saludo, <strong>{{nombre}}</strong>:</p>",
     paste0(
-      "<p>Hemos recibido una solicitud para verificar su correo electr\u00f3",
-      "nico y continuar con la autorizaci\u00f3n"
+      "<p>Hemos recibido una solicitud para verificar su correo electr\u00f3nico",
+      " y continuar con el proceso documental solicitado por {{empresa}}.</p>"
     ),
-    "para el tratamiento de sus datos personales.</p>",
     "<p>Ingrese el siguiente c\u00f3digo en el formulario:</p>",
     "<table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\"><tr>",
     "<td style=\"background:#f7f7f7;border:1px solid #e7e7e7;padding:16px 24px;text-align:center\">",

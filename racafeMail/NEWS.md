@@ -1,3 +1,7 @@
+# racafeMail 0.2.5
+
+- Generaliza el correo OTP para continuar el proceso documental solicitado por Racafé.
+
 # racafeMail 0.2.0
 
 - Incluye configuración R, base, firma, cuatro plantillas y una imagen en la instalación.

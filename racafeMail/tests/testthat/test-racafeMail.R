@@ -120,6 +120,13 @@ test_that("las cuatro plantillas usan la misma firma y se renderizan sin SMTP", 
   expect_match(racafeMailRender("otp", .mail_data()$otp, cfg)$html, "Este proceso", fixed = TRUE)
 })
 
+test_that("OTP incluido describe el proceso documental general", {
+  cfg <- racafeMailConfig()
+  html <- racafeMailRender("otp", .mail_data()$otp, cfg)$html
+  expect_match(html, "continuar con el proceso documental solicitado por", fixed = TRUE)
+  expect_false(grepl("autorización para el tratamiento de sus datos personales", html, fixed = TRUE))
+})
+
 test_that("cuerpos personalizados conservan identidad, orden y escape seguro", {
   cfg <- racafeMailConfig(.mail_fixture())
   datos <- list(
